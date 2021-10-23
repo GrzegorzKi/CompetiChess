@@ -28,6 +28,8 @@
     "comma-dangle": ["error", "only-multiline"],
     "no-console": "warn",
     "no-empty": "warn",
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+
     "react/jsx-props-no-spreading": "off",
 
     "jsx-a11y/label-has-associated-control": [ "error", {
