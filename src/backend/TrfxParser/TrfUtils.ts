@@ -1,5 +1,5 @@
-import {
-  Color, GameResult, Sex, TrfGame, TrfPlayer,
+import TrfFileFormat, {
+  Color, GameResult, Sex, TrfGame, TrfPlayer
 } from '../types/TrfFileFormat';
 
 import { defaultTrfGame } from './parseTrfGames';
@@ -46,13 +46,13 @@ export function validateGameEntry({ opponent, color, result }: TrfGame, playerId
     return false;
   }
 
-  if (color === Color.NONE && (
-    opponent !== playerId || result !== GameResult.DRAW
-  )) {
+  if (byeResults.includes(result) && opponent !== playerId) {
     return false;
   }
 
-  if (byeResults.includes(result) && opponent !== playerId) {
+  if (!unplayedResults.includes(result)
+    && color === Color.NONE
+    && (opponent !== playerId || result !== GameResult.DRAW)) {
     return false;
   }
 
@@ -60,7 +60,9 @@ export function validateGameEntry({ opponent, color, result }: TrfGame, playerId
 }
 
 export function participatedInPairing({ opponent, result }: TrfGame, playerId: number): boolean {
-  return opponent !== playerId || result === GameResult.PAIRING_ALLOCATED_BYE;
+  return opponent !== playerId
+    || result === GameResult.PAIRING_ALLOCATED_BYE
+    || result === GameResult.FORFEIT_WIN;
 }
 
 export function calculatePlayedRounds(players: TrfPlayer[]): number {
@@ -94,4 +96,40 @@ export function removeDummyPlayers(players: TrfPlayer[]): void {
       delete players[i];
     }
   }
+}
+
+function invertColor(color: Color): Color {
+  if (color === Color.WHITE) {
+    return Color.BLACK;
+  }
+  if (color === Color.BLACK) {
+    return Color.WHITE;
+  }
+  return Color.NONE;
+}
+
+export function inferInitialColor({
+  players, playersByPosition, playedRounds, configuration
+}: TrfFileFormat): Color {
+  const playersToIter = (configuration.matchByRank ? playersByPosition : players);
+
+  let invert = false;
+
+  for (let r = 0; r < playedRounds; ++r) {
+    for (let i = 0, pLen = playersToIter.length; i < pLen; ++i) {
+      const trfGame = playersToIter[i]?.games[r];
+      const playerId = playersToIter[i]?.startingRank;
+
+      if (trfGame !== undefined && participatedInPairing(trfGame, playerId)) {
+        if (trfGame.color !== Color.NONE) {
+          return (invert
+            ? invertColor(trfGame.color)
+            : trfGame.color);
+        }
+        invert = !invert;
+      }
+    }
+  }
+
+  return Color.NONE;
 }

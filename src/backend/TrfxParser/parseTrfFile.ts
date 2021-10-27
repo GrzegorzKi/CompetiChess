@@ -10,7 +10,12 @@ import parseAcceleration from './parseAcceleration';
 import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
 import { parseNumber } from './ParseUtils';
-import { calculatePlayedRounds, evenUpMatchHistories, removeDummyPlayers } from './TrfUtils';
+import {
+  calculatePlayedRounds,
+  evenUpMatchHistories,
+  inferInitialColor,
+  removeDummyPlayers,
+} from './TrfUtils';
 
 export const enum WarnCode {
   ROUND_NUM,
@@ -194,7 +199,10 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     });
 
     evenUpMatchHistories(trfxData.players, playedRounds);
-    // TODO Needs points and pairings checking, as well as initial color inferring
+    if (trfxData.configuration.initialColor === Color.NONE) {
+      trfxData.configuration.initialColor = inferInitialColor(trfxData);
+    }
+    // TODO Needs points and pairings checking
 
     // TODO At last, check ranks and normalize if necessary
   };
