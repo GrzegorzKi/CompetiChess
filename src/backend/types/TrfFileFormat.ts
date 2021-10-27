@@ -132,7 +132,7 @@ Line format:
   [No] W R  [No] W R  ...
  */
 export interface TrfPlayer {
-  startingRank: number;
+  playerId: number;
   name: string;
   sex: Sex;
   title: string;

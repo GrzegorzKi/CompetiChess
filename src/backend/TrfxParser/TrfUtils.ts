@@ -70,7 +70,7 @@ export function calculatePlayedRounds(players: TrfPlayer[]): number {
   players.forEach((player) => {
     for (let num = player.games.length - 1; num >= 0; --num) {
       const game = player.games[num];
-      if (participatedInPairing(game, player.startingRank)) {
+      if (participatedInPairing(game, player.playerId)) {
         if (num >= playedRounds) {
           playedRounds = num + 1;
         }
@@ -84,7 +84,7 @@ export function calculatePlayedRounds(players: TrfPlayer[]): number {
 export function evenUpMatchHistories(players: TrfPlayer[], upTo: number): void {
   players.forEach((player) => {
     for (let num = player.games.length; num < upTo; ++num) {
-      player.games.push(defaultTrfGame(num, player.startingRank));
+      player.games.push(defaultTrfGame(num, player.playerId));
     }
   });
 }
@@ -118,7 +118,7 @@ export function inferInitialColor({
   for (let r = 0; r < playedRounds; ++r) {
     for (let i = 0, pLen = playersToIter.length; i < pLen; ++i) {
       const trfGame = playersToIter[i]?.games[r];
-      const playerId = playersToIter[i]?.startingRank;
+      const playerId = playersToIter[i]?.playerId;
 
       if (trfGame !== undefined && participatedInPairing(trfGame, playerId)) {
         if (trfGame.color !== Color.NONE) {

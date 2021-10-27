@@ -160,7 +160,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       if (isError(trfPlayer)) {
         errorCallback(trfPlayer);
       } else {
-        trfxData.players[trfPlayer.startingRank] = trfPlayer;
+        trfxData.players[trfPlayer.playerId] = trfPlayer;
         trfxData.playersByPosition.push(trfPlayer);
       }
     } else if (prefix === TypeCodes.TEAM_ENTRY) {

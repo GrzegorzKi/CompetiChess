@@ -7,7 +7,7 @@ import { parseSex } from './TrfUtils';
 
 export function createDefaultTrfPlayer(): TrfPlayer {
   return {
-    startingRank: 0,
+    playerId: 0,
     name: '',
     sex: Sex.UNSPECIFIED,
     title: '',
@@ -50,9 +50,9 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
     games,
   } = match.groups;
 
-  const parsedStartingRank = parsePlayerId(startRank.trimLeft());
-  if (isError(parsedStartingRank)) {
-    return parsedStartingRank;
+  const parsedPlayerId = parsePlayerId(startRank.trimLeft());
+  if (isError(parsedPlayerId)) {
+    return parsedPlayerId;
   }
 
   const parsedRating = parseNumber(rating.trimLeft());
@@ -70,13 +70,13 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
     return parsedPoints;
   }
 
-  const parsedTrfGames = parseTrfGames(games, parsedStartingRank);
+  const parsedTrfGames = parseTrfGames(games, parsedPlayerId);
   if (isError(parsedTrfGames)) {
     return parsedTrfGames;
   }
 
   const player: TrfPlayer = {
-    startingRank: parsedStartingRank,
+    playerId: parsedPlayerId,
     name,
     sex: parseSex(sex),
     title,
@@ -92,11 +92,11 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
     accelerations: [],
   };
 
-  if (players[parsedStartingRank] !== undefined) {
-    if (!players[parsedStartingRank].isDummy) {
+  if (players[parsedPlayerId] !== undefined) {
+    if (!players[parsedPlayerId].isDummy) {
       return { error: ErrorCode.PLAYER_DUPLICATE };
     }
-    player.accelerations = players[parsedStartingRank].accelerations;
+    player.accelerations = players[parsedPlayerId].accelerations;
   }
 
   return player;
