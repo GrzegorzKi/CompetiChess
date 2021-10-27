@@ -1,10 +1,10 @@
-import TrfxFileFormat from './TrfxFileFormat';
+import TrfFileFormat from './TrfFileFormat';
 
 export default class TournamentData {
-  constructor(data: TrfxFileFormat) {
+  constructor(data: TrfFileFormat) {
     // No public constructor - use builder instead
     this.trfData = data;
   }
 
-  trfData: TrfxFileFormat;
+  trfData: TrfFileFormat;
 }

@@ -1,40 +1,43 @@
 import ParseResult, { getDetails, isError, ParseError } from '../types/ParseResult';
-import TrfxFileFormat, {
+import TrfFileFormat, {
   Color,
-  TrfPlayer,
-  TrfTeam,
+  Configuration,
   TypeCodes,
-  XxFields,
-} from '../types/TrfxFileFormat';
+  XXField,
+} from '../types/TrfFileFormat';
 
+import parseAcceleration from './parseAcceleration';
+import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
-import { tryParseNumber } from './ParseUtils';
+import { parseNumber } from './ParseUtils';
+import { calculatePlayedRounds, evenUpMatchHistories, removeDummyPlayers } from './TrfUtils';
+
+export const enum WarnCode {
+  ROUND_NUM,
+  INITIAL_COLOR,
+  HOLES_IN_IDS,
+  HOLES_IN_RANKS
+}
 
 export type ParseTrfFileResult =
-  | { trfxData: TrfxFileFormat }
+  | { trfxData: TrfFileFormat, warnings: WarnCode[] }
   | { parsingErrors: string[] };
 
-function createDefaultXxFields(): XxFields {
+function createDefaultConfiguration(): Configuration {
   return {
-    // Disable acceleration by default
-    XXA: 0.0,
-    XXP: [],
-    // Undefined number of rounds
-    XXR: NaN,
-    XXC: {
-      byRank: false,
-      color: Color.NONE,
-    },
-    BBW: 1.0,
-    BBD: 0.5,
-    BBL: 0.0,
-    BBU: 1.0,
-    BBZ: 0.0,
-    BBF: 0.0,
+    expectedRounds: 0,
+    matchByRank: false,
+    initialColor: Color.NONE,
+    pointsForWin: 1.0,
+    pointsForDraw: 0.5,
+    pointsForLoss: 0.0,
+    pointsForPairingAllocatedBye: 1.0,
+    pointsForZeroPointBye: 0.0,
+    pointsForForfeitLoss: 0.0,
   };
 }
 
-function createDefaultTrfxData(): TrfxFileFormat {
+function createDefaultTrfData(): TrfFileFormat {
   return {
     tournamentName: '',
     city: '',
@@ -49,19 +52,47 @@ function createDefaultTrfxData(): TrfxFileFormat {
     deputyArbiters: [],
     rateOfPlay: '',
     roundDates: [],
-    players: new Map<number, TrfPlayer>(),
-    teams: new Map<number, TrfTeam>(),
-    xxFields: createDefaultXxFields(),
+    players: [],
+    playersByPosition: [],
+    teams: [],
+    configuration: createDefaultConfiguration(),
     otherFields: {},
+    forbiddenPairs: [],
+    playedRounds: 0,
   };
 }
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
-  const trfxData = createDefaultTrfxData();
+  const trfxData = createDefaultTrfData();
+  const forbiddenPairs: Array<number[]> = [];
+  const warnings: WarnCode[] = [];
 
   const parsingErrors: string[] = [];
 
   function parseXXFields(line: string): ParseResult<undefined> {
+    const prefix = line.substring(0, 3);
+    const value = line.substring(4);
+
+    if (prefix === XXField.ACCELERATION) {
+      const result = parseAcceleration(line, trfxData);
+      if (isError(result)) {
+        return result;
+      }
+    } else if (prefix === XXField.FORBIDDEN_PAIRS) {
+      const result = parseForbiddenPairs(line);
+      if (isError(result)) {
+        return result;
+      }
+      if (result.length !== 0) {
+        forbiddenPairs.push(result);
+      }
+    } else if (prefix === XXField.NUM_ROUNDS) {
+      const numRounds = parseNumber(value);
+      if (isError(numRounds)) {
+        return numRounds;
+      }
+      trfxData.configuration.expectedRounds = numRounds;
+    }
     // TODO: Implement
 
     return undefined;
@@ -89,21 +120,21 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     } else if (prefix === TypeCodes.END_DATE) {
       trfxData.dateOfEnd = value;
     } else if (prefix === TypeCodes.NUM_PLAYERS) {
-      const numPlayers = tryParseNumber(value);
+      const numPlayers = parseNumber(value);
       if (isError(numPlayers)) {
         errorCallback(numPlayers);
       } else {
         trfxData.numberOfPlayers = numPlayers;
       }
     } else if (prefix === TypeCodes.NUM_RATED_PLAYERS) {
-      const numRatedPlayers = tryParseNumber(value);
+      const numRatedPlayers = parseNumber(value);
       if (isError(numRatedPlayers)) {
         errorCallback(numRatedPlayers);
       } else {
         trfxData.numberOfRatedPlayers = numRatedPlayers;
       }
     } else if (prefix === TypeCodes.NUM_TEAMS) {
-      const numTeams = tryParseNumber(value);
+      const numTeams = parseNumber(value);
       if (isError(numTeams)) {
         errorCallback(numTeams);
       } else {
@@ -120,12 +151,15 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     } else if (prefix === TypeCodes.ROUND_DATES) {
       // Pass - no idea how to parse it with current specification
     } else if (prefix === TypeCodes.PLAYER_ENTRY) {
-      const trfPlayer = parseTrfPlayer(line);
+      const trfPlayer = parseTrfPlayer(line, trfxData.players);
       if (isError(trfPlayer)) {
         errorCallback(trfPlayer);
       } else {
-        trfxData.players.set(trfPlayer.startingRank, trfPlayer);
+        trfxData.players[trfPlayer.startingRank] = trfPlayer;
+        trfxData.playersByPosition.push(trfPlayer);
       }
+    } else if (prefix === TypeCodes.TEAM_ENTRY) {
+      // TODO Implement
     } else {
       const result = parseXXFields(line);
       if (isError(result)) {
@@ -143,12 +177,33 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
         parseLine(line, i);
       }
     }
-
-    if (parsingErrors.length !== 0) {
-      return { parsingErrors };
-    }
-    return { parsingErrors };
   };
 
-  return parseFile();
+  const postProcessData = () => {
+    removeDummyPlayers(trfxData.players);
+    const playedRounds = calculatePlayedRounds(trfxData.players);
+    trfxData.playedRounds = playedRounds;
+    if (trfxData.configuration.expectedRounds <= 0) {
+      trfxData.configuration.expectedRounds = playedRounds;
+      warnings.push(WarnCode.ROUND_NUM);
+    }
+
+    trfxData.forbiddenPairs.push({
+      round: playedRounds + 1,
+      pairs: forbiddenPairs
+    });
+
+    evenUpMatchHistories(trfxData.players, playedRounds);
+    // TODO Needs points and pairings checking, as well as initial color inferring
+
+    // TODO At last, check ranks and normalize if necessary
+  };
+
+  parseFile();
+  postProcessData();
+
+  if (parsingErrors.length !== 0) {
+    return { parsingErrors };
+  }
+  return { trfxData, warnings };
 }

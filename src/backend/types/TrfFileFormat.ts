@@ -16,7 +16,7 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
-interface TrfxFileFormat {
+interface TrfFileFormat {
   tournamentName: string;
   city: string;
   federation: string;
@@ -30,55 +30,65 @@ interface TrfxFileFormat {
   deputyArbiters: string[];
   rateOfPlay: string;
   roundDates: string[];
-  players: Map<number, TrfPlayer>;
-  teams: Map<number, TrfTeam>;
-  xxFields: XxFields;
+  players: TrfPlayer[];
+  playersByPosition: TrfPlayer[];
+  teams: TrfTeam[];
+  configuration: Configuration;
   otherFields: Record<string, string>;
+  playedRounds: number;
+  forbiddenPairs: ForbiddenPairs[];
 }
 
-export interface XxFields {
-  // Acceleration value used for pairings.
-  XXA: number;
-  // Forbidden pairs for a round.
-  XXP: Array<number[]>;
+export default TrfFileFormat;
+
+export interface ForbiddenPairs {
+  round: number;
+  pairs: Array<Array<number>>;
+}
+
+export interface Configuration {
   // Number of rounds to be played. Value is required for pairings.
-  XXR: number;
-  // Configuration of sorting by rank and starting color.
-  XXC: { byRank: boolean, color: Color };
+  expectedRounds: number;
+  // Should program use positional-ids (also called ranking-id(s)) in order to
+  // produce the pairings. Especially useful, if we decide to sort players
+  // later and want it to affect consequent pairings.
+  matchByRank: boolean;
+  // Initial color to pick for first round.
+  //
+  // When set to NONE, program can offer to pick based on hash of tournament data.
+  initialColor: Color;
 
   // Amount of points for win, forfeit win and full-point bye.
   //
-  // Will be used for pairing-allocated bye too, if not specified with BBU.
-  BBW: number;
+  // Will be used for pairing-allocated bye too, if not specified with BBU code.
+  pointsForWin: number;
   // Amount of points for draw and half-point bye.
-  BBD: number;
+  pointsForDraw: number;
   // Amount of points for loss.
-  BBL: number;
+  pointsForLoss: number;
   // Amount of points for zero-point bye.
-  BBZ: number;
+  pointsForZeroPointBye: number;
   // Amount of points for forfeit loss.
-  BBF: number;
+  pointsForForfeitLoss: number;
   // Amount of points for pairing-allocated bye.
-  BBU: number;
-  // XXZ is not saved - these are injected into player's rounds
-  // XXS is not saved either - will be translated into BbpPairings'
-  //   values when applicable
+  pointsForPairingAllocatedBye: number;
 }
 
-export type XXField =
-  | 'XXA'
-  | 'XXP'
-  | 'XXR'
-  | 'XXC'
-  | 'XXZ'
-  | 'XXS'
+export const enum XXField {
+  ACCELERATION = 'XXA',
+  FORBIDDEN_PAIRS = 'XXP',
+  NUM_ROUNDS = 'XXR',
+  CONFIG = 'XXC',
+  BYES = 'XXZ',
+  POINTS_MODIFIER = 'XXS',
 
-  | 'BBW'
-  | 'BBD'
-  | 'BBL'
-  | 'BBZ'
-  | 'BBF'
-  | 'BBU'
+  P_FOR_WIN = 'BBW',
+  P_FOR_DRAW = 'BBD',
+  P_FOR_LOSS = 'BBL',
+  P_FOR_ZP_BYE = 'BBZ',
+  P_FOR_FORFEIT = 'BBF',
+  P_FOR_PA_BYE = 'BBU',
+}
 
 export type XXScoringField =
   | 'WW' // Points for win with White
@@ -95,8 +105,6 @@ export type XXScoringField =
   | 'FL' // Points for forfeit loss
   | 'W' // Encompasses all the codes WW, BW, FW, FPB
   | 'D' // Encompasses all the codes WD, BD, HPB
-
-export default TrfxFileFormat;
 
 export const enum TypeCodes {
   TOURNAMENT_NAME = '012',
@@ -134,7 +142,10 @@ export interface TrfPlayer {
   birthDate: string;
   points: number;
   rank: number;
-  games: Map<RoundId, TrfGame>;
+  games: TrfGame[];
+
+  isDummy: boolean;
+  accelerations: number[],
 }
 
 /* <pre>
@@ -143,7 +154,7 @@ Line format:
  */
 export interface TrfTeam {
   name: string;
-  playerStartingRanks: TrfPlayer[];
+  playerStartingRanks: number[];
 }
 
 export interface TrfGame {
@@ -159,27 +170,11 @@ export const enum Sex {
   UNSPECIFIED = ' '
 }
 
-export function parseSex(char: string): Sex {
-  if (char === 'm') {
-    return Sex.MALE;
-  }
-  if (char === 'w' || char === 'f') {
-    return Sex.FEMALE;
-  }
-  return Sex.UNSPECIFIED;
-}
-
 export const enum Color {
   WHITE = 'w',
   BLACK = 'b',
 
   NONE = '-'
-}
-
-const colors = ['w', 'b', '-'];
-
-export function isValidColor(color: string): color is Color {
-  return colors.includes(color);
 }
 
 export const enum GameResult {
@@ -199,15 +194,4 @@ export const enum GameResult {
   PAIRING_ALLOCATED_BYE = 'U',
 
   ZERO_POINT_BYE = 'Z'
-}
-
-const gameResults = [
-  '+', '-',
-  'W', 'D', 'L',
-  '1', '=', '0',
-  'H', 'F', 'U', 'Z'
-];
-
-export function isValidResult(result: string): result is GameResult {
-  return gameResults.includes(result);
 }

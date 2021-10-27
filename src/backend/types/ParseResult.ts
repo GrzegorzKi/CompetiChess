@@ -18,6 +18,7 @@ export const enum ErrorCode {
   NOT_A_NUMBER,
   POINTS_MISMATCH,
   COLOR_MISMATCH,
+  PLAYER_DUPLICATE,
 }
 
 export function getDetails(error: ParseError): string {
@@ -46,6 +47,11 @@ export function getDetails(error: ParseError): string {
       return `Provided value is not a valid number: ${error.what}`;
     }
     return 'Provided value is not a valid number';
+  case ErrorCode.PLAYER_DUPLICATE:
+    if (error.what !== undefined) {
+      return `Player entry duplicated: ${error.what}`;
+    }
+    return 'Player entry duplicated';
   case ErrorCode.INTERNAL_ERROR:
   default:
     // Should never happen
