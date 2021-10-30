@@ -1,9 +1,6 @@
 import ParseResult, { getDetails, isError, ParseError } from '../types/ParseResult';
 import TrfFileFormat, {
-  Color,
-  Configuration,
-  TypeCodes,
-  XXField,
+  Color, Configuration, TypeCodes, XXField
 } from '../types/TrfFileFormat';
 
 import parseAcceleration from './parseAcceleration';
@@ -11,17 +8,14 @@ import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
 import { parseNumber } from './ParseUtils';
 import {
-  calculatePlayedRounds,
-  evenUpMatchHistories,
-  inferInitialColor,
-  removeDummyPlayers,
+  calculatePlayedRounds, evenUpMatchHistories, inferInitialColor, removeDummyPlayers,
+  validatePairConsistency, validateScores,
 } from './TrfUtils';
 
 export const enum WarnCode {
   ROUND_NUM,
   INITIAL_COLOR,
   HOLES_IN_IDS,
-  HOLES_IN_RANKS
 }
 
 export type ParseTrfFileResult =
@@ -184,11 +178,12 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     }
   };
 
-  const postProcessData = () => {
+  const postProcessData = (): ParseTrfFileResult => {
     removeDummyPlayers(trfxData.players);
     const playedRounds = calculatePlayedRounds(trfxData.players);
     trfxData.playedRounds = playedRounds;
-    if (trfxData.configuration.expectedRounds <= 0) {
+    if (trfxData.configuration.expectedRounds <= 0
+        || trfxData.playedRounds > trfxData.configuration.expectedRounds) {
       trfxData.configuration.expectedRounds = playedRounds;
       warnings.push(WarnCode.ROUND_NUM);
     }
@@ -200,18 +195,35 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
 
     evenUpMatchHistories(trfxData.players, playedRounds);
     if (trfxData.configuration.initialColor === Color.NONE) {
-      trfxData.configuration.initialColor = inferInitialColor(trfxData);
+      const color = inferInitialColor(trfxData);
+      if (color === Color.NONE) {
+        warnings.push(WarnCode.INITIAL_COLOR);
+      } else {
+        trfxData.configuration.initialColor = color;
+      }
     }
-    // TODO Needs points and pairings checking
 
+    const result = validatePairConsistency(trfxData.players);
+    if (isError(result)) {
+      return {
+        parsingErrors: [getDetails(result)]
+      };
+    }
+    const result2 = validateScores(trfxData);
+    if (isError(result2)) {
+      return {
+        parsingErrors: [getDetails(result2)]
+      };
+    }
     // TODO At last, check ranks and normalize if necessary
+
+    return { trfxData, warnings };
   };
 
   parseFile();
-  postProcessData();
-
   if (parsingErrors.length !== 0) {
     return { parsingErrors };
   }
-  return { trfxData, warnings };
+
+  return postProcessData();
 }

@@ -19,6 +19,8 @@ export const enum ErrorCode {
   POINTS_MISMATCH,
   COLOR_MISMATCH,
   PLAYER_DUPLICATE,
+  PAIRING_CONTRADICTION,
+  TOO_MANY_ACCELERATIONS,
 }
 
 export function getDetails(error: ParseError): string {
@@ -52,6 +54,16 @@ export function getDetails(error: ParseError): string {
       return `Player entry duplicated: ${error.what}`;
     }
     return 'Player entry duplicated';
+  case ErrorCode.PAIRING_CONTRADICTION:
+    if (error.what !== undefined) {
+      return `Match contradicts the entry for the opponent: ${error.what}`;
+    }
+    return 'Match contradicts the entry for the opponent';
+  case ErrorCode.TOO_MANY_ACCELERATIONS:
+    if (error.what !== undefined) {
+      return `Player has more acceleration entries than total number of rounds: ${error.what}`;
+    }
+    return 'Player has more acceleration entries than total number of rounds';
   case ErrorCode.INTERNAL_ERROR:
   default:
     // Should never happen
