@@ -1,9 +1,9 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
 import { Sex, TrfPlayer } from '../types/TrfFileFormat';
+import { parseFloat, parseNumber, parsePlayerId } from '../utils/ParseUtils';
+import { parseSex } from '../utils/TrfUtils';
 
 import parseTrfGames from './parseTrfGames';
-import { parseFloat, parseNumber, parsePlayerId } from './ParseUtils';
-import { parseSex } from './TrfUtils';
 
 export function createDefaultTrfPlayer(): TrfPlayer {
   return {
@@ -18,6 +18,7 @@ export function createDefaultTrfPlayer(): TrfPlayer {
     points: 0,
     rank: 0,
     games: [],
+    scores: [],
 
     accelerations: [],
   };
@@ -87,5 +88,6 @@ export default function parseTrfPlayer(line: string): ParseResult<TrfPlayer> {
     rank: 0,
     games: parsedTrfGames,
     accelerations: [],
+    scores: [],
   };
 }

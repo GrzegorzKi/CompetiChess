@@ -56,10 +56,7 @@
     }],
     "object-curly-spacing": [
       "warn",
-      "always",
-      {
-        "arraysInObjects": false
-      }
+      "always"
     ],
 
     // Disabling the base rules as it can report incorrect errors

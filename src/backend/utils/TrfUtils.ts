@@ -1,8 +1,7 @@
+import { defaultTrfGame } from '../TrfxParser/parseTrfGames';
 import {
   Color, GameResult, Sex, TrfGame, TrfPlayer,
 } from '../types/TrfFileFormat';
-
-import { defaultTrfGame } from './parseTrfGames';
 
 const colors = ['w', 'b', '-'];
 const gameResults = [

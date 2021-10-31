@@ -1,6 +1,5 @@
 import ParseResult, { isError } from '../types/ParseResult';
-
-import { parseNumber } from './ParseUtils';
+import { parseNumber } from '../utils/ParseUtils';
 
 function parseForbiddenPairs(line: string): ParseResult<number[]> {
   const tokens = line.substr(4).split(/ \t/);

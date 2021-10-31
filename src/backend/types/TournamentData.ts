@@ -1,5 +1,5 @@
 import { Acceleration } from '../TrfxParser/parseAcceleration';
-import { gameWasPlayed, invertColor, participatedInPairing } from '../TrfxParser/TrfUtils';
+import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
 import TrfFileFormat, {
@@ -23,6 +23,7 @@ export function createDefaultConfiguration(): Configuration {
     pointsForPairingAllocatedBye: 1.0,
     pointsForZeroPointBye: 0.0,
     pointsForForfeitLoss: 0.0,
+    tiebreakers: [],
   };
 }
 

@@ -16,6 +16,8 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
+import Tiebreaker from './Tiebreaker';
+
 interface TrfFileFormat {
   tournamentName: string;
   city: string;
@@ -57,7 +59,6 @@ export interface Configuration {
   //
   // When set to NONE, program can offer to pick based on hash of tournament data.
   initialColor: Color;
-
   // Amount of points for win, forfeit win and full-point bye.
   //
   // Will be used for pairing-allocated bye too, if not specified with BBU code.
@@ -72,6 +73,8 @@ export interface Configuration {
   pointsForForfeitLoss: number;
   // Amount of points for pairing-allocated bye.
   pointsForPairingAllocatedBye: number;
+  // Defines tiebreakers used by the tournament
+  tiebreakers: Tiebreaker[];
 }
 
 export const enum XXField {
@@ -143,6 +146,7 @@ export interface TrfPlayer {
   points: number;
   rank: number;
   games: TrfGame[];
+  scores: Score[];
 
   accelerations: number[],
 }
@@ -161,6 +165,15 @@ export interface TrfGame {
   color: Color;
   result: GameResult;
   round: number;
+}
+
+export interface Score {
+  round: number;
+  points: number;
+  tiebreakers: Array<{
+    type: Tiebreaker;
+    value: number;
+  }>
 }
 
 export const enum Sex {

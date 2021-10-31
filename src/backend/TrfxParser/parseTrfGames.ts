@@ -1,10 +1,9 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
 import { Color, GameResult, TrfGame } from '../types/TrfFileFormat';
-
-import { hasTrailingChars, parsePlayerId } from './ParseUtils';
+import { hasTrailingChars, parsePlayerId } from '../utils/ParseUtils';
 import {
   isValidColor, isValidResult, validateGameEntry
-} from './TrfUtils';
+} from '../utils/TrfUtils';
 
 export function defaultTrfGame(round: number, playerId: number): TrfGame {
   return {

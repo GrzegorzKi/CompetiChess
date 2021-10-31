@@ -1,6 +1,5 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-
-import { hasTrailingChars, parseFloat, parsePlayerId } from './ParseUtils';
+import { hasTrailingChars, parseFloat, parsePlayerId } from '../utils/ParseUtils';
 
 export type Acceleration = {
   playerId: number,

@@ -5,14 +5,12 @@ import TournamentData from '../types/TournamentData';
 import TrfFileFormat, {
   Color, TypeCodes, XXField
 } from '../types/TrfFileFormat';
+import { parseNumber } from '../utils/ParseUtils';
+import { calculatePlayedRounds, evenUpMatchHistories } from '../utils/TrfUtils';
 
 import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
-import { parseNumber } from './ParseUtils';
-import {
-  calculatePlayedRounds, evenUpMatchHistories,
-} from './TrfUtils';
 
 export const enum WarnCode {
   ROUND_NUM,
