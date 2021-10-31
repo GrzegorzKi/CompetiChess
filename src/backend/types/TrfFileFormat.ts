@@ -144,7 +144,6 @@ export interface TrfPlayer {
   rank: number;
   games: TrfGame[];
 
-  isDummy: boolean;
   accelerations: number[],
 }
 

@@ -19,12 +19,11 @@ export function createDefaultTrfPlayer(): TrfPlayer {
     rank: 0,
     games: [],
 
-    isDummy: true,
     accelerations: [],
   };
 }
 
-export default function parseTrfPlayer(line: string, players: TrfPlayer[]): ParseResult<TrfPlayer> {
+export default function parseTrfPlayer(line: string): ParseResult<TrfPlayer> {
   if (line.length < 84) {
     return { error: ErrorCode.INVALID_LINE };
   }
@@ -75,7 +74,7 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
     return parsedTrfGames;
   }
 
-  const player: TrfPlayer = {
+  return {
     playerId: parsedPlayerId,
     name,
     sex: parseSex(sex),
@@ -87,17 +86,6 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
     points: parsedPoints,
     rank: 0,
     games: parsedTrfGames,
-
-    isDummy: false,
     accelerations: [],
   };
-
-  if (players[parsedPlayerId] !== undefined) {
-    if (!players[parsedPlayerId].isDummy) {
-      return { error: ErrorCode.PLAYER_DUPLICATE, player: parsedPlayerId };
-    }
-    player.accelerations = players[parsedPlayerId].accelerations;
-  }
-
-  return player;
 }

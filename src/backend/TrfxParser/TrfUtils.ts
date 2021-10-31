@@ -96,15 +96,6 @@ export function evenUpMatchHistories(players: TrfPlayer[], upTo: number): void {
   });
 }
 
-export function removeDummyPlayers(players: TrfPlayer[]): void {
-  for (let i = 0; i < players.length; ++i) {
-    if (players[i] !== undefined && players[i].isDummy) {
-      // eslint-disable-next-line no-param-reassign
-      delete players[i];
-    }
-  }
-}
-
 export function invertColor(color: Color): Color {
   if (color === Color.WHITE) {
     return Color.BLACK;

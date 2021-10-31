@@ -1,15 +1,17 @@
-import ParseResult, { getDetails, isError, ParseError } from '../types/ParseResult';
+import ParseResult, {
+  ErrorCode, getDetails, isError, ParseError
+} from '../types/ParseResult';
 import TournamentData from '../types/TournamentData';
 import TrfFileFormat, {
   Color, TypeCodes, XXField
 } from '../types/TrfFileFormat';
 
-import parseAcceleration from './parseAcceleration';
+import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
 import { parseNumber } from './ParseUtils';
 import {
-  calculatePlayedRounds, evenUpMatchHistories, removeDummyPlayers,
+  calculatePlayedRounds, evenUpMatchHistories,
 } from './TrfUtils';
 
 export const enum WarnCode {
@@ -24,7 +26,9 @@ export type ParseTrfFileResult =
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
   const tournamentData = new TournamentData();
+  const accelerations: Array<Acceleration> = [];
   const forbiddenPairs: Array<number[]> = [];
+
   const warnings: WarnCode[] = [];
 
   const parsingErrors: string[] = [];
@@ -34,10 +38,11 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     const value = line.substring(4);
 
     if (prefix === XXField.ACCELERATION) {
-      const result = parseAcceleration(line, tournamentData);
+      const result = parseAcceleration(line);
       if (isError(result)) {
         return result;
       }
+      accelerations.push(result);
     } else if (prefix === XXField.FORBIDDEN_PAIRS) {
       const result = parseForbiddenPairs(line);
       if (isError(result)) {
@@ -111,9 +116,11 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     } else if (prefix === TypeCodes.ROUND_DATES) {
       // Pass - no idea how to parse it with current specification
     } else if (prefix === TypeCodes.PLAYER_ENTRY) {
-      const trfPlayer = parseTrfPlayer(line, tournamentData.players);
+      const trfPlayer = parseTrfPlayer(line);
       if (isError(trfPlayer)) {
         errorCallback(trfPlayer);
+      } else if (tournamentData.players[trfPlayer.playerId] !== undefined) {
+        errorCallback({ error: ErrorCode.PLAYER_DUPLICATE, playerId: trfPlayer.playerId });
       } else {
         tournamentData.players[trfPlayer.playerId] = trfPlayer;
         tournamentData.playersByPosition.push(trfPlayer);
@@ -140,7 +147,13 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
   };
 
   const postProcessData = (): ParseTrfFileResult => {
-    removeDummyPlayers(tournamentData.players);
+    const resultAcc = tournamentData.checkAndAssignAccelerations(accelerations);
+    if (isError(resultAcc)) {
+      return {
+        parsingErrors: [getDetails(resultAcc)]
+      };
+    }
+
     const playedRounds = calculatePlayedRounds(tournamentData.players);
     tournamentData.playedRounds = playedRounds;
     if (tournamentData.configuration.expectedRounds <= 0

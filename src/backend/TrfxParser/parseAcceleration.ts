@@ -1,10 +1,15 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import TrfFileFormat from '../types/TrfFileFormat';
 
-import { createDefaultTrfPlayer } from './parseTrfPlayer';
 import { hasTrailingChars, parseFloat, parsePlayerId } from './ParseUtils';
 
-function parseAcceleration(line: string, trfxData: TrfFileFormat): ParseResult<null> {
+export type Acceleration = {
+  playerId: number,
+  values: number[],
+};
+
+export default function parseAcceleration(line: string): ParseResult<Acceleration> {
+  const values: number[] = [];
+
   const regexp = /^.{4}(?<startingRank>[ \d]{4}) (?<acc>(?: [ \d]\d[.,]\d})*)\s*$/;
   const match = regexp.exec(line);
 
@@ -19,25 +24,21 @@ function parseAcceleration(line: string, trfxData: TrfFileFormat): ParseResult<n
     return playerId;
   }
 
-  if (trfxData.players[playerId] === undefined) {
-    // eslint-disable-next-line no-param-reassign
-    trfxData.players[playerId] = createDefaultTrfPlayer();
-  }
-
   let i = 0;
   for (; i <= acc.length; i += 5) {
     const parsedPoints = parseFloat(acc.substring(i, i + 5).trimLeft());
     if (isError(parsedPoints)) {
       return parsedPoints;
     }
-    trfxData.players[playerId].accelerations.push(parsedPoints);
+    values.push(parsedPoints);
   }
 
   if (hasTrailingChars(acc, i)) {
     return { error: ErrorCode.INVALID_LINE };
   }
 
-  return null;
+  return {
+    playerId,
+    values
+  };
 }
-
-export default parseAcceleration;

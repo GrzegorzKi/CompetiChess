@@ -1,9 +1,15 @@
+import { Acceleration } from '../TrfxParser/parseAcceleration';
 import { gameWasPlayed, invertColor, participatedInPairing } from '../TrfxParser/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
 import TrfFileFormat, {
   Color,
-  Configuration, ForbiddenPairs, GameResult, TrfGame, TrfPlayer, TrfTeam,
+  Configuration,
+  ForbiddenPairs,
+  GameResult,
+  TrfGame,
+  TrfPlayer,
+  TrfTeam,
 } from './TrfFileFormat';
 
 export function createDefaultConfiguration(): Configuration {
@@ -91,6 +97,21 @@ class TournamentData implements TrfFileFormat {
   tournamentName: string;
   tournamentType: string;
 
+  checkAndAssignAccelerations = (accelerations: Array<Acceleration>): ParseResult<null> => {
+    for (let i = 0, len = accelerations.length; i < len; ++i) {
+      const { playerId, values } = accelerations[i];
+      if (this.players[playerId] === undefined) {
+        return { error: ErrorCode.ACC_MISSING_ENTRY, playerId };
+      }
+      if (values.length > this.configuration.expectedRounds) {
+        return { error: ErrorCode.TOO_MANY_ACCELERATIONS, playerId };
+      }
+      this.players[playerId].accelerations = values;
+    }
+
+    return null;
+  }
+
   validatePairConsistency = (): ParseResult<null> => {
     for (let i = 0, len = this.players.length; i < len; ++i) {
       if (this.players[i] !== undefined) {
@@ -155,40 +176,38 @@ class TournamentData implements TrfFileFormat {
   /**
    * Check that the score in the TRF matches the score computed by counting
    * the number of wins and draws for that player and (optionally) adding
-   * the acceleration. Also check that there are not more accelerated rounds
-   * than tournament rounds.
+   * the acceleration.
    */
   validateScores = (): ParseResult<null> => {
-    for (let i = 0, len = this.players.length; i < len; ++i) {
-      const player = this.players[i];
-      if (player !== undefined) {
-        const { accelerations, games } = player;
-        if (accelerations.length > this.configuration.expectedRounds) {
-          return { error: ErrorCode.TOO_MANY_ACCELERATIONS, player: player.playerId };
-        }
+    for (let i = 0, len = this.playersByPosition.length; i < len; ++i) {
+      const {
+        accelerations,
+        games,
+        playerId,
+        points
+      } = this.playersByPosition[i];
 
-        const calcPts = this.calculatePoints(this.playedRounds, games);
+      const calcPts = this.calculatePoints(this.playedRounds, games);
 
-        // Try to correct amount of points if acceleration or future round
-        // points were added to TRF score
-        if (player.points !== calcPts) {
-          const acc = accelerations[this.playedRounds] ?? 0;
-          const nextRoundPts = games[this.playedRounds] !== undefined
-            ? this.getPoints(games[this.playedRounds])
-            : 0.0;
-          const possiblePoints = [
-            player.points - acc,
-            player.points - nextRoundPts,
-            player.points - acc - nextRoundPts
-          ];
+      // Try to correct amount of points if acceleration or future round
+      // points were added to TRF score
+      if (points !== calcPts) {
+        const acc = accelerations[this.playedRounds] ?? 0;
+        const nextRoundPts = games[this.playedRounds] !== undefined
+          ? this.getPoints(games[this.playedRounds])
+          : 0.0;
+        const possiblePoints = [
+          points - acc,
+          points - nextRoundPts,
+          points - acc - nextRoundPts
+        ];
 
-          const foundVal = possiblePoints.find((value) => value === calcPts);
-          if (foundVal !== undefined) {
-            // Correct amount of points for the player
-            player.points = foundVal;
-          } else {
-            return { error: ErrorCode.POINTS_MISMATCH, player: player.playerId };
-          }
+        const foundVal = possiblePoints.find((value) => value === calcPts);
+        if (foundVal !== undefined) {
+          // Correct amount of points for the player
+          this.playersByPosition[i].points = foundVal;
+        } else {
+          return { error: ErrorCode.POINTS_MISMATCH, playerId };
         }
       }
     }
