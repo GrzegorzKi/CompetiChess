@@ -4,7 +4,14 @@ export type ParseResult<T> =
 
 export default ParseResult;
 
-export type ParseError = { error: ErrorCode, what?: string }
+export type ParseError =
+  | InvalidLine
+  | InvalidValue
+  | PointsMismatch
+  | PlayerDuplicate
+  | PairingContradiction
+  | TooManyAccelerations
+  | InternalError;
 
 export function isError(obj: ParseResult<any>): obj is ParseError {
   return obj !== null && typeof obj === 'object' && 'error' in obj;
@@ -14,13 +21,41 @@ export const enum ErrorCode {
   INTERNAL_ERROR,
   INVALID_LINE,
   INVALID_VALUE,
-  UNSUPPORTED_VALUE,
-  NOT_A_NUMBER,
   POINTS_MISMATCH,
-  COLOR_MISMATCH,
   PLAYER_DUPLICATE,
   PAIRING_CONTRADICTION,
   TOO_MANY_ACCELERATIONS,
+}
+
+export type InvalidLine = {
+  error: ErrorCode.INVALID_LINE,
+}
+export type InvalidValue = {
+  error: ErrorCode.INVALID_VALUE,
+  what?: string,
+  value: string,
+}
+export type PointsMismatch = {
+  error: ErrorCode.POINTS_MISMATCH,
+  player: number,
+}
+export type PlayerDuplicate = {
+  error: ErrorCode.PLAYER_DUPLICATE,
+  player: number,
+}
+export type PairingContradiction = {
+  error: ErrorCode.PAIRING_CONTRADICTION,
+  round: number,
+  firstPlayer: number,
+  secondPlayer: number,
+}
+export type TooManyAccelerations = {
+  error: ErrorCode.TOO_MANY_ACCELERATIONS,
+  player: number,
+}
+export type InternalError = {
+  error: ErrorCode.INTERNAL_ERROR,
+  what?: string,
 }
 
 export function getDetails(error: ParseError): string {
@@ -29,41 +64,17 @@ export function getDetails(error: ParseError): string {
     return 'Invalid or malformed line structure';
   case ErrorCode.INVALID_VALUE:
     if (error.what !== undefined) {
-      return `Provided value is invalid: ${error.what}`;
+      return `Provided value for ${error.what} is invalid: ${error.value}`;
     }
-    return 'Provided value is invalid';
-  case ErrorCode.UNSUPPORTED_VALUE:
-    if (error.what !== undefined) {
-      return `Provided value is unsupported: ${error.what}`;
-    }
-    return 'Provided value is unsupported';
+    return `Provided value is invalid: ${error.value}`;
   case ErrorCode.POINTS_MISMATCH:
-    return 'Number of points and calculated points doesn\'t match';
-  case ErrorCode.COLOR_MISMATCH:
-    if (error.what !== undefined) {
-      return `Player's and opponent's colors must differ: ${error.what}`;
-    }
-    return 'Player\'s and opponent\'s colors must differ';
-  case ErrorCode.NOT_A_NUMBER:
-    if (error.what !== undefined) {
-      return `Provided value is not a valid number: ${error.what}`;
-    }
-    return 'Provided value is not a valid number';
+    return `Number of points for player ${error.player} doesn't match calculated points`;
   case ErrorCode.PLAYER_DUPLICATE:
-    if (error.what !== undefined) {
-      return `Player entry duplicated: ${error.what}`;
-    }
-    return 'Player entry duplicated';
+    return `Player entry duplicated: ${error.player + 1}`;
   case ErrorCode.PAIRING_CONTRADICTION:
-    if (error.what !== undefined) {
-      return `Match contradicts the entry for the opponent: ${error.what}`;
-    }
-    return 'Match contradicts the entry for the opponent';
+    return `Match contradicts the entry for the opponent. Round ${error.round}, players: ${error.firstPlayer + 1}, ${error.secondPlayer + 1}`;
   case ErrorCode.TOO_MANY_ACCELERATIONS:
-    if (error.what !== undefined) {
-      return `Player has more acceleration entries than total number of rounds: ${error.what}`;
-    }
-    return 'Player has more acceleration entries than total number of rounds';
+    return `Player ${error.player} has more acceleration entries than total number of rounds`;
   case ErrorCode.INTERNAL_ERROR:
   default:
     // Should never happen

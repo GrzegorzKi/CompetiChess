@@ -104,7 +104,9 @@ class TournamentData implements TrfFileFormat {
               || opponent.games[r].opponent !== playerId) {
               return {
                 error: ErrorCode.PAIRING_CONTRADICTION,
-                what: `Round ${r}, id ${playerId}`,
+                firstPlayer: playerId,
+                secondPlayer: opponent.playerId,
+                round: r
               };
             }
           }
@@ -162,7 +164,7 @@ class TournamentData implements TrfFileFormat {
       if (player !== undefined) {
         const { accelerations, games } = player;
         if (accelerations.length > this.configuration.expectedRounds) {
-          return { error: ErrorCode.TOO_MANY_ACCELERATIONS, what: `${player.playerId}` };
+          return { error: ErrorCode.TOO_MANY_ACCELERATIONS, player: player.playerId };
         }
 
         const calcPts = this.calculatePoints(this.playedRounds, games);
@@ -185,7 +187,7 @@ class TournamentData implements TrfFileFormat {
             // Correct amount of points for the player
             player.points = foundVal;
           } else {
-            return { error: ErrorCode.POINTS_MISMATCH, what: `${player.playerId}` };
+            return { error: ErrorCode.POINTS_MISMATCH, player: player.playerId };
           }
         }
       }

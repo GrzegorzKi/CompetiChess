@@ -40,7 +40,7 @@ export function parseTrfGame(
   } else if (isValidColor(color)) {
     trfGame.color = color;
   } else {
-    return { error: ErrorCode.INVALID_VALUE, what: color };
+    return { error: ErrorCode.INVALID_VALUE, value: color };
   }
 
   const result = roundLine.substring(9, 10).toUpperCase();
@@ -49,7 +49,7 @@ export function parseTrfGame(
   } else if (isValidResult(result)) {
     trfGame.result = result;
   } else {
-    return { error: ErrorCode.INVALID_VALUE, what: result };
+    return { error: ErrorCode.INVALID_VALUE, value: result };
   }
 
   validateGameEntry(trfGame, playerId);

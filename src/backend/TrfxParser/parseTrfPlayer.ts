@@ -94,7 +94,7 @@ export default function parseTrfPlayer(line: string, players: TrfPlayer[]): Pars
 
   if (players[parsedPlayerId] !== undefined) {
     if (!players[parsedPlayerId].isDummy) {
-      return { error: ErrorCode.PLAYER_DUPLICATE };
+      return { error: ErrorCode.PLAYER_DUPLICATE, player: parsedPlayerId };
     }
     player.accelerations = players[parsedPlayerId].accelerations;
   }

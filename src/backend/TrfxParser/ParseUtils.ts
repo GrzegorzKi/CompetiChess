@@ -7,7 +7,7 @@ export const parseNumber = (value: string): ParseResult<number> => {
 
   const num = Number.parseInt(value, 10);
   if (Number.isNaN(num)) {
-    return { error: ErrorCode.NOT_A_NUMBER };
+    return { error: ErrorCode.INVALID_VALUE, value };
   }
   return num;
 };
@@ -18,11 +18,8 @@ export const parsePlayerId = (value: string): ParseResult<number> => {
   }
 
   const num = Number.parseInt(value, 10);
-  if (Number.isNaN(num)) {
-    return { error: ErrorCode.NOT_A_NUMBER };
-  }
-  if (num <= 0) {
-    return { error: ErrorCode.INVALID_VALUE, what: num.toString() };
+  if (Number.isNaN(num) || num <= 0) {
+    return { error: ErrorCode.INVALID_VALUE, value };
   }
 
   return num - 1;
@@ -36,7 +33,7 @@ export const parseFloat = (value: string): ParseResult<number> => {
   const valueDot = value.replace(/,/g, '.');
   const num = Number.parseFloat(valueDot);
   if (Number.isNaN(num)) {
-    return { error: ErrorCode.NOT_A_NUMBER };
+    return { error: ErrorCode.INVALID_VALUE, value };
   }
   return num;
 };
