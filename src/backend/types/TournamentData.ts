@@ -261,14 +261,14 @@ class TournamentData implements TrfFileFormat {
     return Color.NONE;
   }
 
-  computeRanks = (): Record<number, number> => {
+  computeRanks = (forRound: number): Record<number, number> => {
     const playersToIter = this.configuration.matchByRank
       ? this.playersByPosition
       : this.players;
     const rankedPlayers = playersToIter.map((player, index): CompareType => ({ index, player }));
     rankedPlayers.sort(createComparator([
-      sortByScore(this.playedRounds),
-      sortByTiebreaker(this.playedRounds, Tiebreaker.ROUNDS_WON)
+      sortByScore(forRound),
+      sortByTiebreaker(forRound, Tiebreaker.ROUNDS_WON)
     ]));
 
     let rankIndex = 1;

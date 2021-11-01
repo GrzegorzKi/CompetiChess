@@ -1,5 +1,7 @@
 import TournamentData from '../types/TournamentData';
-import { Color, GameResult, TrfGame } from '../types/TrfFileFormat';
+import {
+  Color, GameResult, TrfGame, TrfPlayer
+} from '../types/TrfFileFormat';
 
 export type ExportConfig = {
   forRound?: number;
@@ -129,7 +131,20 @@ export default function exportToTrf(tournament: TournamentData, {
     resultString += exportColorRankConfig(tournament);
   }
 
-  const playersByRank = tournament.computeRanks();
+  const playersByRank = tournament.computeRanks(forRound);
+
+  function getPoints({ scores, games, playerId }: TrfPlayer) {
+    if (games[forRound] !== undefined
+      && games[forRound].opponent === playerId
+      && nextRoundByes.includes(games[forRound].result)) {
+      return scores[forRound].points;
+    }
+    if (forRound <= 0) {
+      return 0;
+    }
+    return scores[forRound - 1].points;
+  }
+
   for (let i = 0, len = tournament.players.length; i < len; ++i) {
     if (tournament.players[i] !== undefined) {
       const {
@@ -142,11 +157,9 @@ export default function exportToTrf(tournament: TournamentData, {
         id,
         birthDate,
         games,
-        scores,
       } = tournament.players[i];
-      const points = forRound > 0
-        ? scores[forRound - 1].points
-        : 0.0;
+      const points = getPoints(tournament.players[i]);
+
       if (playerId > 9999 || rating > 9999 || points > 99.9) {
         // FIXME Return error code instead
         return undefined;
