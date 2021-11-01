@@ -2,9 +2,7 @@ import ParseResult, {
   ErrorCode, getDetails, isError, ParseError
 } from '../types/ParseResult';
 import TournamentData from '../types/TournamentData';
-import TrfFileFormat, {
-  Color, TypeCodes, XXField
-} from '../types/TrfFileFormat';
+import { Color, TypeCodes, XXField } from '../types/TrfFileFormat';
 import { parseNumber } from '../utils/ParseUtils';
 import { calculatePlayedRounds, evenUpMatchHistories } from '../utils/TrfUtils';
 
@@ -19,7 +17,7 @@ export const enum WarnCode {
 }
 
 export type ParseTrfFileResult =
-  | { trfxData: TrfFileFormat, warnings: WarnCode[] }
+  | { trfxData: TournamentData, warnings: WarnCode[] }
   | { parsingErrors: string[] };
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
@@ -54,7 +52,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       if (isError(numRounds)) {
         return numRounds;
       }
-      tournamentData.configuration.expectedRounds = numRounds;
+      tournamentData.expectedRounds = numRounds;
     }
     // TODO: Implement
 
@@ -67,11 +65,12 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     };
 
     if (line.length >= 4 && line.at(3) !== ' ') {
-      parsingErrors.push(`Error on line ${lineNum + 1} - Invalid format`);
+      errorCallback({ error: ErrorCode.INVALID_LINE });
     }
 
     const prefix = line.substring(0, 3);
-    const value = line.substring(4);
+    const value = line.substring(4).trimEnd();
+
     if (prefix === TypeCodes.TOURNAMENT_NAME) {
       tournamentData.tournamentName = value;
     } else if (prefix === TypeCodes.CITY) {
@@ -134,7 +133,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
   };
 
   const parseFile = () => {
-    const stringArray = content.split('\n');
+    const stringArray = content.split(/[\r\n]+/);
 
     for (let i = 0; i < stringArray.length; ++i) {
       const line = stringArray[i];
@@ -154,9 +153,9 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
 
     const playedRounds = calculatePlayedRounds(tournamentData.players);
     tournamentData.playedRounds = playedRounds;
-    if (tournamentData.configuration.expectedRounds <= 0
-        || tournamentData.playedRounds > tournamentData.configuration.expectedRounds) {
-      tournamentData.configuration.expectedRounds = playedRounds;
+    if (tournamentData.expectedRounds <= 0
+        || tournamentData.playedRounds > tournamentData.expectedRounds) {
+      tournamentData.expectedRounds = playedRounds;
       warnings.push(WarnCode.ROUND_NUM);
     }
 
@@ -186,6 +185,9 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       return {
         parsingErrors: [getDetails(result2)]
       };
+    }
+    for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
+      tournamentData.recalculateScores(tournamentData.playersByPosition[i]);
     }
     // TODO At last, check ranks and normalize if necessary
 

@@ -14,8 +14,8 @@ export type ParseError =
   | TooManyAccelerations
   | InternalError
 
-export function isError(obj: ParseResult<any>): obj is ParseError {
-  return obj !== null && typeof obj === 'object' && 'error' in obj;
+export function isError(obj: ParseResult<unknown>): obj is ParseError {
+  return typeof obj === 'object' && obj !== null && 'error' in obj;
 }
 
 export const enum ErrorCode {
@@ -84,11 +84,14 @@ export function getDetails(error: ParseError): string {
   case ErrorCode.TOO_MANY_ACCELERATIONS:
     return `Player ${error.playerId} has more acceleration entries than total number of rounds`;
   case ErrorCode.INTERNAL_ERROR:
-  default:
-    // Should never happen
     if (error.what !== undefined) {
       return `Internal error has occurred: ${error.what}`;
     }
     return 'Internal error has occurred';
+  default:
+    // Should never happen
+    // eslint-disable-next-line no-case-declarations
+    const invalidValue: never = error;
+    return `Unexpected error has occurred: ${invalidValue}`;
   }
 }

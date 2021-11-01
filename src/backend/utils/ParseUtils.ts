@@ -14,12 +14,12 @@ export const parseNumber = (value: string): ParseResult<number> => {
 
 export const parsePlayerId = (value: string): ParseResult<number> => {
   if (value === '') {
-    return 0;
+    return { error: ErrorCode.INVALID_VALUE, value, what: 'player ID' };
   }
 
   const num = Number.parseInt(value, 10);
   if (Number.isNaN(num) || num <= 0) {
-    return { error: ErrorCode.INVALID_VALUE, value };
+    return { error: ErrorCode.INVALID_VALUE, value, what: 'player ID' };
   }
 
   return num - 1;

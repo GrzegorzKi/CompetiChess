@@ -1,5 +1,5 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import { hasTrailingChars, parseFloat, parsePlayerId } from '../utils/ParseUtils';
+import { parseFloat, parsePlayerId } from '../utils/ParseUtils';
 
 export type Acceleration = {
   playerId: number,
@@ -30,10 +30,6 @@ export default function parseAcceleration(line: string): ParseResult<Acceleratio
       return parsedPoints;
     }
     values.push(parsedPoints);
-  }
-
-  if (hasTrailingChars(acc, i)) {
-    return { error: ErrorCode.INVALID_LINE };
   }
 
   return {

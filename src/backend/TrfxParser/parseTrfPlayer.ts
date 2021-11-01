@@ -13,7 +13,7 @@ export function createDefaultTrfPlayer(): TrfPlayer {
     title: '',
     rating: 0,
     federation: '',
-    id: 0,
+    id: '',
     birthDate: '',
     points: 0,
     rank: 0,
@@ -30,7 +30,7 @@ export default function parseTrfPlayer(line: string): ParseResult<TrfPlayer> {
   }
 
   // Rank is omitted - should be recalculated based on selected tie-breaks etc.
-  const regexp = /^.{4}(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<id>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d}) [ \d]{4}(?<games>(:[ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
+  const regexp = /^.{4}(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<id>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d) [ \d]{4}(?<games>([ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
   const match = regexp.exec(line);
 
   if (match === null || match.groups === undefined) {
@@ -77,13 +77,13 @@ export default function parseTrfPlayer(line: string): ParseResult<TrfPlayer> {
 
   return {
     playerId: parsedPlayerId,
-    name,
+    name: name.trim(),
     sex: parseSex(sex),
-    title,
+    title: title.trim(),
     rating: parsedRating,
-    federation: fed,
-    id: parsedId,
-    birthDate,
+    federation: fed.trim(),
+    id: id.trimLeft(),
+    birthDate: birthDate.trim(),
     points: parsedPoints,
     rank: 0,
     games: parsedTrfGames,

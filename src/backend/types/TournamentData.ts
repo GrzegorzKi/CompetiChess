@@ -1,7 +1,11 @@
 import { Acceleration } from '../TrfxParser/parseAcceleration';
+import {
+  CompareType, createComparator, sortByScore, sortByTiebreaker
+} from '../utils/SortUtils';
 import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
+import Tiebreaker from './Tiebreaker';
 import TrfFileFormat, {
   Color,
   Configuration,
@@ -14,7 +18,6 @@ import TrfFileFormat, {
 
 export function createDefaultConfiguration(): Configuration {
   return {
-    expectedRounds: 0,
     matchByRank: false,
     initialColor: Color.NONE,
     pointsForWin: 1.0,
@@ -53,6 +56,7 @@ class TournamentData implements TrfFileFormat {
       this.teams = data.teams;
       this.tournamentName = data.tournamentName;
       this.tournamentType = data.tournamentType;
+      this.expectedRounds = data.expectedRounds;
     } else {
       this.tournamentName = '';
       this.city = '';
@@ -74,29 +78,31 @@ class TournamentData implements TrfFileFormat {
       this.otherFields = {};
       this.forbiddenPairs = [];
       this.playedRounds = 0;
+      this.expectedRounds = 0;
     }
   }
 
-  chiefArbiter: string;
+  tournamentName: string;
   city: string;
-  configuration: Configuration;
-  dateOfEnd: string;
-  dateOfStart: string;
-  deputyArbiters: string[];
   federation: string;
-  forbiddenPairs: ForbiddenPairs[];
+  dateOfStart: string;
+  dateOfEnd: string;
   numberOfPlayers: number;
   numberOfRatedPlayers: number;
   numberOfTeams: number;
-  otherFields: Record<string, string>;
-  playedRounds: number;
-  players: TrfPlayer[];
-  playersByPosition: TrfPlayer[];
+  tournamentType: string;
+  chiefArbiter: string;
+  deputyArbiters: string[];
   rateOfPlay: string;
   roundDates: string[];
+  players: TrfPlayer[];
+  playersByPosition: TrfPlayer[];
   teams: TrfTeam[];
-  tournamentName: string;
-  tournamentType: string;
+  configuration: Configuration;
+  otherFields: Record<string, string>;
+  forbiddenPairs: ForbiddenPairs[];
+  playedRounds: number;
+  expectedRounds: number;
 
   checkAndAssignAccelerations = (accelerations: Array<Acceleration>): ParseResult<null> => {
     for (let i = 0, len = accelerations.length; i < len; ++i) {
@@ -104,7 +110,7 @@ class TournamentData implements TrfFileFormat {
       if (this.players[playerId] === undefined) {
         return { error: ErrorCode.ACC_MISSING_ENTRY, playerId };
       }
-      if (values.length > this.configuration.expectedRounds) {
+      if (values.length > this.expectedRounds) {
         return { error: ErrorCode.TOO_MANY_ACCELERATIONS, playerId };
       }
       this.players[playerId].accelerations = values;
@@ -146,6 +152,21 @@ class TournamentData implements TrfFileFormat {
       calcPts += this.getPoints(games[r]);
     }
     return calcPts;
+  }
+
+  recalculateScores = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
+    const { games, scores } = player;
+    if (fromRound - 1 < scores.length) {
+      this.recalculateScores(player, toRound, scores.length + 1);
+      return;
+    }
+    let calcPts = (fromRound > 1 ? scores[fromRound - 2].points : 0.0);
+
+    const maxLen = Math.min(games.length, toRound);
+    for (let r = fromRound - 1; r < maxLen; ++r) {
+      calcPts += this.getPoints(games[r]);
+      scores[r] = { round: r + 1, points: calcPts, tiebreakers: {} };
+    }
   }
 
   getPoints = ({ result }: TrfGame): number => {
@@ -238,6 +259,26 @@ class TournamentData implements TrfFileFormat {
     }
 
     return Color.NONE;
+  }
+
+  computeRanks = (): Record<number, number> => {
+    const playersToIter = this.configuration.matchByRank
+      ? this.playersByPosition
+      : this.players;
+    const rankedPlayers = playersToIter.map((player, index): CompareType => ({ index, player }));
+    rankedPlayers.sort(createComparator([
+      sortByScore(this.playedRounds),
+      sortByTiebreaker(this.playedRounds, Tiebreaker.ROUNDS_WON)
+    ]));
+
+    let rankIndex = 1;
+    const ranksArray: Record<number, number> = {};
+    for (let i = 0, len = rankedPlayers.length; i < len; ++i) {
+      ranksArray[rankedPlayers[i].player.playerId] = rankIndex;
+      rankIndex += 1;
+    }
+
+    return ranksArray;
   }
 }
 

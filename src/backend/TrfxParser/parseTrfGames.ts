@@ -1,6 +1,6 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
 import { Color, GameResult, TrfGame } from '../types/TrfFileFormat';
-import { hasTrailingChars, parsePlayerId } from '../utils/ParseUtils';
+import { parsePlayerId } from '../utils/ParseUtils';
 import {
   isValidColor, isValidResult, validateGameEntry
 } from '../utils/TrfUtils';
@@ -80,9 +80,6 @@ export default function parseTrfGames(gamesString: string, playerId: number)
       }
       games.push(parsedGame);
     }
-  }
-  if (hasTrailingChars(gamesString, i)) {
-    return { error: ErrorCode.INVALID_LINE };
   }
 
   return games;

@@ -37,8 +37,10 @@ interface TrfFileFormat {
   teams: TrfTeam[];
   configuration: Configuration;
   otherFields: Record<string, string>;
-  playedRounds: number;
   forbiddenPairs: ForbiddenPairs[];
+  playedRounds: number;
+  // Number of rounds to be played. Value is required for pairings.
+  expectedRounds: number;
 }
 
 export default TrfFileFormat;
@@ -49,8 +51,6 @@ export interface ForbiddenPairs {
 }
 
 export interface Configuration {
-  // Number of rounds to be played. Value is required for pairings.
-  expectedRounds: number;
   // Should program use positional-ids (also called ranking-id(s)) in order to
   // produce the pairings. Especially useful, if we decide to sort players
   // later and want it to affect consequent pairings.
@@ -141,7 +141,7 @@ export interface TrfPlayer {
   title: string;
   rating: number;
   federation: string;
-  id: number;
+  id: string;
   birthDate: string;
   points: number;
   rank: number;
@@ -170,10 +170,7 @@ export interface TrfGame {
 export interface Score {
   round: number;
   points: number;
-  tiebreakers: Array<{
-    type: Tiebreaker;
-    value: number;
-  }>
+  tiebreakers: Partial<Record<Tiebreaker, number>>;
 }
 
 export const enum Sex {
