@@ -23,10 +23,10 @@ test('Parse sample file', (done) => {
       return Promise.reject(new Error('Unable to parse or export to TRF file'));
     })
     .then((trfOutput) => {
-      const bbpPairingsWrapper = new BbpPairingsWrapper();
-      bbpPairingsWrapper.init()
-        .then(() => {
-          const bbpResult = bbpPairingsWrapper.invoke(trfOutput);
+      BbpPairingsWrapper.init()
+        .then((wrapper) => {
+          console.info(trfOutput);
+          const bbpResult = wrapper.invoke(trfOutput);
           console.info(bbpResult);
           if (bbpResult.statusCode !== 0) {
             done(new Error(bbpResult.errorOutput.join('\n')));

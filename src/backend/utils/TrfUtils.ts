@@ -60,8 +60,7 @@ export function validateGameEntry({ opponent, color, result }: TrfGame, playerId
 
 export function participatedInPairing({ opponent, result }: TrfGame, playerId: number): boolean {
   return opponent !== playerId
-    || result === GameResult.PAIRING_ALLOCATED_BYE
-    || result === GameResult.FORFEIT_WIN;
+    || result === GameResult.PAIRING_ALLOCATED_BYE;
 }
 
 export function gameWasPlayed({ opponent, color, result }: TrfGame, playerId: number): boolean {

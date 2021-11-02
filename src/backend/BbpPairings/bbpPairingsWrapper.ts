@@ -28,9 +28,16 @@ export const enum StatusCode {
 }
 
 export default class BbpPairingsWrapper {
-  async init(): Promise<void> {
-    return createBbpModule(this.Module).then((instance: BbpPairingsEmscriptenModule) => {
-      this.bbpInstance = instance;
+  // eslint-disable-next-line no-useless-constructor
+  private constructor() {
+    // Constructor is private on purpose - use factory method instead.
+  }
+
+  static async init(): Promise<BbpPairingsWrapper> {
+    const wrapper = new BbpPairingsWrapper();
+    return createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
+      wrapper.bbpInstance = instance;
+      return wrapper;
     }).catch((error: never) => {
       throw error;
     });
