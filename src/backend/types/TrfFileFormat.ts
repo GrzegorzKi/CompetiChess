@@ -167,10 +167,11 @@ export interface TrfGame {
   round: number;
 }
 
+export type TiebreakersPoints = Partial<Record<Tiebreaker, number>>;
 export interface Score {
   round: number;
   points: number;
-  tiebreakers: Partial<Record<Tiebreaker, number>>;
+  tiebreakers: TiebreakersPoints;
 }
 
 export const enum Sex {

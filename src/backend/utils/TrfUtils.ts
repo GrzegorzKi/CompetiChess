@@ -1,6 +1,6 @@
 import { defaultTrfGame } from '../TrfxParser/parseTrfGames';
 import {
-  Color, GameResult, Sex, TrfGame, TrfPlayer,
+  Color, GameResult, Sex, TrfGame, TrfPlayer
 } from '../types/TrfFileFormat';
 
 const colors = ['w', 'b', '-'];
@@ -68,6 +68,22 @@ export function gameWasPlayed({ opponent, color, result }: TrfGame, playerId: nu
     && color !== Color.NONE
     && result !== GameResult.FORFEIT_WIN
     && result !== GameResult.FORFEIT_LOSS;
+}
+
+export function isUnplayedWin(playerId: number, { opponent, result }: TrfGame): boolean {
+  if (playerId === opponent && (result === GameResult.WIN || result === GameResult.UNRATED_WIN)) {
+    return true;
+  }
+  return result === GameResult.FORFEIT_WIN
+    || result === GameResult.FULL_POINT_BYE
+    || result === GameResult.PAIRING_ALLOCATED_BYE;
+}
+
+export function isUnplayedDraw(playerId: number, { opponent, result }: TrfGame): boolean {
+  if (playerId === opponent && (result === GameResult.DRAW || result === GameResult.UNRATED_DRAW)) {
+    return true;
+  }
+  return result === GameResult.HALF_POINT_BYE;
 }
 
 export function calculatePlayedRounds(players: TrfPlayer[]): number {

@@ -5,7 +5,7 @@ import {
 import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
-import Tiebreaker from './Tiebreaker';
+import Tiebreaker, { calculateTiebreakers } from './Tiebreaker';
 import TrfFileFormat, {
   Color,
   Configuration,
@@ -26,7 +26,11 @@ export function createDefaultConfiguration(): Configuration {
     pointsForPairingAllocatedBye: 1.0,
     pointsForZeroPointBye: 0.0,
     pointsForForfeitLoss: 0.0,
-    tiebreakers: [],
+    tiebreakers: [
+      Tiebreaker.CUMULATIVE,
+      Tiebreaker.ROUNDS_WON,
+      Tiebreaker.ROUNDS_WON_BLACK_PIECES,
+    ],
   };
 }
 
@@ -166,6 +170,7 @@ class TournamentData implements TrfFileFormat {
     for (let r = fromRound - 1; r < maxLen; ++r) {
       calcPts += this.getPoints(games[r]);
       scores[r] = { round: r + 1, points: calcPts, tiebreakers: {} };
+      scores[r].tiebreakers = calculateTiebreakers(this, player, r + 1);
     }
   }
 
@@ -266,9 +271,12 @@ class TournamentData implements TrfFileFormat {
       ? this.playersByPosition
       : this.players;
     const rankedPlayers = playersToIter.map((player, index): CompareType => ({ index, player }));
+    const tbComparators = this.configuration.tiebreakers.map(
+      (tb) => sortByTiebreaker(forRound, tb)
+    );
     rankedPlayers.sort(createComparator([
       sortByScore(forRound),
-      sortByTiebreaker(forRound, Tiebreaker.ROUNDS_WON)
+      ...tbComparators
     ]));
 
     let rankIndex = 1;
