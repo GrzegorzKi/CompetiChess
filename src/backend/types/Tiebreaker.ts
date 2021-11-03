@@ -2,7 +2,7 @@ import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '../utils/TrfUtils'
 
 import TournamentData from './TournamentData';
 import {
-  Color, GameResult, TiebreakersPoints, TrfPlayer
+  Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer
 } from './TrfFileFormat';
 
 const enum Tiebreaker {
@@ -21,8 +21,11 @@ const enum Tiebreaker {
   BUCHHOLZ = 'Buch',
   BUCHHOLZ_CUT_1 = 'Bch1',
   MEDIAN_BUCHHOLZ = 'MBch',
+  MODIFIED_MEDIAN = 'ModM',
+  SOLKOFF = 'SOff',
   ARO = ' ARO',
   AROC_1 = 'AROC1',
+  OPPOSITION_PERFORMANCE = 'OpPf',
 }
 export default Tiebreaker;
 
@@ -163,101 +166,200 @@ function calcKashdan(_: TournamentData,
   return calcPts;
 }
 
-// Calculate Sonneborn-Berger score, based on opponent's scores.
-// Not played opponents' games are counted with their real score.
-// (In contrast to other methods, like counting as a draw regardless of the result)
-function calcSonnebornBerger({ players }: TournamentData,
-  { games }: TrfPlayer,
-  forRound: number): number {
-  let calcPts = 0;
+function calculateVirtualOpponentScore(tournament: TournamentData,
+  game: TrfGame,
+  initialPoints: number,
+  forRound: number,
+  notPlayedIsDraw = false): number {
+  const getPoints = notPlayedIsDraw
+    ? tournament.getPointsUnplayedAsDraw
+    : tournament.getPoints;
 
-  const len = Math.min(games.length, forRound);
-  for (let r = 0; r < len; ++r) {
-    const { opponent, result } = games[r];
-    if (opponent !== undefined) {
-      if (result === '1' || result === 'W' || result === '+') {
-        calcPts += players[opponent].scores[r].points;
-      } else if (result === '=' || result === 'D') {
-        calcPts += (players[opponent].scores[r].points * 0.5);
-      }
-    } else {
-      // TODO Calculate virtual opponent score
-    }
-  }
-
-  return calcPts;
+  let vPoints = initialPoints;
+  vPoints += (tournament.configuration.pointsForWin - getPoints(game));
+  vPoints += 0.5 * (forRound - (game.round - 1));
+  return vPoints;
 }
 
-function calcBuchholz(tournament: TournamentData,
-  { games }: TrfPlayer,
+// Calculate Sonneborn-Berger score, based on opponent's scores.
+// Not played opponents' games are counted as if played against virtual opponent.
+function calcSonnebornBerger(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
   forRound: number): number {
   const { players } = tournament;
-  let calcPts = 0;
 
+  let calcPts = 0;
   const len = Math.min(games.length, forRound);
+
   for (let r = 0; r < len; ++r) {
-    const { opponent } = games[r];
-    if (opponent !== undefined) {
-      calcPts += players[opponent].scores[r].points;
-      const opGames = players[opponent].games;
-      for (let i = 0; i < opGames.length; ++i) {
-        if (opGames[i].result === GameResult.FULL_POINT_BYE
-            || opGames[i].result === GameResult.PAIRING_ALLOCATED_BYE) {
-          // TODO Reduce by value of FPB or PAB, add points for draw
-          // tournament.getPoints(opGames[i])
-        }
+    const { opponent, result } = games[r];
+    if (gameWasPlayed(games[r])) {
+      if (result === '1' || result === 'W') {
+        calcPts += tournament.calculatePoints(forRound, players[opponent!].games, true);
+      } else if (result === '=' || result === 'D') {
+        calcPts += (tournament.calculatePoints(forRound, players[opponent!].games, true) * 0.5);
       }
     } else {
-      // TODO Calculate virtual opponent score
+      calcPts += calculateVirtualOpponentScore(tournament,
+        games[r],
+        scores[r].points,
+        forRound);
     }
   }
 
   return calcPts;
 }
 
-function calcMedianBuchholz({ players }: TournamentData,
-  { games }: TrfPlayer,
+// Calculate Modified Median score, based on opponent's scores.
+//
+// It is a variant of Buchholz, with difference that
+// unplayed games are counted as opponents with adjusted scores of 0.
+function calcModifiedMedian(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
   forRound: number): number {
-  const len = Math.min(games.length, forRound);
+  const { players } = tournament;
 
-  const scores: number[] = [];
+  const len = Math.min(games.length, forRound);
+  const opScores: number[] = [];
 
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== undefined) {
-      scores.push(players[opponent].scores[r].points);
-    } else {
-      // TODO Calculate virtual opponent score
+    if (gameWasPlayed(games[r])) {
+      opScores.push(tournament.calculatePoints(forRound, players[opponent!].games, true));
     }
+    // If the player involved in the tie has any unplayed games,
+    // they count as opponents with adjusted scores of 0.
   }
 
-  scores.sort((a, b) => a - b);
+  opScores.sort((a, b) => a - b);
+
+  function getRange() {
+    const cutAmount = (len >= 9) ? 2 : 1;
+    const halfMaxPoints = (tournament.configuration.pointsForWin * forRound) / 2;
+    if (scores[forRound - 1].points > halfMaxPoints) {
+      return { low: cutAmount, high: opScores.length };
+    }
+    if (scores[forRound - 1].points < halfMaxPoints) {
+      return { low: 0, high: opScores.length - cutAmount };
+    }
+    return { low: cutAmount, high: opScores.length - cutAmount };
+  }
+
+  const range = getRange();
 
   // Calculate Median-Buchholz by excluding the highest and the lowest scores
   let calcPts = 0;
-  for (let i = 1, sLen = scores.length - 1; i < sLen; ++i) {
-    calcPts += scores[i];
+  for (let i = range.low; i < range.high; ++i) {
+    calcPts += opScores[i];
   }
   return calcPts;
 }
 
-function calcBuchholzCutOne({ players }: TournamentData,
-  { games }: TrfPlayer,
+// Calculate Solkoff score, based on opponent's scores.
+//
+// It is a variant of Buchholz, with difference that
+// unplayed games are counted as opponents with adjusted scores of 0.
+function calcSolkoff(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
   forRound: number): number {
+  const { players } = tournament;
+
+  const len = Math.min(games.length, forRound);
+  let calcPts = 0;
+
+  for (let r = 0; r < len; ++r) {
+    const { opponent } = games[r];
+    if (gameWasPlayed(games[r])) {
+      calcPts += tournament.calculatePoints(forRound, players[opponent!].games, true);
+    }
+    // If the player involved in the tie has any unplayed games,
+    // they count as opponents with adjusted scores of 0.
+  }
+
+  return calcPts;
+}
+
+// Calculate Buchholz score, based on opponent's scores.
+// Not played opponents' games are counted as if played against virtual opponent.
+function calcBuchholz(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
+  forRound: number): number {
+  const { players } = tournament;
+
+  const len = Math.min(games.length, forRound);
+  let calcPts = 0;
+
+  for (let r = 0; r < len; ++r) {
+    const { opponent } = games[r];
+    if (gameWasPlayed(games[r])) {
+      calcPts += tournament.calculatePoints(forRound, players[opponent!].games, true);
+    } else {
+      calcPts += calculateVirtualOpponentScore(tournament,
+        games[r],
+        scores[r].points,
+        forRound);
+    }
+  }
+
+  return calcPts;
+}
+
+function calcMedianBuchholz(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
+  forRound: number): number {
+  const { players } = tournament;
+
+  const len = Math.min(games.length, forRound);
+  const opScores: number[] = [];
+
+  for (let r = 0; r < len; ++r) {
+    const { opponent } = games[r];
+    if (gameWasPlayed(games[r])) {
+      opScores.push(tournament.calculatePoints(forRound, players[opponent!].games, true));
+    } else {
+      opScores.push(calculateVirtualOpponentScore(tournament,
+        games[r],
+        scores[r].points,
+        forRound));
+    }
+  }
+
+  opScores.sort((a, b) => a - b);
+
+  // Calculate Median-Buchholz by excluding the highest and the lowest scores
+  let calcPts = 0;
+  for (let i = 1, sLen = opScores.length - 1; i < sLen; ++i) {
+    calcPts += opScores[i];
+  }
+  return calcPts;
+}
+
+function calcBuchholzCutOne(tournament: TournamentData,
+  { games, scores }: TrfPlayer,
+  forRound: number): number {
+  const { players } = tournament;
+
+  const len = Math.min(games.length, forRound);
   let calcPts = 0;
   let lowestScore = Infinity;
 
-  const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== undefined) {
-      const opPoints = players[opponent].scores[r].points;
+    if (gameWasPlayed(games[r])) {
+      const opPoints = tournament.calculatePoints(forRound, players[opponent!].games, true);
       calcPts += opPoints;
       if (opPoints < lowestScore) {
         lowestScore = opPoints;
       }
     } else {
-      // TODO Calculate virtual opponent score
+      const opPoints = calculateVirtualOpponentScore(tournament,
+        games[r],
+        scores[r].points,
+        forRound);
+      calcPts += opPoints;
+      if (opPoints < lowestScore) {
+        lowestScore = opPoints;
+      }
     }
   }
 
@@ -316,6 +418,33 @@ function calcAvgRatingOfOpponentsCutOne({ players }: TournamentData,
   return roundsPlayed > 0 ? Math.floor(sumRating / roundsPlayed) : 0;
 }
 
+function calcOppositionPerformance({ players }: TournamentData,
+  { games }: TrfPlayer,
+  forRound: number): number {
+  let sumRating = 0;
+  let roundsPlayed = 0;
+
+  const len = Math.min(games.length, forRound);
+  for (let r = 0; r < len; ++r) {
+    const { opponent, result } = games[r];
+    if (opponent !== undefined) {
+      sumRating += players[opponent].rating;
+      if (result === GameResult.WIN
+        || result === GameResult.UNRATED_WIN
+        || result === GameResult.FORFEIT_WIN) {
+        sumRating += 400;
+      } else if (result === GameResult.LOSS
+        || result === GameResult.UNRATED_LOSS
+        || result === GameResult.FORFEIT_LOSS) {
+        sumRating -= 400;
+      }
+      roundsPlayed += 1;
+    }
+  }
+
+  return roundsPlayed !== 0 ? Math.floor(sumRating / roundsPlayed) : 0;
+}
+
 // There is no calculating function for head-to-head.
 // It must be handled on per-pair basis.
 export function compareHeadToHead(first: TrfPlayer, second: TrfPlayer): number {
@@ -339,6 +468,7 @@ export function compareHeadToHead(first: TrfPlayer, second: TrfPlayer): number {
 
 type CalcFunction = (tournament: TournamentData, player: TrfPlayer, forRound: number) => number;
 const tiebreakerMap: Record<Tiebreaker, CalcFunction> = {
+  [Tiebreaker.HEAD_TO_HEAD]: () => 0,
   [Tiebreaker.CUMULATIVE]: calcCumulativeCut(0),
   [Tiebreaker.CUMULATIVE_CUT_1]: calcCumulativeCut(1),
   [Tiebreaker.OPPOSITION_CUMULATIVE]: calcOppositionCumulative,
@@ -350,12 +480,14 @@ const tiebreakerMap: Record<Tiebreaker, CalcFunction> = {
   [Tiebreaker.PLAYED_BLACKS]: calcGamesWithBlack,
   [Tiebreaker.KASHDAN]: calcKashdan,
   [Tiebreaker.SONNEBORN_BERGER]: calcSonnebornBerger,
+  [Tiebreaker.BUCHHOLZ]: calcBuchholz,
+  [Tiebreaker.BUCHHOLZ_CUT_1]: calcBuchholzCutOne,
+  [Tiebreaker.MEDIAN_BUCHHOLZ]: calcMedianBuchholz,
+  [Tiebreaker.MODIFIED_MEDIAN]: calcModifiedMedian,
+  [Tiebreaker.SOLKOFF]: calcSolkoff,
   [Tiebreaker.ARO]: calcAvgRatingOfOpponents,
   [Tiebreaker.AROC_1]: calcAvgRatingOfOpponentsCutOne,
-  [Tiebreaker.HEAD_TO_HEAD]: () => 0,
-  [Tiebreaker.BUCHHOLZ]: calcBuchholz,
-  [Tiebreaker.MEDIAN_BUCHHOLZ]: calcMedianBuchholz,
-  [Tiebreaker.BUCHHOLZ_CUT_1]: calcBuchholzCutOne,
+  [Tiebreaker.OPPOSITION_PERFORMANCE]: calcOppositionPerformance,
 };
 
 export function calculateValue(
@@ -365,7 +497,7 @@ export function calculateValue(
   forRound: number
 ): number {
   const tiebreakerFunc = tiebreakerMap[tiebreaker];
-  return tiebreakerFunc?.(tournament, player, forRound) ?? 0.0;
+  return tiebreakerFunc(tournament, player, forRound);
 }
 
 export function calculateTiebreakers(

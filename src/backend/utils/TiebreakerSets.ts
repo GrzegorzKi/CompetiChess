@@ -1,6 +1,21 @@
 import Tiebreaker from '../types/Tiebreaker';
 
 /*
+  Tiebreak rules used by USCF Swiss tournaments. Described by paragraph:
+  34E. Calculating Swiss tiebreaks.
+  <br/>
+  Last checked: November 2021
+  <br/>
+  @link https://web.archive.org/web/20211103174613/https://new.uschess.org/sites/default/files/media/documents/us-chess-rule-book-online-only-edition-chapters-1-2-9-10-11-8-23-21.pdf
+ */
+export const USCFSwiss = [
+  Tiebreaker.MODIFIED_MEDIAN,
+  Tiebreaker.SOLKOFF,
+  Tiebreaker.CUMULATIVE,
+  Tiebreaker.OPPOSITION_CUMULATIVE
+] as const;
+
+/*
   Tiebreak rules used by Madison City Chess League Swiss tournaments.
   <br/>
   Last checked: November 2021
@@ -10,7 +25,7 @@ import Tiebreaker from '../types/Tiebreaker';
 export const MadisonCityChessLeagueSwiss = [
   // Tiebreaker.MODIFIED_MEDIAN,
   Tiebreaker.CUMULATIVE,
-  // Tiebreaker.SOLKOFF,
+  Tiebreaker.SOLKOFF,
   Tiebreaker.OPPOSITION_CUMULATIVE
 ] as const;
 
@@ -34,7 +49,7 @@ export const MadisonCityChessLeagueRoundRobin = [
   <br/>
   @link https://web.archive.org/web/20210824213036/https://handbook.fide.com/files/handbook/C02Standards.pdf
  */
-export const FideIndividualSwissRatingsNotConsistent = [
+export const FideSwissRatingsNotConsistent = [
   Tiebreaker.BUCHHOLZ_CUT_1,
   Tiebreaker.BUCHHOLZ,
   Tiebreaker.SONNEBORN_BERGER,
@@ -53,7 +68,7 @@ export const FideIndividualSwissRatingsNotConsistent = [
   <br/>
   @link https://web.archive.org/web/20210824213036/https://handbook.fide.com/files/handbook/C02Standards.pdf
  */
-export const FideIndividualSwissRatingsConsistent = [
+export const FideSwissRatingsConsistent = [
   Tiebreaker.BUCHHOLZ_CUT_1,
   Tiebreaker.BUCHHOLZ,
   // TODO Should be DIRECT_ENCOUNTER. Yet, it is not as easy to implement.

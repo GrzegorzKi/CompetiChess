@@ -2,10 +2,11 @@ import { Acceleration } from '../TrfxParser/parseAcceleration';
 import {
   CompareType, createComparator, sortByScore, sortByTiebreaker
 } from '../utils/SortUtils';
+import { FideSwissRatingsNotConsistent } from '../utils/TiebreakerSets';
 import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
-import Tiebreaker, { calculateTiebreakers } from './Tiebreaker';
+import { calculateTiebreakers } from './Tiebreaker';
 import TrfFileFormat, {
   Color,
   Configuration,
@@ -26,11 +27,7 @@ export function createDefaultConfiguration(): Configuration {
     pointsForPairingAllocatedBye: 1.0,
     pointsForZeroPointBye: 0.0,
     pointsForForfeitLoss: 0.0,
-    tiebreakers: [
-      Tiebreaker.CUMULATIVE,
-      Tiebreaker.ROUNDS_WON,
-      Tiebreaker.ROUNDS_WON_BLACK_PIECES,
-    ],
+    tiebreakers: [...FideSwissRatingsNotConsistent],
   };
 }
 
