@@ -28,16 +28,16 @@ export default Tiebreaker;
 
 function calcCumulativeCut(roundsCut: number): CalcFunction {
   return (tournament: TournamentData,
-    { games, scores, playerId }: TrfPlayer,
+    { games, scores }: TrfPlayer,
     forRound: number): number => {
     const len = Math.min(games.length, forRound);
 
     let calcPts = 0.0;
     for (let r = roundsCut; r < len; ++r) {
       calcPts += scores[r].points;
-      if (isUnplayedWin(playerId, games[r])) {
+      if (isUnplayedWin(games[r])) {
         calcPts -= 1;
-      } else if (isUnplayedDraw(playerId, games[r])) {
+      } else if (isUnplayedDraw(games[r])) {
         calcPts -= 0.5;
       }
     }
@@ -47,14 +47,14 @@ function calcCumulativeCut(roundsCut: number): CalcFunction {
 }
 
 function calcOppositionCumulative(tournament: TournamentData,
-  { games }: TrfPlayer,
+  { games, playerId }: TrfPlayer,
   forRound: number): number {
   const { players } = tournament;
   const round = Math.min(games.length, forRound);
 
   let calcCumul = 0.0;
   for (let r = 0; r < round; ++r) {
-    const { opponent } = games[r];
+    const opponent = games[r].opponent ?? playerId;
 
     // Always calculate cumulative tiebreaker first
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -86,13 +86,13 @@ function calcProgressiveCut(roundsCut: number): CalcFunction {
 }
 
 function calcRoundsWon(_: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let roundsWon = 0;
   const len = Math.min(games.length, forRound);
   for (let i = 0; i < len; ++i) {
     const { result, opponent } = games[i];
-    if (playerId !== opponent && (result === '1' || result === 'W' || result === '+')) {
+    if (opponent !== undefined && (result === '1' || result === 'W' || result === '+')) {
       roundsWon += 1;
     }
   }
@@ -100,14 +100,14 @@ function calcRoundsWon(_: TournamentData,
 }
 
 function calcRoundsWonBlackPieces(_: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let roundsWon = 0;
 
   const len = Math.min(games.length, forRound);
   for (let i = 0; i < len; ++i) {
     const { color, result, opponent } = games[i];
-    if (playerId !== opponent && color === Color.BLACK && (result === '1' || result === 'W')) {
+    if (opponent !== undefined && color === Color.BLACK && (result === '1' || result === 'W')) {
       roundsWon += 1;
     }
   }
@@ -128,13 +128,13 @@ function calcTimeOfLoss(_: TournamentData,
 }
 
 function calcGamesWithBlack(_: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let roundsBlack = 0;
 
   const len = Math.min(games.length, forRound);
   for (let round = 0; round < len; ++round) {
-    if (gameWasPlayed(games[round], playerId) && games[round].color === Color.BLACK) {
+    if (gameWasPlayed(games[round]) && games[round].color === Color.BLACK) {
       roundsBlack += 1;
     }
   }
@@ -142,13 +142,13 @@ function calcGamesWithBlack(_: TournamentData,
 }
 
 function calcKashdan(_: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let calcPts = 0;
 
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
-    if (gameWasPlayed(games[r], playerId)) {
+    if (gameWasPlayed(games[r])) {
       const { result } = games[r];
       if (result === '1' || result === 'W') {
         calcPts += 4;
@@ -167,14 +167,14 @@ function calcKashdan(_: TournamentData,
 // Not played opponents' games are counted with their real score.
 // (In contrast to other methods, like counting as a draw regardless of the result)
 function calcSonnebornBerger({ players }: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let calcPts = 0;
 
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
     const { opponent, result } = games[r];
-    if (opponent !== playerId) {
+    if (opponent !== undefined) {
       if (result === '1' || result === 'W' || result === '+') {
         calcPts += players[opponent].scores[r].points;
       } else if (result === '=' || result === 'D') {
@@ -189,7 +189,7 @@ function calcSonnebornBerger({ players }: TournamentData,
 }
 
 function calcBuchholz(tournament: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   const { players } = tournament;
   let calcPts = 0;
@@ -197,7 +197,7 @@ function calcBuchholz(tournament: TournamentData,
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== playerId) {
+    if (opponent !== undefined) {
       calcPts += players[opponent].scores[r].points;
       const opGames = players[opponent].games;
       for (let i = 0; i < opGames.length; ++i) {
@@ -216,7 +216,7 @@ function calcBuchholz(tournament: TournamentData,
 }
 
 function calcMedianBuchholz({ players }: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   const len = Math.min(games.length, forRound);
 
@@ -224,7 +224,7 @@ function calcMedianBuchholz({ players }: TournamentData,
 
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== playerId) {
+    if (opponent !== undefined) {
       scores.push(players[opponent].scores[r].points);
     } else {
       // TODO Calculate virtual opponent score
@@ -242,7 +242,7 @@ function calcMedianBuchholz({ players }: TournamentData,
 }
 
 function calcBuchholzCutOne({ players }: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let calcPts = 0;
   let lowestScore = Infinity;
@@ -250,7 +250,7 @@ function calcBuchholzCutOne({ players }: TournamentData,
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== playerId) {
+    if (opponent !== undefined) {
       const opPoints = players[opponent].scores[r].points;
       calcPts += opPoints;
       if (opPoints < lowestScore) {
@@ -265,7 +265,7 @@ function calcBuchholzCutOne({ players }: TournamentData,
 }
 
 function calcAvgRatingOfOpponents({ players }: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let sumRating = 0;
   let roundsPlayed = 0;
@@ -273,7 +273,7 @@ function calcAvgRatingOfOpponents({ players }: TournamentData,
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
-    if (opponent !== playerId) {
+    if (opponent !== undefined) {
       sumRating += players[opponent].rating;
       roundsPlayed += 1;
     }
@@ -283,7 +283,7 @@ function calcAvgRatingOfOpponents({ players }: TournamentData,
 }
 
 function calcAvgRatingOfOpponentsCutOne({ players }: TournamentData,
-  { games, playerId }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   let sumRating = 0;
   let roundsPlayed = 0;
@@ -294,8 +294,8 @@ function calcAvgRatingOfOpponentsCutOne({ players }: TournamentData,
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     // We cut forfeits and byes from calculations, according to FIDE regulations
-    if (gameWasPlayed(games[r], playerId)) {
-      const opRating = players[opponent].rating;
+    if (gameWasPlayed(games[r])) {
+      const opRating = players[opponent!].rating;
       sumRating += opRating;
       roundsPlayed += 1;
       if (opRating < lowestRating) {

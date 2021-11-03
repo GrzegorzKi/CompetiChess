@@ -161,7 +161,7 @@ export interface TrfTeam {
 }
 
 export interface TrfGame {
-  opponent: number;
+  opponent?: number;
   color: Color;
   result: GameResult;
   round: number;

@@ -40,48 +40,48 @@ export function isValidResult(result: string): result is GameResult {
   return gameResults.includes(result);
 }
 
-export function validateGameEntry({ opponent, color, result }: TrfGame, playerId: number): boolean {
-  if (color !== Color.NONE && opponent === playerId) {
+export function validateGameEntry({ opponent, color, result }: TrfGame): boolean {
+  if (color !== Color.NONE && opponent === undefined) {
     return false;
   }
 
-  if (byeResults.includes(result) && opponent !== playerId) {
+  if (byeResults.includes(result) && opponent !== undefined) {
     return false;
   }
 
   if (!unplayedResults.includes(result)
     && color === Color.NONE
-    && (opponent !== playerId || result !== GameResult.DRAW)) {
+    && (opponent !== undefined || result !== GameResult.DRAW)) {
     return false;
   }
 
   return true;
 }
 
-export function participatedInPairing({ opponent, result }: TrfGame, playerId: number): boolean {
-  return opponent !== playerId
-    || result === GameResult.PAIRING_ALLOCATED_BYE;
+export function participatedInPairing({ opponent, result }: TrfGame): boolean {
+  return opponent !== undefined || result === GameResult.PAIRING_ALLOCATED_BYE;
 }
 
-export function gameWasPlayed({ opponent, color, result }: TrfGame, playerId: number): boolean {
-  return opponent !== playerId
+export function gameWasPlayed({ opponent, color, result }: TrfGame): boolean {
+  return opponent !== undefined
     && color !== Color.NONE
     && result !== GameResult.FORFEIT_WIN
     && result !== GameResult.FORFEIT_LOSS;
 }
 
-export function isUnplayedWin(playerId: number, { opponent, result }: TrfGame): boolean {
+export function isUnplayedWin({ opponent, result }: TrfGame): boolean {
   // In case of using normal result symbols on unplayed games
-  if (playerId === opponent && (result === GameResult.WIN || result === GameResult.UNRATED_WIN)) {
+  if (opponent === undefined && (result === GameResult.WIN || result === GameResult.UNRATED_WIN)) {
     return true;
   }
   return result === GameResult.FORFEIT_WIN
     || result === GameResult.FULL_POINT_BYE;
 }
 
-export function isUnplayedDraw(playerId: number, { opponent, result }: TrfGame): boolean {
+export function isUnplayedDraw({ opponent, result }: TrfGame): boolean {
   // In case of using normal result symbols on unplayed games
-  if (playerId === opponent && (result === GameResult.DRAW || result === GameResult.UNRATED_DRAW)) {
+  if (opponent === undefined
+    && (result === GameResult.DRAW || result === GameResult.UNRATED_DRAW)) {
     return true;
   }
   return result === GameResult.HALF_POINT_BYE;
@@ -92,7 +92,7 @@ export function calculatePlayedRounds(players: TrfPlayer[]): number {
   players.forEach((player) => {
     for (let num = player.games.length - 1; num >= 0; --num) {
       const game = player.games[num];
-      if (participatedInPairing(game, player.playerId)) {
+      if (participatedInPairing(game)) {
         if (num >= playedRounds) {
           playedRounds = num + 1;
         }
@@ -106,7 +106,7 @@ export function calculatePlayedRounds(players: TrfPlayer[]): number {
 export function evenUpMatchHistories(players: TrfPlayer[], upTo: number): void {
   players.forEach((player) => {
     for (let num = player.games.length; num < upTo; ++num) {
-      player.games.push(defaultTrfGame(num, player.playerId));
+      player.games.push(defaultTrfGame(num));
     }
   });
 }

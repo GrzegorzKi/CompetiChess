@@ -128,10 +128,10 @@ class TournamentData implements TrfFileFormat {
       if (this.players[i] !== undefined) {
         const { games, playerId } = this.players[i];
         for (let r = 0, rLen = games.length; r < rLen; ++r) {
-          if (gameWasPlayed(games[r], playerId)) {
-            const opponent = this.players[games[r].opponent];
+          if (gameWasPlayed(games[r])) {
+            const opponent = this.players[games[r].opponent!];
             if (opponent === undefined
-              || !gameWasPlayed(opponent.games[r], opponent.playerId)
+              || !gameWasPlayed(opponent.games[r])
               || opponent.games[r].color === games[r].color
               || opponent.games[r].opponent !== playerId) {
               return {
@@ -149,11 +149,14 @@ class TournamentData implements TrfFileFormat {
     return null;
   }
 
-  calculatePoints = (forRound: number, games: TrfGame[]): number => {
+  calculatePoints = (forRound: number, games: TrfGame[], notPlayedIsDraw = false): number => {
+    const getPoints = notPlayedIsDraw
+      ? this.getPointsUnplayedAsDraw
+      : this.getPoints;
     let calcPts = 0.0;
     const maxLen = Math.min(games.length, forRound);
     for (let r = 0; r < maxLen; ++r) {
-      calcPts += this.getPoints(games[r]);
+      calcPts += getPoints(games[r]);
     }
     return calcPts;
   }
@@ -211,6 +214,13 @@ class TournamentData implements TrfFileFormat {
     }
   }
 
+  getPointsUnplayedAsDraw = (game: TrfGame): number => {
+    if (gameWasPlayed(game)) {
+      return this.getPoints(game);
+    }
+    return this.configuration.pointsForDraw;
+  }
+
   /**
    * Check that the score in the TRF matches the score computed by counting
    * the number of wins and draws for that player and (optionally) adding
@@ -261,9 +271,8 @@ class TournamentData implements TrfFileFormat {
     for (let r = 0; r < this.playedRounds; ++r) {
       for (let i = 0, pLen = playersToIter.length; i < pLen; ++i) {
         const trfGame = playersToIter[i]?.games[r];
-        const playerId = playersToIter[i]?.playerId;
 
-        if (trfGame !== undefined && participatedInPairing(trfGame, playerId)) {
+        if (trfGame !== undefined && participatedInPairing(trfGame)) {
           if (trfGame.color !== Color.NONE) {
             return (invert
               ? invertColor(trfGame.color)

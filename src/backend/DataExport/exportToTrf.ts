@@ -26,16 +26,17 @@ function stringifyGames(games: TrfGame[],
 
   const len = Math.min(games.length, toRound);
   for (let i = 0; i < len; ++i) {
+    const { opponent } = games[i];
     string += '  ';
-    string += (games[i].opponent === playerId)
-      ? '    '
-      : (games[i].opponent + 1).toString().padStart(4);
+    string += (opponent !== undefined)
+      ? (opponent + 1).toString().padStart(4)
+      : '    ';
     string += ` ${games[i].color} ${games[i].result}`;
   }
 
   if (includeNextRoundBye) {
     if (games[toRound] !== undefined
-      && games[toRound].opponent === playerId
+      && games[toRound].opponent === undefined
       && nextRoundByes.includes(games[toRound].result)) {
       string += `       - ${games[toRound].result}`;
     }
@@ -133,10 +134,10 @@ export default function exportToTrf(tournament: TournamentData, {
 
   const { playersByRank } = tournament.computeRanks(forRound);
 
-  function getPoints({ scores, games, playerId }: TrfPlayer) {
+  function getPoints({ scores, games }: TrfPlayer) {
     if (exportForPairing) {
       if (games[forRound] !== undefined
-        && games[forRound].opponent === playerId
+        && games[forRound].opponent === undefined
         && nextRoundByes.includes(games[forRound].result)) {
         return scores[forRound].points;
       }
