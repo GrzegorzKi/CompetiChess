@@ -1,4 +1,4 @@
-import Tiebreaker from '../types/Tiebreaker';
+import Tiebreaker, { compareHeadToHead } from '../types/Tiebreaker';
 import { TrfPlayer } from '../types/TrfFileFormat';
 
 export type CompareType = {
@@ -32,7 +32,10 @@ export function sortByScore(round: number) {
 }
 
 // Sorts players by selected tie-breaker in descending order
-export function sortByTiebreaker(round: number, tiebreaker: Tiebreaker) {
+export function sortByTiebreaker(round: number, tiebreaker: Tiebreaker): PlayerComparator {
+  if (tiebreaker === Tiebreaker.HEAD_TO_HEAD) {
+    return compareHeadToHead;
+  }
   return (first: TrfPlayer, second: TrfPlayer): number => {
     const firstScore = first.scores[round - 1]?.tiebreakers[tiebreaker] ?? 0;
     const secondScore = second.scores[round - 1]?.tiebreakers[tiebreaker] ?? 0;
