@@ -71,15 +71,16 @@ export function gameWasPlayed({ opponent, color, result }: TrfGame, playerId: nu
 }
 
 export function isUnplayedWin(playerId: number, { opponent, result }: TrfGame): boolean {
+  // In case of using normal result symbols on unplayed games
   if (playerId === opponent && (result === GameResult.WIN || result === GameResult.UNRATED_WIN)) {
     return true;
   }
   return result === GameResult.FORFEIT_WIN
-    || result === GameResult.FULL_POINT_BYE
-    || result === GameResult.PAIRING_ALLOCATED_BYE;
+    || result === GameResult.FULL_POINT_BYE;
 }
 
 export function isUnplayedDraw(playerId: number, { opponent, result }: TrfGame): boolean {
+  // In case of using normal result symbols on unplayed games
   if (playerId === opponent && (result === GameResult.DRAW || result === GameResult.UNRATED_DRAW)) {
     return true;
   }

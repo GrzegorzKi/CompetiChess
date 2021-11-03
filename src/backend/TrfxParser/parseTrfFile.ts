@@ -189,6 +189,9 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
       tournamentData.recalculateScores(tournamentData.playersByPosition[i]);
     }
+    for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
+      tournamentData.recalculateTiebreakers(tournamentData.playersByPosition[i]);
+    }
     // TODO At last, check ranks and normalize if necessary
 
     return { trfxData: tournamentData, warnings };

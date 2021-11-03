@@ -62,4 +62,4 @@ XXR 9
 001   49 m    Elduayen Echave Ramon             1455 ESP    32041292 1998        1.0   46    23 b 0    36 w 1    19 b 0    15 w 0
 001   50 m    Goienetxea Yarza Jesus               0 ESP    22235507 1952        1.0   45    24 w 0  0000 - +    23 b 0    46 w 0
 001   51 m    Garcia De Madinabeitia Jose L        0 ESP     2211882 1931        0.5   51    25 b 0  0000 - =    37 w 0    40 b 0
-001   52 m    Darbinyan Vigen                      0 ESP    32022972 1978        2.5   19  0000 - +    12 b 0    24 w =    25 w 1           
+001   52 m    Darbinyan Vigen                      0 ESP    32022972 1978        2.5   19  0000 - +    12 b 0    24 w =    25 w 1

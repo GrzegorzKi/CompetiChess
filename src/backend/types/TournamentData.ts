@@ -161,8 +161,8 @@ class TournamentData implements TrfFileFormat {
   recalculateScores = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
     const { games, scores } = player;
     if (fromRound - 1 < scores.length) {
-      this.recalculateScores(player, toRound, scores.length + 1);
-      return;
+      // eslint-disable-next-line no-param-reassign
+      fromRound = scores.length + 1;
     }
     let calcPts = (fromRound > 1 ? scores[fromRound - 2].points : 0.0);
 
@@ -170,6 +170,17 @@ class TournamentData implements TrfFileFormat {
     for (let r = fromRound - 1; r < maxLen; ++r) {
       calcPts += this.getPoints(games[r]);
       scores[r] = { round: r + 1, points: calcPts, tiebreakers: {} };
+    }
+  }
+
+  recalculateTiebreakers = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
+    const { games, scores } = player;
+    if (fromRound - 1 < scores.length) {
+      this.recalculateScores(player, toRound, scores.length + 1);
+    }
+
+    const maxLen = Math.min(games.length, toRound);
+    for (let r = fromRound - 1; r < maxLen; ++r) {
       scores[r].tiebreakers = calculateTiebreakers(this, player, r + 1);
     }
   }
@@ -266,27 +277,42 @@ class TournamentData implements TrfFileFormat {
     return Color.NONE;
   }
 
-  computeRanks = (forRound: number): Record<number, number> => {
-    const playersToIter = this.configuration.matchByRank
-      ? this.playersByPosition
-      : this.players;
-    const rankedPlayers = playersToIter.map((player, index): CompareType => ({ index, player }));
-    const tbComparators = this.configuration.tiebreakers.map(
-      (tb) => sortByTiebreaker(forRound, tb)
-    );
-    rankedPlayers.sort(createComparator([
-      sortByScore(forRound),
-      ...tbComparators
-    ]));
+  computeRanks = (forRound: number): {
+    playersByRank: Record<number, number>,
+    sortedPlayers: CompareType[]
+  } => {
+    const sortedPlayers = this.sortByRank(forRound);
 
     let rankIndex = 1;
-    const ranksArray: Record<number, number> = {};
-    for (let i = 0, len = rankedPlayers.length; i < len; ++i) {
-      ranksArray[rankedPlayers[i].player.playerId] = rankIndex;
+    const playersByRank: Record<number, number> = {};
+    for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
+      playersByRank[sortedPlayers[i].player.playerId] = rankIndex;
       rankIndex += 1;
     }
 
-    return ranksArray;
+    return {
+      playersByRank,
+      sortedPlayers
+    };
+  }
+
+  sortByRank = (forRound: number): CompareType[] => {
+    const playersToIter = this.configuration.matchByRank
+      ? this.playersByPosition
+      : this.players;
+    const rankedPlayers = playersToIter.map((player, index): CompareType => ({
+      index,
+      player,
+    }));
+
+    const tbComparators = this.configuration.tiebreakers.map(
+      (tb) => sortByTiebreaker(forRound, tb),
+    );
+    rankedPlayers.sort(createComparator([
+      sortByScore(forRound),
+      ...tbComparators,
+    ]));
+    return rankedPlayers;
   }
 }
 

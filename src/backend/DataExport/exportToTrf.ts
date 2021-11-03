@@ -131,14 +131,17 @@ export default function exportToTrf(tournament: TournamentData, {
     resultString += exportColorRankConfig(tournament);
   }
 
-  const playersByRank = tournament.computeRanks(forRound);
+  const { playersByRank } = tournament.computeRanks(forRound);
 
   function getPoints({ scores, games, playerId }: TrfPlayer) {
-    if (games[forRound] !== undefined
-      && games[forRound].opponent === playerId
-      && nextRoundByes.includes(games[forRound].result)) {
-      return scores[forRound].points;
+    if (exportForPairing) {
+      if (games[forRound] !== undefined
+        && games[forRound].opponent === playerId
+        && nextRoundByes.includes(games[forRound].result)) {
+        return scores[forRound].points;
+      }
     }
+
     if (forRound <= 0) {
       return 0;
     }
