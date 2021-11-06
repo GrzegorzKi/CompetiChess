@@ -1,4 +1,4 @@
-import Tiebreaker, { compareHeadToHead } from '../types/Tiebreaker';
+import Tiebreaker, { compareHeadToHead } from '../Tiebreaker/Tiebreaker';
 import { TrfPlayer } from '../types/TrfFileFormat';
 
 export type CompareType = {

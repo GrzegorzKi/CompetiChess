@@ -1,4 +1,4 @@
-import Tiebreaker from '../types/Tiebreaker';
+import Tiebreaker from './Tiebreaker';
 
 /*
   Tiebreak rules used by USCF Swiss tournaments. Described by paragraph:
@@ -90,5 +90,5 @@ export const FideIndividualRoundRobin = [
   Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.SONNEBORN_BERGER,
-  // Tiebreaker.KOYA
+  Tiebreaker.KOYA
 ] as const;

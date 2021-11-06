@@ -1,12 +1,12 @@
+import { calculateTiebreakers } from '../Tiebreaker/Tiebreaker';
+import { FideSwissRatingsNotConsistent } from '../Tiebreaker/TiebreakerSets';
 import { Acceleration } from '../TrfxParser/parseAcceleration';
 import {
   CompareType, createComparator, sortByScore, sortByTiebreaker
 } from '../utils/SortUtils';
-import { FideSwissRatingsNotConsistent } from '../utils/TiebreakerSets';
 import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
-import { calculateTiebreakers } from './Tiebreaker';
 import TrfFileFormat, {
   Color,
   Configuration,

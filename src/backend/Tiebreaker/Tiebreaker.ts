@@ -1,11 +1,11 @@
-import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '../utils/TrfUtils';
-
-import TournamentData from './TournamentData';
+import TournamentData from '../types/TournamentData';
 import {
   Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer
-} from './TrfFileFormat';
+} from '../types/TrfFileFormat';
+import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '../utils/TrfUtils';
 
 const enum Tiebreaker {
+  DIRECT_ENCOUNTER,
   CUMULATIVE,
   CUMULATIVE_CUT_1,
   OPPOSITION_CUMULATIVE,
@@ -15,7 +15,6 @@ const enum Tiebreaker {
   ROUNDS_WON_BLACK_PIECES,
   PLAYED_BLACKS,
   TIME_OF_LOSS,
-  DIRECT_ENCOUNTER,
   KASHDAN,
   SONNEBORN_BERGER,
   BUCHHOLZ,
@@ -26,6 +25,7 @@ const enum Tiebreaker {
   ARO,
   AROC_1,
   OPPOSITION_PERFORMANCE,
+  KOYA,
 }
 export default Tiebreaker;
 
@@ -211,6 +211,7 @@ function calcModifiedMedian(tournament: TournamentData,
   forRound: number): number {
   const { players } = tournament;
 
+  const halfMaxPoints = (tournament.configuration.pointsForWin * forRound) / 2;
   const len = Math.min(games.length, forRound);
   const opScores: number[] = [];
 
@@ -227,7 +228,6 @@ function calcModifiedMedian(tournament: TournamentData,
 
   function getRange() {
     const cutAmount = (len >= 9) ? 2 : 1;
-    const halfMaxPoints = (tournament.configuration.pointsForWin * forRound) / 2;
     if (scores[forRound - 1].points > halfMaxPoints) {
       return { low: cutAmount, high: opScores.length };
     }
@@ -429,6 +429,29 @@ function calcOppositionPerformance({ players }: TournamentData,
   }
 
   return roundsPlayed !== 0 ? Math.floor(sumRating / roundsPlayed) : 0;
+}
+
+function calcKoyaSystem(tournament: TournamentData,
+  { games }: TrfPlayer,
+  forRound: number): number {
+  const { players, configuration } = tournament;
+
+  const halfMaxPoints = (configuration.pointsForWin * forRound) / 2;
+  const len = Math.min(games.length, forRound);
+  let calcPts = 0;
+
+  for (let r = 0; r < len; ++r) {
+    const { opponent } = games[r];
+    if (opponent !== undefined) {
+      const opPoints = players[opponent].scores[forRound - 1].points;
+
+      if (opPoints >= halfMaxPoints) {
+        calcPts += tournament.getPoints(games[r]);
+      }
+    }
+  }
+
+  return calcPts;
 }
 
 // There is no calculating function for head-to-head.
@@ -685,6 +708,14 @@ przegrane odejmują 400 punktów.`,
     calculate: calcOppositionPerformance,
     decimalPlaces: 0
   },
+  [Tiebreaker.KOYA]: {
+    abbr: 'Koya',
+    name: 'System Koya',
+    description: `System przeznaczony dla turniejów w systemie Round Robin.
+Obliczana jest suma punktów uzyskana przeciwko przeciwnikom, którzy osiągnęli
+wynik powyżej 50% wszystkich punktów.`,
+    calculate: calcKoyaSystem
+  }
 };
 
 export function calculateValue(

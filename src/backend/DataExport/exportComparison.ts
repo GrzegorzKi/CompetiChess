@@ -1,4 +1,4 @@
-import Tiebreaker, { tiebreakers } from '../types/Tiebreaker';
+import Tiebreaker, { tiebreakers } from '../Tiebreaker/Tiebreaker';
 import TournamentData from '../types/TournamentData';
 import { TrfPlayer } from '../types/TrfFileFormat';
 
