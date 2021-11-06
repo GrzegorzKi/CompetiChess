@@ -38,7 +38,7 @@ export const MadisonCityChessLeagueSwiss = [
  */
 export const MadisonCityChessLeagueRoundRobin = [
   Tiebreaker.SONNEBORN_BERGER,
-  Tiebreaker.HEAD_TO_HEAD,
+  Tiebreaker.DIRECT_ENCOUNTER,
 ] as const;
 
 /*
@@ -54,8 +54,7 @@ export const FideSwissRatingsNotConsistent = [
   Tiebreaker.BUCHHOLZ,
   Tiebreaker.SONNEBORN_BERGER,
   Tiebreaker.PROGRESSIVE,
-  // TODO Should be DIRECT_ENCOUNTER. Yet, it is not as easy to implement.
-  Tiebreaker.HEAD_TO_HEAD,
+  Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.ROUNDS_WON_BLACK_PIECES
 ] as const;
@@ -71,8 +70,7 @@ export const FideSwissRatingsNotConsistent = [
 export const FideSwissRatingsConsistent = [
   Tiebreaker.BUCHHOLZ_CUT_1,
   Tiebreaker.BUCHHOLZ,
-  // TODO Should be DIRECT_ENCOUNTER. Yet, it is not as easy to implement.
-  Tiebreaker.HEAD_TO_HEAD,
+  Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.AROC_1,
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.ROUNDS_WON_BLACK_PIECES,
@@ -89,7 +87,7 @@ export const FideSwissRatingsConsistent = [
   @link https://web.archive.org/web/20210824213036/https://handbook.fide.com/files/handbook/C02Standards.pdf
  */
 export const FideIndividualRoundRobin = [
-  Tiebreaker.HEAD_TO_HEAD,
+  Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.SONNEBORN_BERGER,
   // Tiebreaker.KOYA

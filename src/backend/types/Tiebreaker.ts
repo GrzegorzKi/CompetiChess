@@ -6,26 +6,26 @@ import {
 } from './TrfFileFormat';
 
 const enum Tiebreaker {
-  CUMULATIVE = 'Cumul',
-  CUMULATIVE_CUT_1 = 'CumC1',
-  OPPOSITION_CUMULATIVE = 'OpCuml',
-  PROGRESSIVE = 'Progr',
-  PROGRESSIVE_CUT_1 = 'PrgC1',
-  ROUNDS_WON = 'RWon',
-  ROUNDS_WON_BLACK_PIECES = 'RWnB',
-  PLAYED_BLACKS = 'Blks',
-  TIME_OF_LOSS = 'TmOL',
-  HEAD_TO_HEAD = 'HtoH',
-  KASHDAN = 'Kash',
-  SONNEBORN_BERGER = '   SB',
-  BUCHHOLZ = 'Buch',
-  BUCHHOLZ_CUT_1 = 'Bch1',
-  MEDIAN_BUCHHOLZ = 'MBch',
-  MODIFIED_MEDIAN = 'ModM',
-  SOLKOFF = 'SOff',
-  ARO = ' ARO',
-  AROC_1 = 'AROC1',
-  OPPOSITION_PERFORMANCE = 'OpPf',
+  CUMULATIVE,
+  CUMULATIVE_CUT_1,
+  OPPOSITION_CUMULATIVE,
+  PROGRESSIVE,
+  PROGRESSIVE_CUT_1,
+  ROUNDS_WON,
+  ROUNDS_WON_BLACK_PIECES,
+  PLAYED_BLACKS,
+  TIME_OF_LOSS,
+  DIRECT_ENCOUNTER,
+  KASHDAN,
+  SONNEBORN_BERGER,
+  BUCHHOLZ,
+  BUCHHOLZ_CUT_1,
+  MEDIAN_BUCHHOLZ,
+  MODIFIED_MEDIAN,
+  SOLKOFF,
+  ARO,
+  AROC_1,
+  OPPOSITION_PERFORMANCE,
 }
 export default Tiebreaker;
 
@@ -38,10 +38,8 @@ function calcCumulativeCut(roundsCut: number): CalcFunction {
     let calcPts = 0.0;
     for (let r = roundsCut; r < len; ++r) {
       calcPts += scores[r].points;
-      if (isUnplayedWin(games[r])) {
-        calcPts -= 1;
-      } else if (isUnplayedDraw(games[r])) {
-        calcPts -= 0.5;
+      if (isUnplayedWin(games[r]) || isUnplayedDraw(games[r])) {
+        calcPts -= tournament.getPoints(games[r]);
       }
     }
 
@@ -181,8 +179,6 @@ function calculateVirtualOpponentScore(tournament: TournamentData,
   return vPoints;
 }
 
-// Calculate Sonneborn-Berger score, based on opponent's scores.
-// Not played opponents' games are counted as if played against virtual opponent.
 function calcSonnebornBerger(tournament: TournamentData,
   { games, scores }: TrfPlayer,
   forRound: number): number {
@@ -210,10 +206,6 @@ function calcSonnebornBerger(tournament: TournamentData,
   return calcPts;
 }
 
-// Calculate Modified Median score, based on opponent's scores.
-//
-// It is a variant of Buchholz, with difference that
-// unplayed games are counted as opponents with adjusted scores of 0.
 function calcModifiedMedian(tournament: TournamentData,
   { games, scores }: TrfPlayer,
   forRound: number): number {
@@ -255,12 +247,8 @@ function calcModifiedMedian(tournament: TournamentData,
   return calcPts;
 }
 
-// Calculate Solkoff score, based on opponent's scores.
-//
-// It is a variant of Buchholz, with difference that
-// unplayed games are counted as opponents with adjusted scores of 0.
 function calcSolkoff(tournament: TournamentData,
-  { games, scores }: TrfPlayer,
+  { games }: TrfPlayer,
   forRound: number): number {
   const { players } = tournament;
 
@@ -279,8 +267,6 @@ function calcSolkoff(tournament: TournamentData,
   return calcPts;
 }
 
-// Calculate Buchholz score, based on opponent's scores.
-// Not played opponents' games are counted as if played against virtual opponent.
 function calcBuchholz(tournament: TournamentData,
   { games, scores }: TrfPlayer,
   forRound: number): number {
@@ -366,7 +352,7 @@ function calcBuchholzCutOne(tournament: TournamentData,
   return calcPts > 0 ? calcPts - lowestScore : 0;
 }
 
-function calcAvgRatingOfOpponents({ players }: TournamentData,
+function calcAvgRatingOfOpposition({ players }: TournamentData,
   { games }: TrfPlayer,
   forRound: number): number {
   let sumRating = 0;
@@ -466,28 +452,239 @@ export function compareHeadToHead(first: TrfPlayer, second: TrfPlayer): number {
   return 0;
 }
 
+type TiebreakerInfo = {
+  abbr: string,
+  name: string,
+  description: string,
+  calculate: CalcFunction,
+  decimalPlaces?: number,
+};
+
 type CalcFunction = (tournament: TournamentData, player: TrfPlayer, forRound: number) => number;
-const tiebreakerMap: Record<Tiebreaker, CalcFunction> = {
-  [Tiebreaker.HEAD_TO_HEAD]: () => 0,
-  [Tiebreaker.CUMULATIVE]: calcCumulativeCut(0),
-  [Tiebreaker.CUMULATIVE_CUT_1]: calcCumulativeCut(1),
-  [Tiebreaker.OPPOSITION_CUMULATIVE]: calcOppositionCumulative,
-  [Tiebreaker.PROGRESSIVE]: calcProgressiveCut(0),
-  [Tiebreaker.PROGRESSIVE_CUT_1]: calcProgressiveCut(1),
-  [Tiebreaker.ROUNDS_WON]: calcRoundsWon,
-  [Tiebreaker.ROUNDS_WON_BLACK_PIECES]: calcRoundsWonBlackPieces,
-  [Tiebreaker.TIME_OF_LOSS]: calcTimeOfLoss,
-  [Tiebreaker.PLAYED_BLACKS]: calcGamesWithBlack,
-  [Tiebreaker.KASHDAN]: calcKashdan,
-  [Tiebreaker.SONNEBORN_BERGER]: calcSonnebornBerger,
-  [Tiebreaker.BUCHHOLZ]: calcBuchholz,
-  [Tiebreaker.BUCHHOLZ_CUT_1]: calcBuchholzCutOne,
-  [Tiebreaker.MEDIAN_BUCHHOLZ]: calcMedianBuchholz,
-  [Tiebreaker.MODIFIED_MEDIAN]: calcModifiedMedian,
-  [Tiebreaker.SOLKOFF]: calcSolkoff,
-  [Tiebreaker.ARO]: calcAvgRatingOfOpponents,
-  [Tiebreaker.AROC_1]: calcAvgRatingOfOpponentsCutOne,
-  [Tiebreaker.OPPOSITION_PERFORMANCE]: calcOppositionPerformance,
+export const tiebreakers: Record<Tiebreaker, TiebreakerInfo> = {
+  [Tiebreaker.DIRECT_ENCOUNTER]: {
+    abbr: 'DirEn',
+    name: 'Bezpośrednia konfrontacja',
+    description: `System rozstrzygania remisów między zawodnikami. Jeżeli
+dwoje graczy grało ze sobą, sprawdzany jest wynik meczu. Wyżej w rankingu
+znajdzie się osoba, która wygrała w tej parze.`,
+    calculate: () => 0,
+    decimalPlaces: 0
+  } as const,
+  [Tiebreaker.CUMULATIVE]: {
+    abbr: 'Cumul',
+    name: 'Kumulacyjny',
+    description: `Obliczana jest suma punktów posiadanych przez gracza
+w kolejnych rundach. Ewentualne niegrane partie (np. przez walkower,
+nieobecność, z wyjątkiem pauzy) obniżają dodawane punkty o wartość udzielonych
+w tej partii punktów.
+
+Przykładowo: jeżeli na końcu rundy trzeciej zawodnik posiada trzy punkty
+i wygrał tę rundę walkowerem, przy dodawaniu punktów do punktacji pomocniczej
+zostaną dodane tylko DWA punkty, a nie trzy za tę rundę.`,
+    calculate: calcCumulativeCut(0)
+  } as const,
+  [Tiebreaker.CUMULATIVE_CUT_1]: {
+    abbr: 'Cuml1',
+    name: 'Kumulacyjny zredukowany 1',
+    description: `Obliczana jest suma punktów posiadanych przez gracza
+w kolejnych rundach. Identycznie do p. pomocniczej "Kumulacyjny", z odrzuceniem
+pierwszej rundy w obliczeniach.`,
+    calculate: calcCumulativeCut(1)
+  } as const,
+  [Tiebreaker.OPPOSITION_CUMULATIVE]: {
+    abbr: 'OpCuml',
+    name: 'Kumulacyjny przeciwników',
+    description: `Dla każdego przeciwnika, z którym grał zawodnik, obliczana
+jest jego punktacja pomocnicza "Kumulacyjny" (sposób obliczania przedstawiono
+w opisie p. pomocniczej "Kumulacyjny"). Suma tych punktacji stanowi punktację
+pomocniczą "Kumulacyjny przeciwników".
+
+Stosowana jest m.in. przez Federację Szachową Stanów Zjednoczonych jako czwartą
+w kolejności używaną punktację pomocniczą.`,
+    calculate: calcOppositionCumulative
+  } as const,
+  [Tiebreaker.PROGRESSIVE]: {
+    abbr: 'Prog',
+    name: 'Progres',
+    description: `Obliczana jest suma punktów posiadanych przez gracza
+w kolejnych rundach. W porównaniu do punktacji pomocniczej "Kumulacyjny",
+ewentualne niegrane partie (np. przez walkower czy nieobecność) nie obniżają
+łącznej ilości punktów.`,
+    calculate: calcProgressiveCut(0)
+  } as const,
+  [Tiebreaker.PROGRESSIVE_CUT_1]: {
+    abbr: 'Prog',
+    name: 'Progres zredukowany 1',
+    description: `Obliczana jest suma punktów posiadanych przez gracza
+w kolejnych rundach. Identycznie do p. pomocniczej "Progress", z odrzuceniem
+pierwszej rundy w obliczeniach.`,
+    calculate: calcProgressiveCut(1)
+  } as const,
+  [Tiebreaker.ROUNDS_WON]: {
+    abbr: 'RWon',
+    name: 'Wygrane rundy',
+    description: `Obliczana jest liczba wygranych przez gracza rund,
+niezależnie od tego, czy przez walkower bądź wygraną partię.`,
+    calculate: calcRoundsWon,
+    decimalPlaces: 0
+  } as const,
+  [Tiebreaker.ROUNDS_WON_BLACK_PIECES]: {
+    abbr: 'RWnB',
+    name: 'Wygrane rundy czarnymi',
+    description: `Obliczana jest liczba wygranych przez gracza rund, grając
+czarnymi. Niegrana partia (przez walkower) liczy się jako partia grana białymi,
+wobec czego nie wlicza się do punktacji.`,
+    calculate: calcRoundsWonBlackPieces,
+    decimalPlaces: 0
+  } as const,
+  [Tiebreaker.TIME_OF_LOSS]: {
+    abbr: 'TmOL',
+    name: 'Czas do pierwszej przegranej',
+    description: `Obliczana jest runda, w której zawodnik przegrał, przegrał
+walkowerem albo nie grał rundy poprzez otrzymanie zera punktów, tzw. Zero Point
+Bye. Pauza wynikająca z braku przeciwnika do pary nie jest brana pod uwagę.`,
+    calculate: calcTimeOfLoss,
+    decimalPlaces: 0
+  } as const,
+  [Tiebreaker.PLAYED_BLACKS]: {
+    abbr: 'Blks',
+    name: 'Rundy grane czarnymi',
+    description: 'Obliczana jest ilość rund granych czarnymi bierkami.',
+    calculate: calcGamesWithBlack,
+    decimalPlaces: 0
+  } as const,
+  [Tiebreaker.KASHDAN]: {
+    abbr: 'Kash',
+    name: 'Kashdan',
+    description: `Stworzona przez Isaac'a Kashdan'a. System przydziela cztery
+punkty za wygraną, dwa punkty za remis i jeden punkt za przegraną. Niegrane
+partie (walkower, pauza, nieobecność) liczą się jako zero punktów.`,
+    calculate: calcKashdan
+  } as const,
+  [Tiebreaker.SONNEBORN_BERGER]: {
+    abbr: 'SoBe',
+    name: 'Sonneborn-Berger',
+    description: `Ten system został nazwany od osób William'a Sonneborn'a oraz
+Johann'a Berger'a, lecz wynaleziony przez Oscar'a Gelbfuhs'a. Również nazywany
+punktacją Neustadtl'a.
+
+System sumuje punkty przeciwników, z którymi zawodnik wygrał, oraz połowę
+punktów przeciwników, z którymi zremisował.
+
+W przypadku obliczania punktów przeciwników, partie niegrane przez przeciwnika
+są liczone jako partie zremisowane (przyznaje się 1/2 punktu).
+
+W przypadku partii niegranych przez zawodnika, obliczany jest tzw. wirtualny
+przeciwnik. Dokładny sposób obliczania znajduje się w regulacjach FIDE
+(C.02. Standards of Chess Equipment, venue for FIDE Tournaments, rate of play
+and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
+    calculate: calcSonnebornBerger
+  } as const,
+  [Tiebreaker.BUCHHOLZ]: {
+    abbr: 'Buch',
+    name: 'Buchholz',
+    description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
+prowadzonym w systemie szwajcarskim. Stosowany najczęściej w turniejach, gdzie
+zastosowanie mają regulacje turniejowe Międzynarodowej Federacji Szachowej (FIDE).
+
+System sumuje punkty przeciwników, z którymi zawodnik grał.
+
+W przypadku obliczania punktów przeciwników, partie niegrane przez przeciwnika
+są liczone jako partie zremisowane (przyznaje się 1/2 punktu).
+
+W przypadku partii niegranych przez zawodnika, obliczany jest tzw. wirtualny
+przeciwnik. Dokładny sposób obliczania znajduje się w regulacjach FIDE
+(C.02. Standards of Chess Equipment, venue for FIDE Tournaments, rate of play
+and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
+    calculate: calcBuchholz
+  } as const,
+  [Tiebreaker.BUCHHOLZ_CUT_1]: {
+    abbr: 'Bch1',
+    name: 'Buchholz zredukowany 1',
+    description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
+prowadzonym w systemie szwajcarskim. Stosowany najczęściej w turniejach, gdzie
+zastosowanie mają regulacje turniejowe Międzynarodowej Federacji Szachowej (FIDE).
+
+Sposób obliczania identyczny jak w p. pomocniczej "Buchholz", z odrzuceniem
+przeciwnika, który zdobył najmniejszą liczbą punktów.`,
+    calculate: calcBuchholzCutOne
+  } as const,
+  [Tiebreaker.MEDIAN_BUCHHOLZ]: {
+    abbr: 'ModM',
+    name: 'Median Buchholz 1',
+    description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
+prowadzonym w systemie szwajcarskim. Stosowany najczęściej w turniejach, gdzie
+zastosowanie mają regulacje turniejowe Międzynarodowej Federacji Szachowej (FIDE).
+
+Sposób obliczania identyczny jak w p. pomocniczej "Buchholz", z odrzuceniem
+rezultatów skrajnych, czyli przeciwników, którzy zdobyli najmniejszą
+i największą liczbę punktów.`,
+    calculate: calcMedianBuchholz
+  } as const,
+  [Tiebreaker.SOLKOFF]: {
+    abbr: 'SOff',
+    name: 'Solkoff',
+    description: `Obliczana jest suma punktów zdobytych przez przeciwników
+gracza. System jest podobny do systemu "Buchholz", z tą różnicą, że za partie
+niegrane przez zawodnika przyznaje się zero punktów.
+
+W przypadku obliczania punktów przeciwników, partie niegrane przez przeciwnika
+są liczone jako partie zremisowane (przyznaje się 1/2 punktu).`,
+    calculate: calcSolkoff
+  } as const,
+  [Tiebreaker.MODIFIED_MEDIAN]: {
+    abbr: 'ModM',
+    name: 'Zmodyfikowana mediana',
+    description: `Odmiana systemu "Median Buchholz". Stanowi wariant mieszany.
+W systemie "Mediana" odrzucane są skrajne wyniki obliczonych sum punktów
+przeciwników w przypadku turniejów z liczbą rund mniejszą od 9. Jeśli jest 9
+rund lub więcej, odrzuca się dwa skrajne wyniki.
+
+Za partie niegrane przez zawodnika przyznaje się zero punktów.
+
+W przypadku obliczania punktów przeciwników, partie niegrane przez przeciwnika
+są liczone jako partie zremisowane (przyznaje się 1/2 punktu).
+
+System zmodyfikowanej mediany jest podobna do systemu mediany, z wyjątkiem:
+- Gracze z wynikiem dokładnie 50% są traktowani jak w zwykłym systemie mediany,
+- Gracze z wynikiem powyżej 50% odrzucają tylko wynik przeciwnika, który
+  uzyskał najniższy wynik,
+- Gracze z wynikiem mniejszym niż 50% odrzucają tylko wynik przeciwnika, który
+  uzyskał najwyższy wynik.`,
+    calculate: calcModifiedMedian
+  },
+  [Tiebreaker.ARO]: {
+    abbr: 'ARO',
+    name: 'Średni ranking przeciwników',
+    description: `Obliczana jest suma rankingów przeciwników zawodnika,
+dzielona przez liczbę granych partii. Uwaga: System uwzględnia partie
+zakończone walkowerem.`,
+    calculate: calcAvgRatingOfOpposition,
+    decimalPlaces: 0
+  },
+  [Tiebreaker.AROC_1]: {
+    abbr: 'ARO1',
+    name: 'Średni ranking przeciwników zredukowany 1',
+    description: `Obliczana jest suma rankingów przeciwników zawodnika,
+dzielona przez liczbę granych partii, z odrzuceniem najmniejszego z rankingów
+przeciwników. Partie niegrane, w tym walkowery, nie są uwzględniane
+w obliczeniach.
+
+Jeżeli gracz pauzował, posiada partię zakończoną walkowerem albo nie grał
+dowolnej z partii, to nie są odrzucane żadne rankingi.`,
+    calculate: calcAvgRatingOfOpponentsCutOne,
+    decimalPlaces: 0
+  },
+  [Tiebreaker.OPPOSITION_PERFORMANCE]: {
+    abbr: 'OpPf',
+    name: 'Średnia siła przeciwników',
+    description: `System zbliżony do "Średni ranking przeciwników", z tą
+różnicą, że partie wygrane dodają dodatkowo 400 punktów do obliczeń, a partie
+przegrane odejmują 400 punktów.`,
+    calculate: calcOppositionPerformance,
+    decimalPlaces: 0
+  },
 };
 
 export function calculateValue(
@@ -496,8 +693,7 @@ export function calculateValue(
   player: TrfPlayer,
   forRound: number
 ): number {
-  const tiebreakerFunc = tiebreakerMap[tiebreaker];
-  return tiebreakerFunc(tournament, player, forRound);
+  return tiebreakers[tiebreaker].calculate(tournament, player, forRound);
 }
 
 export function calculateTiebreakers(
@@ -505,10 +701,10 @@ export function calculateTiebreakers(
   player: TrfPlayer,
   forRound: number
 ): TiebreakersPoints {
-  const { tiebreakers } = tournament.configuration;
+  const { tiebreakers: tbs } = tournament.configuration;
   const tbValues: TiebreakersPoints = Object.create(null);
-  for (let i = 0, len = tiebreakers.length; i < len; ++i) {
-    tbValues[tiebreakers[i]] = calculateValue(tiebreakers[i], tournament, player, forRound);
+  for (let i = 0, len = tbs.length; i < len; ++i) {
+    tbValues[tbs[i]] = calculateValue(tbs[i], tournament, player, forRound);
   }
   return tbValues;
 }

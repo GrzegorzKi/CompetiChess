@@ -1,4 +1,4 @@
-import Tiebreaker from '../types/Tiebreaker';
+import Tiebreaker, { tiebreakers } from '../types/Tiebreaker';
 import TournamentData from '../types/TournamentData';
 import { TrfPlayer } from '../types/TrfFileFormat';
 
@@ -10,13 +10,9 @@ function stringifyTiebreakers(tbList: Tiebreaker[],
   const round = Math.max(Math.min(games.length, forRound) - 1, 0);
   for (let i = 0; i < tbList.length; ++i) {
     const value = scores[round].tiebreakers[tbList[i]] ?? 0;
-    const fractionDigits = (tbList[i] === Tiebreaker.ARO
-      || tbList[i] === Tiebreaker.AROC_1
-      || tbList[i] === Tiebreaker.OPPOSITION_PERFORMANCE)
-      ? 0
-      : 1;
+    const tbInfo = tiebreakers[tbList[i]];
     string += ' ';
-    string += value.toFixed(fractionDigits).padStart(tbList[i].length);
+    string += value.toFixed(tbInfo.decimalPlaces ?? 1).padStart(tbInfo.abbr.length);
   }
   return string;
 }
@@ -25,7 +21,7 @@ function createHeader(tbList: Tiebreaker[]) {
   let string = '  Id  Pts Rank |';
   for (let i = 0; i < tbList.length; ++i) {
     string += ' ';
-    string += tbList[i];
+    string += tiebreakers[tbList[i]].abbr;
   }
   string += `\n${'-'.repeat(string.length + 1)}\n`;
   return string;
