@@ -2,11 +2,14 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 
 import BbpPairingsWrapper from '../../../backend/BbpPairings/bbpPairingsWrapper';
-import exportToTrf from '../../../backend/TrfxParser/exportToTrf';
+import exportComparison from '../../../backend/DataExport/exportComparison';
+import exportToTrf from '../../../backend/DataExport/exportToTrf';
 import parseTrfFile from '../../../backend/TrfxParser/parseTrfFile';
 
 test('Parse sample file', (done) => {
-  const dirPath = path.join(__dirname, '/testTrfFile.txt');
+  // const dirPath = path.join(__dirname, '/testTrfFile.txt');
+  const dirPath = path.join(__dirname, '/testLargeFile.trf');
+  const forRound = 20;
 
   readFile(dirPath, 'utf8')
     .then((data) => {
@@ -14,8 +17,11 @@ test('Parse sample file', (done) => {
       if (!('parsingErrors' in tournament)) {
         const trfOutput = exportToTrf(
           tournament.trfxData,
-          { exportForPairing: true, forRound: 0 }
+          { exportForPairing: true, forRound }
         );
+        const comparison = exportComparison(tournament.trfxData, forRound);
+        console.info(trfOutput);
+        console.info(comparison);
         if (trfOutput !== undefined) {
           return trfOutput;
         }
@@ -25,7 +31,6 @@ test('Parse sample file', (done) => {
     .then((trfOutput) => {
       BbpPairingsWrapper.init()
         .then((wrapper) => {
-          console.info(trfOutput);
           const bbpResult = wrapper.invoke(trfOutput);
           console.info(bbpResult);
           if (bbpResult.statusCode !== 0) {
