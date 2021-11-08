@@ -1,33 +1,44 @@
 // Algorithm based on code posted by Soapstone at
 // https://www.symbiosis.elementfx.com/projects/roundrobin2/RoundRobin.htm
 
-type RRPair = [number, number]
-export type RoundRobinTable = Array<Array<RRPair>>
+type RRPair<T> = [T, T]
+export type RoundRobinTable<T> = Array<Array<RRPair<T>>>
 export type TableType = 'Standard' | 'Berger' | 'Crenshaw';
 
-// Algorithm starts by splitting field into two lines, processing lower line in reverse.
+type ArrayType<T> =
+  T extends number ? number :
+    T extends Array<infer U> ? U : never;
+
+// Algorithm starts by splitting field into two lines, reverse lower line.
 // Standard fixes first item, rotates other items 1 position clockwise.
 // Berger instead fixes last item, rotates other items n/2 positions.
+function getPlayersArray<T>(players: number | T[]): Array<ArrayType<typeof players>> {
+  if (typeof players === 'number') {
+    return Array.from({ length: players }).map((_, i) => i);
+  }
+  return [...players];
+}
+
 // Crenshaw is Berger with rounds reversed.
-export function calculateTable(
-  players: number,
+export function calculateTable<T>(
+  players: number | T[],
   type: TableType,
-  dummy?: number
-): RoundRobinTable {
-  const table = Array.from({ length: players }).map((_, i) => i);
+  dummy?: T
+): RoundRobinTable<ArrayType<typeof players>> {
+  const table = getPlayersArray(players);
   const skipFirst = table.length % 2 !== 0 && dummy === undefined;
   if (table.length % 2 !== 0) {
     if (type === 'Standard') {
-      table.splice(0, 0, dummy ?? -1);
+      table.splice(0, 0, dummy ?? Object.create(null));
     } else {
-      table.push(dummy ?? -1);
+      table.push(dummy ?? Object.create(null));
     }
   }
 
   const n = table.length;
   const rounds = n - 1;
   const half = n / 2;
-  const schedule: RoundRobinTable = [];
+  const schedule: RoundRobinTable<ArrayType<typeof players>> = [];
 
   let top = table.slice(0, half);
   let bottom = table.slice(half, n);
@@ -49,8 +60,8 @@ export function calculateTable(
 
     // Now we rotate
     if (type === 'Standard') {
-      const addon = bottom.pop()!; // Standard algorithm rotates the last player...
-      top.splice(1, 0, addon); // ...into the second position
+      const addon = bottom.slice(-1); // Standard algorithm rotates the last player...
+      top.splice(1, 0, addon[0]); // ...into the second position
       bottom.splice(0, 0, top.pop()!);
     } else {
       // Berger and Crenshaw rotate the field halfway around
@@ -66,12 +77,12 @@ export function calculateTable(
   return schedule;
 }
 
-function flipPairing(pairing: RRPair): RRPair {
+function flipPairing<T>(pairing: RRPair<T>): RRPair<T> {
   return [pairing[1], pairing[0]];
 }
 
-export function flipSchedule(schedule: RoundRobinTable): RoundRobinTable {
-  const tmpSchedule: RoundRobinTable = [];
+export function flipSchedule<T>(schedule: RoundRobinTable<T>): RoundRobinTable<T> {
+  const tmpSchedule: RoundRobinTable<T> = [];
   for (let i = 0; i < schedule.length; ++i) {
     tmpSchedule[i] = [];
     for (let j = 0; j < schedule[i].length; ++j) {
@@ -81,7 +92,7 @@ export function flipSchedule(schedule: RoundRobinTable): RoundRobinTable {
   return tmpSchedule;
 }
 
-export function doubleSchedule(schedule: RoundRobinTable): RoundRobinTable {
+export function doubleSchedule<T>(schedule: RoundRobinTable<T>): RoundRobinTable<T> {
   return schedule.concat(flipSchedule(schedule));
 }
 
@@ -89,9 +100,9 @@ export function doubleSchedule(schedule: RoundRobinTable): RoundRobinTable {
 // has been found or false otherwise.
 //
 // Use -1 to not search for particular color/player in pairing.
-export function seekPairing(
-  schedule: RoundRobinTable,
-  pair: [number?, number?],
+export function seekPairing<T>(
+  schedule: RoundRobinTable<T>,
+  pair: [T?, T?],
   startRow: number,
   endRow: number,
 ): [number, number] | false {
@@ -113,57 +124,50 @@ export function seekPairing(
   return false;
 }
 
-type Dropout = {
-  dropout: number,
+type Dropout<T> = {
+  dropout: T,
   atRound?: number
 }
 
-export type ColorCount = {
-  whites: Array<number>,
-  blacks: Array<number>,
-  affected: Array<RRPair>,
-}
-export function countColors(
-  schedule: RoundRobinTable,
-  { dropout, atRound = 0 }: Dropout
-): ColorCount {
-  const prsPerRound = schedule[0].length;
-  const size = Math.max(schedule.length, prsPerRound * 2);
-  const whites = new Array<number>(size);
-  const blacks = new Array<number>(size);
-  whites.fill(0);
-  blacks.fill(0);
-  const affected: RRPair[] = [];
+export function countColors<T>(
+  schedule: RoundRobinTable<T>,
+  { dropout, atRound = 0 }: Dropout<T>
+): Map<T, [number, number]> {
+  const playersMap = new Map<T, [number, number]>();
+
   for (let i = 0; i < schedule.length; ++i) {
-    for (let j = 0; j < prsPerRound; ++j) {
+    for (let j = 0; j < schedule[i].length; ++j) {
       const pair = schedule[i][j];
       if (i < atRound || (pair[0] !== dropout && pair[1] !== dropout)) {
-        whites[pair[0]] += 1;
-        blacks[pair[1]] += 1;
-      } else {
-        affected.push(pair);
+        const p1 = playersMap.get(pair[0]) ?? [0, 0];
+        p1[0] += 1;
+        const p2 = playersMap.get(pair[1]) ?? [0, 0];
+        p2[1] += 1;
+        playersMap.set(pair[0], p1);
+        playersMap.set(pair[1], p2);
       }
     }
   }
 
-  return { whites, blacks, affected };
+  return playersMap;
 }
 
-function seekTuple(value: number, asTails: boolean): [number?, number?] {
+function seekTuple<T>(value: T, asTails: boolean): [T?, T?] {
   if (asTails) {
     return [undefined, value];
   }
   return [value, undefined];
 }
 
-function seekTuplePair(value: [number, number], asTails: boolean): [number?, number?] {
+function seekTuplePair<T>(value: [T, T], asTails: boolean): [T?, T?] {
   if (asTails) {
     return [undefined, value[0]];
   }
   return [value[1], undefined];
 }
 
-export function findReversals(schedule: RoundRobinTable, dropout: Dropout): Array<RRPair> {
+export function findReversals<T>(schedule: RoundRobinTable<T>, dropout: Dropout<T>)
+  : Array<RRPair<T>> {
   const rounds = schedule.length;
   const size = Math.max(rounds, schedule[0].length * 2);
   // Should not analyze when there are odd number of players
@@ -171,25 +175,26 @@ export function findReversals(schedule: RoundRobinTable, dropout: Dropout): Arra
     return [];
   }
 
-  const { whites, blacks } = countColors(schedule, dropout);
+  const playersMap = countColors(schedule, dropout);
 
-  const heads: number[] = [];
-  const tails: number[] = [];
+  const heads: T[] = [];
+  const tails: T[] = [];
 
   // Find new imbalances after the player has been excluded
-  for (let i = 0; i < size; ++i) {
-    if (whites[i] > blacks[i]) heads.push(i);
-    if (whites[i] < blacks[i]) tails.push(i);
-  }
+
+  playersMap.forEach((colors, key) => {
+    if (colors[0] > colors[1]) heads.push(key);
+    if (colors[0] < colors[1]) tails.push(key);
+  });
 
   // This prevents re-using pairings
   const flipsUsed: Record<string, boolean> = Object.create(null);
-  const reversals: Array<RRPair> = [];
+  const reversals: Array<RRPair<T>> = [];
 
-  function isUsed(pair: RRPair): boolean {
+  function isUsed(pair: RRPair<T>): boolean {
     return pair.toString() in flipsUsed;
   }
-  function markAsUsed(pair: RRPair): void {
+  function markAsUsed(pair: RRPair<T>): void {
     flipsUsed[pair.toString()] = true;
   }
 
