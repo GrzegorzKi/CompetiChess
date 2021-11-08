@@ -3,11 +3,10 @@ import ParseResult, {
 } from '../types/ParseResult';
 import TournamentData from '../types/TournamentData';
 import { Color, TypeCodes, XXField } from '../types/TrfFileFormat';
-import { parseNumber } from '../utils/ParseUtils';
+import { parseNumber, tokenize, tokenizeToNumbers } from '../utils/ParseUtils';
 import { calculatePlayedRounds, evenUpMatchHistories } from '../utils/TrfUtils';
 
 import parseAcceleration, { Acceleration } from './parseAcceleration';
-import parseForbiddenPairs from './parseForbiddenPairs';
 import parseTrfPlayer from './parseTrfPlayer';
 
 export const enum WarnCode {
@@ -24,6 +23,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
   const tournamentData = new TournamentData();
   const accelerations: Array<Acceleration> = [];
   const forbiddenPairs: Array<number[]> = [];
+  const byes: Array<number> = [];
 
   const warnings: WarnCode[] = [];
 
@@ -40,7 +40,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       }
       accelerations.push(result);
     } else if (prefix === XXField.FORBIDDEN_PAIRS) {
-      const result = parseForbiddenPairs(line);
+      const result = tokenizeToNumbers(line);
       if (isError(result)) {
         return result;
       }
@@ -53,8 +53,28 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
         return numRounds;
       }
       tournamentData.expectedRounds = numRounds;
+    } else if (prefix === XXField.CONFIG) {
+      const strings = tokenize(line);
+      for (let i = 0; i < strings.length; ++i) {
+        if (strings[i] === 'rank') {
+          tournamentData.configuration.matchByRank = true;
+        } else if (strings[i] === 'white1') {
+          tournamentData.configuration.initialColor = Color.WHITE;
+        } else if (strings[i] === 'black1') {
+          tournamentData.configuration.initialColor = Color.BLACK;
+        }
+      }
+    } else if (prefix === XXField.BYES) {
+      const result = tokenizeToNumbers(line);
+      if (isError(result)) {
+        return result;
+      }
+      if (result.length !== 0) {
+        byes.push(...result);
+      }
+    } else if (prefix === XXField.POINTS_MODIFIER) {
+      // TODO: Implement
     }
-    // TODO: Implement
 
     return undefined;
   }

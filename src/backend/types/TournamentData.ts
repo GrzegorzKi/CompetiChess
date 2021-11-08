@@ -290,7 +290,7 @@ class TournamentData implements TrfFileFormat {
     const sortedPlayers = this.sortByRank(forRound);
 
     let rankIndex = 1;
-    const playersByRank: Record<number, number> = {};
+    const playersByRank: Record<number, number> = Object.create(null);
     for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
       playersByRank[sortedPlayers[i].player.playerId] = rankIndex;
       rankIndex += 1;

@@ -5,14 +5,14 @@ type RRPair<T> = [T, T]
 export type RoundRobinTable<T> = Array<Array<RRPair<T>>>
 export type TableType = 'Standard' | 'Berger' | 'Crenshaw';
 
-type ArrayType<T> =
+type ItemType<T> =
   T extends number ? number :
     T extends Array<infer U> ? U : never;
 
 // Algorithm starts by splitting field into two lines, reverse lower line.
 // Standard fixes first item, rotates other items 1 position clockwise.
 // Berger instead fixes last item, rotates other items n/2 positions.
-function getPlayersArray<T>(players: number | T[]): Array<ArrayType<typeof players>> {
+function getPlayersArray<T>(players: number | T[]): Array<ItemType<typeof players>> {
   if (typeof players === 'number') {
     return Array.from({ length: players }).map((_, i) => i);
   }
@@ -24,7 +24,7 @@ export function calculateTable<T>(
   players: number | T[],
   type: TableType,
   dummy?: T
-): RoundRobinTable<ArrayType<typeof players>> {
+): RoundRobinTable<ItemType<typeof players>> {
   const table = getPlayersArray(players);
   const skipFirst = table.length % 2 !== 0 && dummy === undefined;
   if (table.length % 2 !== 0) {
@@ -38,7 +38,7 @@ export function calculateTable<T>(
   const n = table.length;
   const rounds = n - 1;
   const half = n / 2;
-  const schedule: RoundRobinTable<ArrayType<typeof players>> = [];
+  const schedule: RoundRobinTable<ItemType<typeof players>> = [];
 
   let top = table.slice(0, half);
   let bottom = table.slice(half, n);

@@ -9,7 +9,7 @@ export type Acceleration = {
 export default function parseAcceleration(line: string): ParseResult<Acceleration> {
   const values: number[] = [];
 
-  const regexp = /^.{4}(?<startingRank>[ \d]{4}) (?<acc>(?: [ \d]\d[.,]\d})*)\s*$/;
+  const regexp = /^.{4}(?<startingRank>[ \d]{4})(?<acc>(?: [ \d]\d[.,]\d)*)\s*$/;
   const match = regexp.exec(line);
 
   if (match === null || match.groups === undefined) {

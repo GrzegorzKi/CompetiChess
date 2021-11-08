@@ -1,6 +1,6 @@
-import ParseResult, { ErrorCode } from '../types/ParseResult';
+import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
 
-export const parseNumber = (value: string): ParseResult<number> => {
+export function parseNumber(value: string): ParseResult<number> {
   if (value === '') {
     return 0;
   }
@@ -10,9 +10,9 @@ export const parseNumber = (value: string): ParseResult<number> => {
     return { error: ErrorCode.INVALID_VALUE, value };
   }
   return num;
-};
+}
 
-export const parsePlayerId = (value: string): ParseResult<number> => {
+export function parsePlayerId(value: string): ParseResult<number> {
   if (value === '') {
     return { error: ErrorCode.INVALID_VALUE, value, what: 'player ID' };
   }
@@ -23,9 +23,9 @@ export const parsePlayerId = (value: string): ParseResult<number> => {
   }
 
   return num - 1;
-};
+}
 
-export const parseFloat = (value: string): ParseResult<number> => {
+export function parseFloat(value: string): ParseResult<number> {
   if (value === '') {
     return 0;
   }
@@ -36,15 +36,35 @@ export const parseFloat = (value: string): ParseResult<number> => {
     return { error: ErrorCode.INVALID_VALUE, value };
   }
   return num;
-};
+}
 
-export const isInRange = (num: number, min: number, max: number)
-  : boolean => num >= min && num <= max;
+export function isInRange(num: number, min: number, max: number): boolean {
+  return num >= min && num <= max;
+}
 
 /**
  * Checks for trailing, non-whitespace characters
  * @param line Checked string
  * @param position Position from which to check for trailing chars
  */
-export const hasTrailingChars = (line: string, position: number)
-  : boolean => line.substring(position, line.length).trimRight() !== '';
+export function hasTrailingChars(line: string, position: number): boolean {
+  return line.substring(position, line.length).trimRight() !== '';
+}
+
+export function tokenize(line: string): string[] {
+  return line.substr(4).split(/ \t/);
+}
+
+export function tokenizeToNumbers(line: string): ParseResult<number[]> {
+  const tokens = line.substr(4).split(/ \t/);
+  const playerIds: number[] = [];
+  for (let i = 0; i < tokens.length; i++) {
+    const id = parseNumber(tokens[i]);
+    if (isError(id)) {
+      return id;
+    }
+    playerIds.push(id);
+  }
+
+  return playerIds;
+}

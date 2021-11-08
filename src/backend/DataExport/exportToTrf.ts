@@ -50,6 +50,16 @@ function stringifyGames(games: TrfGame[],
   return string;
 }
 
+function stringifyAccelerations(arr: number[]): string {
+  let string = '';
+  for (let i = 0; i < arr.length; ++i) {
+    string += ' ';
+    string += arr[i].toFixed(1).padStart(4);
+  }
+
+  return string;
+}
+
 function exportTournamentInfo(tournament: TournamentData): string {
   let string = '';
   if (tournament.tournamentName !== '') {
@@ -116,24 +126,6 @@ export default function exportToTrf(tournament: TournamentData, {
   exportForPairing = true,
   pointsModFormat = 'JaVaFo'
 }: ExportConfig): string | undefined {
-  let resultString = '';
-  if (forRound < 0 || forRound > tournament.playedRounds) {
-    // eslint-disable-next-line no-param-reassign
-    forRound = tournament.playedRounds;
-  }
-
-  if (!exportForPairing) {
-    resultString += exportTournamentInfo(tournament);
-  }
-  if (forRound < tournament.expectedRounds || exportForPairing) {
-    resultString += `XXR ${tournament.expectedRounds}\n`;
-  }
-  if (exportForPairing) {
-    resultString += exportColorRankConfig(tournament);
-  }
-
-  const { playersByRank } = tournament.computeRanks(forRound);
-
   function getPoints({ scores, games }: TrfPlayer) {
     if (exportForPairing) {
       if (games[forRound] !== undefined
@@ -149,8 +141,33 @@ export default function exportToTrf(tournament: TournamentData, {
     return scores[forRound - 1].points;
   }
 
-  for (let i = 0, len = tournament.players.length; i < len; ++i) {
-    if (tournament.players[i] !== undefined) {
+  const {
+    playedRounds,
+    expectedRounds,
+    players,
+    configuration
+  } = tournament;
+  let resultString = '';
+
+  if (forRound < 0 || forRound > playedRounds) {
+    // eslint-disable-next-line no-param-reassign
+    forRound = playedRounds;
+  }
+
+  if (!exportForPairing) {
+    resultString += exportTournamentInfo(tournament);
+  }
+  if (forRound < expectedRounds || exportForPairing) {
+    resultString += `XXR ${expectedRounds}\n`;
+  }
+  if (exportForPairing) {
+    resultString += exportColorRankConfig(tournament);
+  }
+
+  const { playersByRank } = tournament.computeRanks(forRound);
+
+  for (let i = 0, len = players.length; i < len; ++i) {
+    if (players[i] !== undefined) {
       const {
         playerId,
         sex,
@@ -161,8 +178,8 @@ export default function exportToTrf(tournament: TournamentData, {
         id,
         birthDate,
         games,
-      } = tournament.players[i];
-      const points = getPoints(tournament.players[i]);
+      } = players[i];
+      const points = getPoints(players[i]);
 
       if (playerId > 9999 || rating > 9999 || points > 99.9) {
         // FIXME Return error code instead
@@ -174,9 +191,18 @@ export default function exportToTrf(tournament: TournamentData, {
         + ` ${playersByRank[playerId].toString().padStart(4)}`;
       resultString += `${stringifyGames(games, playerId, forRound, exportForPairing)}\n`;
     }
-
-    // TODO Export custom points configuration
   }
+
+  for (let i = 0, len = players.length; i < len; ++i) {
+    if (players[i] !== undefined
+      && players[i].accelerations.length !== 0) {
+      const { playerId, accelerations } = players[i];
+      const acc = stringifyAccelerations(accelerations);
+      resultString += `XXA ${(playerId + 1).toString().padStart(4)}${acc}\n`;
+    }
+  }
+
+  // TODO Export custom points configuration
 
   return resultString;
 }

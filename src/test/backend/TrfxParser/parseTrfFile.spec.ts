@@ -7,9 +7,9 @@ import exportToTrf from '../../../backend/DataExport/exportToTrf';
 import parseTrfFile from '../../../backend/TrfxParser/parseTrfFile';
 
 test('Parse sample file', (done) => {
-  // const dirPath = path.join(__dirname, '/testTrfFile.txt');
-  const dirPath = path.join(__dirname, '/testLargeFile.trf');
-  const forRound = 20;
+  const dirPath = path.join(__dirname, '/testTrfFile.txt');
+  // const dirPath = path.join(__dirname, '/testLargeFile.trf');
+  const forRound = 3;
 
   readFile(dirPath, 'utf8')
     .then((data) => {
@@ -25,6 +25,8 @@ test('Parse sample file', (done) => {
         if (trfOutput !== undefined) {
           return trfOutput;
         }
+      } else {
+        console.error(tournament.parsingErrors);
       }
       return Promise.reject(new Error('Unable to parse or export to TRF file'));
     })
