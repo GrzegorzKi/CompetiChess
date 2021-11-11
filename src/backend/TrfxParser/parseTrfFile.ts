@@ -70,7 +70,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
         return result;
       }
       if (result.length !== 0) {
-        byes.push(...result);
+        result.forEach((bye) => byes.push(bye - 1));
       }
     } else if (prefix === XXField.POINTS_MODIFIER) {
       // TODO: Implement

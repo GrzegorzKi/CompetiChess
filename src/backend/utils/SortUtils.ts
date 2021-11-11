@@ -31,6 +31,10 @@ export function sortByScore(round: number) {
   };
 }
 
+export function sortByRank(first: TrfPlayer, second: TrfPlayer): number {
+  return first.rank - second.rank;
+}
+
 // Sorts players by selected tie-breaker in descending order
 export function sortByTiebreaker(round: number, tiebreaker: Tiebreaker): PlayerComparator {
   if (tiebreaker === Tiebreaker.DIRECT_ENCOUNTER) {
