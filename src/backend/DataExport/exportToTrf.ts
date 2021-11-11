@@ -202,7 +202,67 @@ export default function exportToTrf(tournament: TournamentData, {
     }
   }
 
-  // TODO Export custom points configuration
+  if (configuration.pointsForWin !== 1.0
+    || configuration.pointsForDraw !== 0.5
+    || configuration.pointsForLoss !== 0.0
+    || configuration.pointsForZeroPointBye !== 0.0
+    || configuration.pointsForForfeitLoss !== 0.0
+    || configuration.pointsForPairingAllocatedBye !== 1.0) {
+    if (configuration.pointsForWin > 99.9
+      || configuration.pointsForDraw > 99.9
+      || configuration.pointsForLoss > 99.9
+      || configuration.pointsForZeroPointBye > 99.9
+      || configuration.pointsForForfeitLoss > 99.9
+      || configuration.pointsForPairingAllocatedBye > 99.9) {
+      // FIXME Return error code instead
+      return undefined;
+    }
+    let jvfStr = '';
+    if (configuration.pointsForWin !== 1.0
+      || configuration.pointsForDraw !== 0.5
+      || configuration.pointsForLoss !== 0.0
+      || configuration.pointsForZeroPointBye !== 0.0
+      || configuration.pointsForForfeitLoss !== 0.0) {
+      if (pointsModFormat === 'bbpPairings') {
+        resultString += `BBW ${configuration.pointsForWin.toFixed(1)
+          .padStart(4)}\n`;
+        resultString += `BBD ${configuration.pointsForDraw.toFixed(1)
+          .padStart(4)}\n`;
+      } else {
+        jvfStr += ` W=${configuration.pointsForWin}`;
+        jvfStr += ` D=${configuration.pointsForDraw}`;
+      }
+    }
+    if (configuration.pointsForLoss !== 0.0
+      || configuration.pointsForZeroPointBye !== 0.0
+      || configuration.pointsForForfeitLoss !== 0.0) {
+      if (pointsModFormat === 'bbpPairings') {
+        resultString += `BBL ${configuration.pointsForLoss.toFixed(1)
+          .padStart(4)}\n`;
+        resultString += `BBZ ${configuration.pointsForZeroPointBye.toFixed(1)
+          .padStart(4)}\n`;
+        resultString += `BBF ${configuration.pointsForForfeitLoss.toFixed(1)
+          .padStart(4)}\n`;
+      } else {
+        jvfStr += ` WL=${configuration.pointsForLoss}`;
+        jvfStr += ` BL=${configuration.pointsForLoss}`;
+        jvfStr += ` ZPB=${configuration.pointsForZeroPointBye}`;
+        jvfStr += ` FL=${configuration.pointsForForfeitLoss}`;
+      }
+    }
+    if (configuration.pointsForPairingAllocatedBye !== 1.0) {
+      if (pointsModFormat === 'bbpPairings') {
+        resultString += `BBU ${configuration.pointsForPairingAllocatedBye.toFixed(1)
+          .padStart(4)}\n`;
+      } else {
+        jvfStr += ` PAB=${configuration.pointsForForfeitLoss}`;
+      }
+    }
+
+    if (jvfStr !== '') {
+      resultString += `XXS ${jvfStr}\n`;
+    }
+  }
 
   return resultString;
 }
