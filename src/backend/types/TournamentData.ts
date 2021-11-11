@@ -239,48 +239,6 @@ class TournamentData implements TrfFileFormat {
     return this.configuration.pointsForDraw;
   }
 
-  /**
-   * Check that the score in the TRF matches the score computed by counting
-   * the number of wins and draws for that player and (optionally) adding
-   * the acceleration.
-   */
-  validateScores = (): ParseResult<null> => {
-    for (let i = 0, len = this.playersByPosition.length; i < len; ++i) {
-      const {
-        accelerations,
-        games,
-        playerId,
-        points
-      } = this.playersByPosition[i];
-
-      const calcPts = this.calculatePoints(this.playedRounds, games);
-
-      // Try to correct amount of points if acceleration or future round
-      // points were added to TRF score
-      if (points !== calcPts) {
-        const acc = accelerations[this.playedRounds] ?? 0;
-        const nextRoundPts = games[this.playedRounds] !== undefined
-          ? this.getPoints(games[this.playedRounds])
-          : 0.0;
-        const possiblePoints = [
-          points - acc,
-          points - nextRoundPts,
-          points - acc - nextRoundPts
-        ];
-
-        const foundVal = possiblePoints.find((value) => value === calcPts);
-        if (foundVal !== undefined) {
-          // Correct amount of points for the player
-          this.playersByPosition[i].points = foundVal;
-        } else {
-          return { error: ErrorCode.POINTS_MISMATCH, playerId };
-        }
-      }
-    }
-
-    return null;
-  }
-
   inferInitialColor = (): Color => {
     const playersToIter = (this.configuration.matchByRank ? this.playersByPosition : this.players);
 

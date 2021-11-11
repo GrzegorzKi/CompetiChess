@@ -200,12 +200,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
         parsingErrors: [getDetails(result)]
       };
     }
-    const result2 = tournamentData.validateScores();
-    if (isError(result2)) {
-      return {
-        parsingErrors: [getDetails(result2)]
-      };
-    }
+
     for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
       tournamentData.recalculateScores(tournamentData.playersByPosition[i]);
     }

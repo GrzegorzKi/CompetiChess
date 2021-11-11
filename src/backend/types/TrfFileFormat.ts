@@ -153,7 +153,6 @@ export interface TrfPlayer {
   federation: string;
   id: string;
   birthDate: string;
-  points: number;
   rank: number;
   games: TrfGame[];
   scores: Score[];
