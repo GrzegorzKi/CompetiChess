@@ -51,20 +51,20 @@ export function hasTrailingChars(line: string, position: number): boolean {
   return line.substring(position, line.length).trimRight() !== '';
 }
 
-export function tokenize(line: string): string[] {
-  return line.substr(4).split(/ \t/);
+export function tokenize(value: string): string[] {
+  return value.split(/[ \t]/);
 }
 
-export function tokenizeToNumbers(line: string): ParseResult<number[]> {
-  const tokens = line.substr(4).split(/ \t/);
-  const playerIds: number[] = [];
+export function tokenizeToNumbers(value: string): ParseResult<number[]> {
+  const tokens = value.split(/[ \t]/);
+  const numbers: number[] = [];
   for (let i = 0; i < tokens.length; i++) {
     const id = parseNumber(tokens[i]);
     if (isError(id)) {
       return id;
     }
-    playerIds.push(id);
+    numbers.push(id);
   }
 
-  return playerIds;
+  return numbers;
 }

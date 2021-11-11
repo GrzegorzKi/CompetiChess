@@ -12,6 +12,8 @@ export type ParseError =
   | PairingContradiction
   | AccMissingEntry
   | TooManyAccelerations
+  | InvalidPair
+  | PairingError
   | InternalError
 
 export function isError(obj: ParseResult<unknown>): obj is ParseError {
@@ -27,6 +29,8 @@ export const enum ErrorCode {
   PAIRING_CONTRADICTION,
   ACC_MISSING_ENTRY,
   TOO_MANY_ACCELERATIONS,
+  INVALID_PAIR,
+  PAIRING_ERROR,
 }
 
 export type InvalidLine = {
@@ -59,6 +63,15 @@ export type TooManyAccelerations = {
   error: ErrorCode.TOO_MANY_ACCELERATIONS,
   playerId: number,
 }
+export type InvalidPair = {
+  error: ErrorCode.INVALID_PAIR,
+  number: number,
+}
+export type PairingError = {
+  error: ErrorCode.PAIRING_ERROR,
+  hasPairing: boolean,
+  playerId: number,
+}
 export type InternalError = {
   error: ErrorCode.INTERNAL_ERROR,
   what?: string,
@@ -82,7 +95,14 @@ export function getDetails(error: ParseError): string {
   case ErrorCode.ACC_MISSING_ENTRY:
     return `Acceleration entry refers to player ${error.playerId + 1}, but is not present on the list`;
   case ErrorCode.TOO_MANY_ACCELERATIONS:
-    return `Player ${error.playerId} has more acceleration entries than total number of rounds`;
+    return `Player ${error.playerId + 1} has more acceleration entries than total number of rounds`;
+  case ErrorCode.INVALID_PAIR:
+    return `Pair ${error.number} has players which were already processed`;
+  case ErrorCode.PAIRING_ERROR:
+    if (error.hasPairing) {
+      return `Player ${error.playerId + 1} is already paired`;
+    }
+    return `Player ${error.playerId + 1} is not paired against any opponent and doesn't have assigned bye`;
   case ErrorCode.INTERNAL_ERROR:
     if (error.what !== undefined) {
       return `Internal error has occurred: ${error.what}`;

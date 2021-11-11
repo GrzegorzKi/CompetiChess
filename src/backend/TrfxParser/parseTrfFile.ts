@@ -40,7 +40,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       }
       accelerations.push(result);
     } else if (prefix === XXField.FORBIDDEN_PAIRS) {
-      const result = tokenizeToNumbers(line);
+      const result = tokenizeToNumbers(value);
       if (isError(result)) {
         return result;
       }
@@ -54,7 +54,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       }
       tournamentData.expectedRounds = numRounds;
     } else if (prefix === XXField.CONFIG) {
-      const strings = tokenize(line);
+      const strings = tokenize(value);
       for (let i = 0; i < strings.length; ++i) {
         if (strings[i] === 'rank') {
           tournamentData.configuration.matchByRank = true;
@@ -65,7 +65,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
         }
       }
     } else if (prefix === XXField.BYES) {
-      const result = tokenizeToNumbers(line);
+      const result = tokenizeToNumbers(value);
       if (isError(result)) {
         return result;
       }

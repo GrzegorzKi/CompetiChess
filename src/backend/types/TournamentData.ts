@@ -1,3 +1,4 @@
+import { Pair } from '../Pairings/Pairings';
 import { calculateTiebreakers } from '../Tiebreaker/Tiebreaker';
 import { FideSwissRatingsNotConsistent } from '../Tiebreaker/TiebreakerSets';
 import { Acceleration } from '../TrfxParser/parseAcceleration';
@@ -37,26 +38,27 @@ class TournamentData implements TrfFileFormat {
 
   constructor(data?: TrfFileFormat) {
     if (data !== undefined) {
-      this.chiefArbiter = data.chiefArbiter;
+      this.tournamentName = data.tournamentName;
       this.city = data.city;
-      this.configuration = data.configuration;
+      this.federation = data.federation;
       this.dateOfEnd = data.dateOfEnd;
       this.dateOfStart = data.dateOfStart;
-      this.deputyArbiters = data.deputyArbiters;
-      this.federation = data.federation;
-      this.forbiddenPairs = data.forbiddenPairs;
       this.numberOfPlayers = data.numberOfPlayers;
       this.numberOfRatedPlayers = data.numberOfRatedPlayers;
       this.numberOfTeams = data.numberOfTeams;
-      this.otherFields = data.otherFields;
-      this.playedRounds = data.playedRounds;
-      this.players = data.players;
-      this.playersByPosition = data.playersByPosition;
+      this.tournamentType = data.tournamentType;
+      this.chiefArbiter = data.chiefArbiter;
+      this.deputyArbiters = data.deputyArbiters;
       this.rateOfPlay = data.rateOfPlay;
       this.roundDates = data.roundDates;
+      this.players = data.players;
+      this.playersByPosition = data.playersByPosition;
       this.teams = data.teams;
-      this.tournamentName = data.tournamentName;
-      this.tournamentType = data.tournamentType;
+      this.pairs = data.pairs;
+      this.configuration = data.configuration;
+      this.otherFields = data.otherFields;
+      this.forbiddenPairs = data.forbiddenPairs;
+      this.playedRounds = data.playedRounds;
       this.expectedRounds = data.expectedRounds;
     } else {
       this.tournamentName = '';
@@ -75,6 +77,7 @@ class TournamentData implements TrfFileFormat {
       this.players = [];
       this.playersByPosition = [];
       this.teams = [];
+      this.pairs = [];
       this.configuration = createDefaultConfiguration();
       this.otherFields = {};
       this.forbiddenPairs = [];
@@ -99,6 +102,7 @@ class TournamentData implements TrfFileFormat {
   players: TrfPlayer[];
   playersByPosition: TrfPlayer[];
   teams: TrfTeam[];
+  pairs: Array<Pair[]>
   configuration: Configuration;
   otherFields: Record<string, string>;
   forbiddenPairs: ForbiddenPairs[];
@@ -144,6 +148,22 @@ class TournamentData implements TrfFileFormat {
     }
 
     return null;
+  }
+
+  deletePairings = (fromRound: number): boolean => {
+    if (this.playedRounds < fromRound) {
+      return false;
+    }
+
+    this.players.forEach((player) => {
+      // eslint-disable-next-line no-param-reassign
+      player.games = player.games.slice(0, fromRound - 1);
+      // eslint-disable-next-line no-param-reassign
+      player.scores = player.scores.slice(0, fromRound - 1);
+    });
+    this.pairs = this.pairs.slice(0, fromRound - 1);
+
+    return true;
   }
 
   calculatePoints = (forRound: number, games: TrfGame[], notPlayedIsDraw = false): number => {
@@ -205,6 +225,7 @@ class TournamentData implements TrfFileFormat {
     case GameResult.UNRATED_DRAW:
     case GameResult.HALF_POINT_BYE:
       return this.configuration.pointsForDraw;
+    case GameResult.UNASSIGNED:
     default:
       // Should never happen
       return 0.0;

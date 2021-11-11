@@ -120,3 +120,29 @@ export function invertColor(color: Color): Color {
   }
   return Color.NONE;
 }
+
+export function isAbsentFromRound({ withdrawn, late, notPlayed }: TrfPlayer,
+  roundOneIndexed: number): boolean {
+  return (withdrawn === undefined || roundOneIndexed < withdrawn)
+    && (late === undefined || roundOneIndexed >= late)
+    && (notPlayed.includes(roundOneIndexed));
+}
+
+export function createByeRound(player: TrfPlayer, atRound: number): TrfGame {
+  const found = player.games.findIndex((value) => value.result === GameResult.HALF_POINT_BYE
+    || value.result === GameResult.FULL_POINT_BYE);
+
+  if (found === -1) {
+    return {
+      round: atRound + 1,
+      color: Color.NONE,
+      result: GameResult.HALF_POINT_BYE
+    };
+  }
+
+  return {
+    round: atRound + 1,
+    color: Color.NONE,
+    result: GameResult.ZERO_POINT_BYE
+  };
+}

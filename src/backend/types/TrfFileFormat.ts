@@ -16,6 +16,7 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
+import { Pair } from '../Pairings/Pairings';
 import Tiebreaker from '../Tiebreaker/Tiebreaker';
 
 interface TrfFileFormat {
@@ -35,6 +36,7 @@ interface TrfFileFormat {
   players: TrfPlayer[];
   playersByPosition: TrfPlayer[];
   teams: TrfTeam[];
+  pairs: Array<Pair[]>;
   configuration: Configuration;
   otherFields: Record<string, string>;
   forbiddenPairs: ForbiddenPairs[];
@@ -55,24 +57,32 @@ export interface Configuration {
   // produce the pairings. Especially useful, if we decide to sort players
   // later and want it to affect consequent pairings.
   matchByRank: boolean;
+
   // Initial color to pick for first round.
   //
   // When set to NONE, program can offer to pick based on hash of tournament data.
   initialColor: Color;
+
   // Amount of points for win, forfeit win and full-point bye.
   //
   // Will be used for pairing-allocated bye too, if not specified with BBU code.
   pointsForWin: number;
+
   // Amount of points for draw and half-point bye.
   pointsForDraw: number;
+
   // Amount of points for loss.
   pointsForLoss: number;
+
   // Amount of points for zero-point bye.
   pointsForZeroPointBye: number;
+
   // Amount of points for forfeit loss.
   pointsForForfeitLoss: number;
+
   // Amount of points for pairing-allocated bye.
   pointsForPairingAllocatedBye: number;
+
   // Defines tiebreakers used by the tournament
   tiebreakers: Tiebreaker[];
 }
@@ -149,6 +159,10 @@ export interface TrfPlayer {
   scores: Score[];
 
   accelerations: number[],
+
+  withdrawn?: number,
+  late?: number,
+  notPlayed: number[],
 }
 
 /* <pre>
@@ -203,5 +217,6 @@ export const enum GameResult {
   FULL_POINT_BYE = 'F', // Theoretically deprecated
   PAIRING_ALLOCATED_BYE = 'U',
 
-  ZERO_POINT_BYE = 'Z'
+  ZERO_POINT_BYE = 'Z',
+  UNASSIGNED = ' '
 }
