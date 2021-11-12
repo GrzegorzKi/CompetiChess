@@ -134,14 +134,14 @@ export function createByeRound(player: TrfPlayer, atRound: number): TrfGame {
 
   if (found === -1) {
     return {
-      round: atRound + 1,
+      round: atRound,
       color: Color.NONE,
       result: GameResult.HALF_POINT_BYE
     };
   }
 
   return {
-    round: atRound + 1,
+    round: atRound,
     color: Color.NONE,
     result: GameResult.ZERO_POINT_BYE
   };

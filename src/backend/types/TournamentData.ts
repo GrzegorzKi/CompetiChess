@@ -2,9 +2,7 @@ import { Pair } from '../Pairings/Pairings';
 import { calculateTiebreakers } from '../Tiebreaker/Tiebreaker';
 import { FideSwissRatingsNotConsistent } from '../Tiebreaker/TiebreakerSets';
 import { Acceleration } from '../TrfxParser/parseAcceleration';
-import {
-  CompareType, createComparator, sortByScore, sortByTiebreaker
-} from '../utils/SortUtils';
+import { createComparator, sortByScore, sortByTiebreaker } from '../utils/SortUtils';
 import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
 
 import ParseResult, { ErrorCode } from './ParseResult';
@@ -264,14 +262,14 @@ class TournamentData implements TrfFileFormat {
 
   computeRanks = (forRound: number): {
     playersByRank: Record<number, number>,
-    sortedPlayers: CompareType[]
+    sortedPlayers: TrfPlayer[]
   } => {
     const sortedPlayers = this.sortByRank(forRound);
 
     let rankIndex = 1;
     const playersByRank: Record<number, number> = Object.create(null);
     for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
-      playersByRank[sortedPlayers[i].player.playerId] = rankIndex;
+      playersByRank[sortedPlayers[i].playerId] = rankIndex;
       rankIndex += 1;
     }
 
@@ -281,23 +279,17 @@ class TournamentData implements TrfFileFormat {
     };
   }
 
-  sortByRank = (forRound: number): CompareType[] => {
-    const playersToIter = this.configuration.matchByRank
-      ? this.playersByPosition
-      : this.players;
-    const rankedPlayers = playersToIter.map((player, index): CompareType => ({
-      index,
-      player,
-    }));
+  sortByRank = (forRound: number): TrfPlayer[] => {
+    const playersSorted = [...this.players];
 
     const tbComparators = this.configuration.tiebreakers.map(
       (tb) => sortByTiebreaker(forRound, tb),
     );
-    rankedPlayers.sort(createComparator([
+    playersSorted.sort(createComparator([
       sortByScore(forRound),
       ...tbComparators,
     ]));
-    return rankedPlayers;
+    return playersSorted;
   }
 }
 

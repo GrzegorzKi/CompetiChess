@@ -101,20 +101,13 @@ function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[]
 type ReadPairsParams =
   | { players: TrfPlayer[], pairsRaw: string[] }
   | { players: TrfPlayer[], fromRound: number }
+  | { players: TrfPlayer[], pairs: Pair[] }
 
 export function readPairs(params: ReadPairsParams) {
   let pairs: Pair[];
   let round: number;
   let unpaired: TrfPlayer[];
   const { players } = params;
-
-  if ('pairsRaw' in params) {
-    round = calculatePlayedRounds(players);
-    pairs = internalReadPairsFromArray(players, params.pairsRaw, round);
-  } else {
-    round = Math.max(1, params.fromRound);
-    pairs = internalReadPairsFromGames(players, round);
-  }
 
   function reassignPairIds() {
     let pairNo = 1;
@@ -125,7 +118,9 @@ export function readPairs(params: ReadPairsParams) {
   }
 
   function sortPairs() {
-    const compareScore = sortByScore(round);
+    // Use scores from previous round to sort
+    const compareScore = sortByScore(round - 1);
+
     pairs.sort((a, b) => {
       if (a.black === undefined) return 1;
       if (b.black === undefined) return -1;
@@ -205,7 +200,6 @@ export function readPairs(params: ReadPairsParams) {
 
   function validateAndAssignPairs(): ParseResult<undefined> {
     const rounds: TrfGame[] = [];
-    const currentRound = calculatePlayedRounds(players);
 
     for (let i = 0; i < pairs.length; ++i) {
       const whiteId = pairs[i].white.playerId;
@@ -218,19 +212,19 @@ export function readPairs(params: ReadPairsParams) {
 
       if (blackId === undefined) {
         rounds[whiteId] = {
-          round: currentRound + 1,
+          round,
           color: Color.NONE,
           result: GameResult.PAIRING_ALLOCATED_BYE
         };
       } else {
         rounds[whiteId] = {
-          round: currentRound + 1,
+          round,
           opponent: blackId,
           color: Color.WHITE,
           result: GameResult.UNASSIGNED
         };
         rounds[blackId] = {
-          round: currentRound + 1,
+          round,
           opponent: whiteId,
           color: Color.BLACK,
           result: GameResult.UNASSIGNED
@@ -242,14 +236,14 @@ export function readPairs(params: ReadPairsParams) {
     for (let i = 0; i < players.length; ++i) {
       if (players[i] !== undefined) {
         const { playerId, games } = players[i];
-        if (rounds[playerId] !== undefined && games[currentRound] !== undefined) {
+        if (rounds[playerId] !== undefined && games[round - 1] !== undefined) {
           return { error: ErrorCode.PAIRING_ERROR, hasPairing: true, playerId };
         }
-        if (rounds[playerId] === undefined && games[currentRound] === undefined) {
-          if (!isAbsentFromRound(players[i], currentRound + 1)) {
+        if (rounds[playerId] === undefined && games[round - 1] === undefined) {
+          if (!isAbsentFromRound(players[i], round)) {
             return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, playerId };
           }
-          rounds[playerId] = createByeRound(players[i], currentRound);
+          rounds[playerId] = createByeRound(players[i], round);
         }
       }
     }
@@ -258,11 +252,23 @@ export function readPairs(params: ReadPairsParams) {
     for (let i = 0; i < players.length; ++i) {
       if (players[i] !== undefined) {
         const { playerId, games } = players[i];
-        games[currentRound] = rounds[playerId];
+        games[round - 1] = rounds[playerId];
       }
     }
 
     return undefined;
+  }
+
+  if ('pairsRaw' in params) {
+    round = calculatePlayedRounds(players) + 1;
+    pairs = internalReadPairsFromArray(players, params.pairsRaw, round);
+  } else if ('pairs' in params) {
+    round = params.pairs[0]?.round ?? (calculatePlayedRounds(players) + 1);
+    pairs = [...params.pairs];
+  } else {
+    round = Math.max(1, params.fromRound);
+    pairs = internalReadPairsFromGames(players, round);
+    sortPairs();
   }
 
   unpaired = getNotPairedPlayers();
@@ -272,6 +278,7 @@ export function readPairs(params: ReadPairsParams) {
     unpaired,
     addPair,
     removePair,
+    sortPairs,
     validateAndAssignPairs
   };
 }

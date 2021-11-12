@@ -145,6 +145,7 @@ export default function exportToTrf(tournament: TournamentData, {
     playedRounds,
     expectedRounds,
     players,
+    playersByPosition,
     configuration
   } = tournament;
   let resultString = '';
@@ -166,8 +167,12 @@ export default function exportToTrf(tournament: TournamentData, {
 
   const { playersByRank } = tournament.computeRanks(forRound);
 
-  for (let i = 0, len = players.length; i < len; ++i) {
-    if (players[i] !== undefined) {
+  const playersToIter = configuration.matchByRank
+    ? playersByPosition
+    : players;
+
+  for (let i = 0, len = playersToIter.length; i < len; ++i) {
+    if (playersToIter[i] !== undefined) {
       const {
         playerId,
         sex,
@@ -178,8 +183,8 @@ export default function exportToTrf(tournament: TournamentData, {
         id,
         birthDate,
         games,
-      } = players[i];
-      const points = getPoints(players[i]);
+      } = playersToIter[i];
+      const points = getPoints(playersToIter[i]);
 
       if (playerId > 9999 || rating > 9999 || points > 99.9) {
         // FIXME Return error code instead

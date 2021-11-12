@@ -49,8 +49,8 @@ export default function exportComparison(tournament: TournamentData,
 
   for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
     if (sortedPlayers[i] !== undefined) {
-      const { playerId } = sortedPlayers[i].player;
-      const points = getPoints(sortedPlayers[i].player);
+      const { playerId } = sortedPlayers[i];
+      const points = getPoints(sortedPlayers[i]);
 
       if (playerId > 9999 || points > 99.9) {
         // FIXME Return error code instead
@@ -58,7 +58,7 @@ export default function exportComparison(tournament: TournamentData,
       }
       resultString += `${(playerId + 1).toString().padStart(4)} ${points.toFixed(1).padStart(4)} ${playersByRank[playerId].toString().padStart(4)} |`;
       resultString += stringifyTiebreakers(configuration.tiebreakers,
-        sortedPlayers[i].player,
+        sortedPlayers[i],
         forRound);
       resultString += '\n';
     }

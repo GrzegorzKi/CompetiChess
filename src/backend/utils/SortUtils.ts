@@ -1,29 +1,27 @@
 import Tiebreaker, { compareHeadToHead } from '../Tiebreaker/Tiebreaker';
 import { TrfPlayer } from '../types/TrfFileFormat';
 
-export type CompareType = {
-  index: number,
-  player: TrfPlayer
-}
-
 export function createComparator(compareFuncs: PlayerComparator[]) {
-  return (a: CompareType, b: CompareType): number => {
+  return (a: TrfPlayer, b: TrfPlayer): number => {
     for (let i = 0; i < compareFuncs.length; ++i) {
-      const result = compareFuncs[i](a.player, b.player);
+      const result = compareFuncs[i](a, b);
       if (result !== 0) {
         return result;
       }
     }
 
-    // If they are equal, return index comparison to preserve order
-    return a.index - b.index;
+    // If they are equal, compare positional ranks
+    return a.rank - b.rank;
   };
 }
 
 type PlayerComparator = (first: TrfPlayer, second: TrfPlayer) => number;
 
 // Sorts players by score in descending order
-export function sortByScore(round: number) {
+export function sortByScore(round: number): PlayerComparator {
+  if (round < 1) {
+    return () => 0;
+  }
   return (first: TrfPlayer, second: TrfPlayer): number => {
     const firstScore = first.scores[round - 1]?.points ?? 0;
     const secondScore = second.scores[round - 1]?.points ?? 0;

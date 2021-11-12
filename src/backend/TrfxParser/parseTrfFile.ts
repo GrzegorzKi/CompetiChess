@@ -19,6 +19,21 @@ export type ParseTrfFileResult =
   | { trfxData: TournamentData, warnings: WarnCode[] }
   | { parsingErrors: string[] };
 
+function reorderAndAssignPositionalRanks(tournamentData: TournamentData) {
+  if (!tournamentData.configuration.matchByRank) {
+    // eslint-disable-next-line no-param-reassign
+    tournamentData.playersByPosition = [];
+    tournamentData.players.forEach((player) => {
+      tournamentData.playersByPosition.push(player);
+    });
+  }
+
+  tournamentData.playersByPosition.forEach((player, index) => {
+    // eslint-disable-next-line no-param-reassign
+    player.rank = index;
+  });
+}
+
 export default function parseTrfFile(content: string): ParseTrfFileResult {
   const tournamentData = new TournamentData();
   const accelerations: Array<Acceleration> = [];
@@ -207,6 +222,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
       tournamentData.recalculateTiebreakers(tournamentData.playersByPosition[i]);
     }
+    reorderAndAssignPositionalRanks(tournamentData);
     // TODO At last, check ranks and normalize if necessary
 
     return { trfxData: tournamentData, warnings };
