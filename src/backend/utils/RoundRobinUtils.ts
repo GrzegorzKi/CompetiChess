@@ -28,9 +28,6 @@ type ItemType<T> =
   T extends number ? number :
     T extends Array<infer U> ? U : never;
 
-// Algorithm starts by splitting field into two lines, reverse lower line.
-// Standard fixes first item, rotates other items 1 position clockwise.
-// Berger instead fixes last item, rotates other items n/2 positions.
 function getPlayersArray<T>(players: number | T[]): Array<ItemType<typeof players>> {
   if (typeof players === 'number') {
     return Array.from({ length: players }).map((_, i) => i);
@@ -38,7 +35,13 @@ function getPlayersArray<T>(players: number | T[]): Array<ItemType<typeof player
   return [...players];
 }
 
-// Crenshaw is Berger with rounds reversed.
+/*
+ * Algorithm starts by splitting field into two lines, reverse lower line.
+ *
+ * Standard fixes first item, rotates other items 1 position clockwise.
+ * Berger instead fixes last item, rotates other items n/2 positions.
+ * Crenshaw is Berger with rounds reversed.
+ */
 export function calculateTable<T>(
   players: number | T[],
   type: TableType,
@@ -100,25 +103,45 @@ function flipPairing<T>(pairing: RRPair<T>): RRPair<T> {
   return [pairing[1], pairing[0]];
 }
 
+function flipRound<T>(round: Array<RRPair<T>>) {
+  const tmpRound: Array<RRPair<T>> = [];
+  for (let j = 0; j < round.length; ++j) {
+    tmpRound.push(flipPairing(round[j]));
+  }
+  return tmpRound;
+}
+
 export function flipSchedule<T>(schedule: RoundRobinTable<T>): RoundRobinTable<T> {
   const tmpSchedule: RoundRobinTable<T> = [];
   for (let i = 0; i < schedule.length; ++i) {
-    tmpSchedule[i] = [];
-    for (let j = 0; j < schedule[i].length; ++j) {
-      tmpSchedule[i].push(flipPairing(schedule[i][j]));
-    }
+    tmpSchedule.push(flipRound(tmpSchedule[i]));
   }
   return tmpSchedule;
 }
 
-export function doubleSchedule<T>(schedule: RoundRobinTable<T>): RoundRobinTable<T> {
-  return schedule.concat(flipSchedule(schedule));
+export function multiplySchedule<T>(schedule: RoundRobinTable<T>,
+  times: number): RoundRobinTable<T> {
+  let newSchedule = schedule;
+  for (let i = 1; i < times; ++i) {
+    // Flip last two rounds to avoid playing the same color three times in a row
+    newSchedule[newSchedule.length - 1] = flipRound(newSchedule[newSchedule.length - 1]);
+    newSchedule[newSchedule.length - 2] = flipRound(newSchedule[newSchedule.length - 2]);
+    if (i % 2 !== 0) {
+      newSchedule = newSchedule.concat(flipSchedule(schedule));
+    } else {
+      newSchedule = newSchedule.concat(schedule);
+    }
+  }
+  return newSchedule;
 }
 
-// Returns array of [round, pairNum] indices of 'schedule' if pairing
-// has been found or false otherwise.
-//
-// Use -1 to not search for particular color/player in pairing.
+/*
+ * Returns array of [round, pairNum] indices of 'schedule' if pairing
+ * has been found or false otherwise.
+ *
+ * Use 'undefined' in pair to not search for particular color/player in pairing.
+ * At least one object in pair must not be undefined.
+ */
 export function seekPairing<T>(
   schedule: RoundRobinTable<T>,
   pair: [T?, T?],
@@ -157,6 +180,7 @@ export function countColors<T>(
   for (let i = 0; i < schedule.length; ++i) {
     for (let j = 0; j < schedule[i].length; ++j) {
       const pair = schedule[i][j];
+
       if (i < atRound || (pair[0] !== dropout && pair[1] !== dropout)) {
         const p1 = playersMap.get(pair[0]) ?? [0, 0];
         p1[0] += 1;
@@ -185,71 +209,99 @@ function seekTuplePair<T>(value: [T, T], asTails: boolean): [T?, T?] {
   return [value[1], undefined];
 }
 
+/*
+ * Finds reversals for round-robin schedule, when one of players/teams drops out.
+ *
+ * Algorithm tries to match players with color difference higher than 2,
+ * optionally trying to swap with players with color difference of 1.
+ */
 export function findReversals<T>(schedule: RoundRobinTable<T>, dropout: Dropout<T>)
   : Array<RRPair<T>> {
-  const rounds = schedule.length;
-  const size = Math.max(rounds, schedule[0].length * 2);
-  // Should not analyze when there are odd number of players
-  if (size % 2 !== 0) {
-    return [];
-  }
-
-  const playersMap = countColors(schedule, dropout);
+  const playersColors = countColors(schedule, dropout);
 
   const heads: T[] = [];
+  const resHeads: T[] = [];
   const tails: T[] = [];
-
-  // Find new imbalances after the player has been excluded
-
-  playersMap.forEach((colors, key) => {
-    if (colors[0] > colors[1]) heads.push(key);
-    if (colors[0] < colors[1]) tails.push(key);
-  });
+  const resTails: T[] = [];
 
   // This prevents re-using pairings
   const flipsUsed: Record<string, boolean> = Object.create(null);
   const reversals: Array<RRPair<T>> = [];
 
+  // Find any imbalances between played colors
+  playersColors.forEach((colors, key) => {
+    if (colors[0] - colors[1] > 1) heads.push(key);
+    else if (colors[0] - colors[1] === 1) resHeads.push(key);
+    else if (colors[0] - colors[1] < -1) tails.push(key);
+    else if (colors[0] - colors[1] === -1) resTails.push(key);
+  });
+
   function isUsed(pair: RRPair<T>): boolean {
     return pair.toString() in flipsUsed;
   }
+
   function markAsUsed(pair: RRPair<T>): void {
     flipsUsed[pair.toString()] = true;
   }
 
+  function addToReversals(...pairs: RRPair<T>[]): void {
+    pairs.forEach((pair) => {
+      markAsUsed(pair);
+      reversals.push(flipPairing(pair));
+    });
+  }
+
   // Seek one-flips
-  function seekOneFlips() {
-    let hIdx = 0;
-    while (hIdx < heads.length) {
-      for (let tIdx = 0; tIdx < tails.length; ++tIdx) {
-        const p1 = seekPairing(schedule, [heads[hIdx], tails[tIdx]], -1, -3);
+  function seekOneFlips(swapArrays: boolean) {
+    const firstSet = swapArrays ? tails : heads;
+    const secondSet = swapArrays ? heads : tails;
+    const resFirstSet = swapArrays ? resTails : resHeads;
+    const resSecondSet = swapArrays ? resHeads : resTails;
+
+    let i = 0;
+    let j = 0;
+
+    function internalSeekOneFlips() {
+      for (j = 0; j < secondSet.length; ++j) {
+        const p1 = seekPairing(schedule, [firstSet[i], secondSet[j]], -1, -3);
         if (p1 && !isUsed(schedule[p1[0]][p1[1]])) {
-          const pairing = schedule[p1[0]][p1[1]];
-
-          markAsUsed(pairing);
-
-          tails.splice(tIdx, 1);
-          heads.splice(hIdx, 1);
-          reversals.push(flipPairing(pairing));
-
-          // Decrementing, as heads array has been cut
-          hIdx -= 1;
-          break;
+          addToReversals(schedule[p1[0]][p1[1]]);
+          firstSet.splice(i, 1);
+          secondSet.splice(j, 1);
+          return true;
         }
       }
+      for (j = 0; j < resSecondSet.length; ++j) {
+        const p1 = seekPairing(schedule, [firstSet[i], resSecondSet[j]], -1, -3);
+        if (p1 && !isUsed(schedule[p1[0]][p1[1]])) {
+          addToReversals(schedule[p1[0]][p1[1]]);
+          firstSet.splice(i, 1);
+          resFirstSet.push(resTails[j]);
+          resSecondSet.splice(j, 1);
+          return true;
+        }
+      }
+      return false;
+    }
 
-      hIdx += 1;
+    while (i < firstSet.length) {
+      const found = internalSeekOneFlips();
+
+      if (!found) i += 1;
     }
   }
 
   // Seek two-flips:
-  // For now, only seeking tail in ultimate round and head in penultimate round
+  // Seek head/tail in ultimate round and the opposite in penultimate round.
   function seekTwoFlips(swapArrays: boolean) {
     const firstSet = swapArrays ? tails : heads;
     const secondSet = swapArrays ? heads : tails;
-
+    const resFirstSet = swapArrays ? resTails : resHeads;
+    const resSecondSet = swapArrays ? resHeads : resTails;
     let i = 0;
-    while (i < firstSet.length) {
+    let j = 0;
+
+    function innerSeekTwoFlips(): boolean {
       const p1 = seekPairing(schedule, seekTuple(firstSet[i], swapArrays), -1, -1);
       if (p1 && !isUsed(schedule[p1[0]][p1[1]])) {
         const ultPair = schedule[p1[0]][p1[1]];
@@ -257,36 +309,49 @@ export function findReversals<T>(schedule: RoundRobinTable<T>, dropout: Dropout<
         if (p2 && !isUsed(schedule[p2[0]][p2[1]])) {
           const penPair = schedule[p2[0]][p2[1]];
           const value = swapArrays ? penPair[0] : penPair[1];
-          for (let j = 0; j < secondSet.length; ++j) {
+          for (j = 0; j < secondSet.length; ++j) {
             if (value === secondSet[j]) {
-              markAsUsed(ultPair);
-              markAsUsed(penPair);
+              addToReversals(ultPair, penPair);
               firstSet.splice(i, 1);
               secondSet.splice(j, 1);
-
-              reversals.push(flipPairing(ultPair));
-              reversals.push(flipPairing(penPair));
-
-              i -= 1;
-              break;
+              return true;
+            }
+          }
+          for (j = 0; j < resSecondSet.length; ++j) {
+            if (value === resSecondSet[j]) {
+              addToReversals(ultPair, penPair);
+              firstSet.splice(i, 1);
+              resFirstSet.push(resSecondSet[j]);
+              resSecondSet.splice(j, 1);
+              return true;
             }
           }
         }
       }
+      return false;
+    }
 
-      i += 1;
+    while (i < firstSet.length) {
+      const found = innerSeekTwoFlips();
+
+      if (!found) {
+        i += 1;
+      }
     }
   }
 
   // Seek three-flips:
-  // For now, seek head in ultimate round, middle in penultimate round
-  // then branch to find tail in either ante- or ultimate again
+  // Seek head or tail in ultimate round, middle in penultimate round
+  // then branch to find the opposite in either ante- or ultimate again.
   function seekThreeFlips(swapArrays: boolean) {
     const firstSet = swapArrays ? tails : heads;
     const secondSet = swapArrays ? heads : tails;
-
+    const resFirstSet = swapArrays ? resTails : resHeads;
+    const resSecondSet = swapArrays ? resHeads : resTails;
     let i = 0;
-    while (i < firstSet.length) {
+    let j = 0;
+
+    function innerSeekThreeFlips() {
       const p1 = seekPairing(schedule, seekTuple(firstSet[i], swapArrays), -1, -1);
       if (p1 && !isUsed(schedule[p1[0]][p1[1]])) {
         const ultPair = schedule[p1[0]][p1[1]];
@@ -295,42 +360,45 @@ export function findReversals<T>(schedule: RoundRobinTable<T>, dropout: Dropout<
           const penPair = schedule[p2[0]][p2[1]];
 
           // Branch to ante-penultimate or ultimate round
-          let found = false;
           for (let rOff = -3; rOff <= -1; rOff += 2) {
-            if (found) break;
             const p3 = seekPairing(schedule, seekTuplePair(penPair, swapArrays), rOff, rOff);
 
             if (p3 && !isUsed(schedule[p3[0]][p3[1]])) {
               const thirdPair = schedule[p3[0]][p3[1]];
               const value = swapArrays ? thirdPair[0] : thirdPair[1];
-              for (let j = 0; j < secondSet.length; ++j) {
+              for (j = 0; j < secondSet.length; ++j) {
                 if (value === secondSet[j]) {
-                  markAsUsed(ultPair);
-                  markAsUsed(penPair);
-                  markAsUsed(thirdPair);
-
+                  addToReversals(ultPair, penPair, thirdPair);
                   firstSet.splice(i, 1);
                   secondSet.splice(j, 1);
-
-                  reversals.push(flipPairing(thirdPair));
-                  reversals.push(flipPairing(penPair));
-                  reversals.push(flipPairing(ultPair));
-
-                  found = true;
-                  i -= 1;
-                  break;
+                  return true;
+                }
+              }
+              for (j = 0; j < resSecondSet.length; ++j) {
+                if (value === resSecondSet[j]) {
+                  addToReversals(ultPair, penPair);
+                  firstSet.splice(i, 1);
+                  resFirstSet.push(resSecondSet[j]);
+                  resSecondSet.splice(j, 1);
+                  return true;
                 }
               }
             }
           }
         }
       }
+      return false;
+    }
 
-      i += 1;
+    while (i < firstSet.length) {
+      const found = innerSeekThreeFlips();
+
+      if (!found) i += 1;
     }
   }
 
-  seekOneFlips();
+  seekOneFlips(false);
+  seekOneFlips(true);
   seekTwoFlips(false);
   seekTwoFlips(true);
   seekThreeFlips(false);
