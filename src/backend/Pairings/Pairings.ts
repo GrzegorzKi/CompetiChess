@@ -23,14 +23,22 @@ import {
 } from '../types/TrfFileFormat';
 import { parseNumber, tokenizeToNumbers } from '../utils/ParseUtils';
 import { sortByRank, sortByScore } from '../utils/SortUtils';
-import { calculatePlayedRounds, createByeRound, isAbsentFromRound } from '../utils/TrfUtils';
+import {
+  byeResults,
+  calculatePlayedRounds,
+  isAbsentFromRound,
+  isResultABye,
+} from '../utils/TrfUtils';
 
 export type Pair = {
   round: number,
   pair: number,
   white: TrfPlayer,
-  black?: TrfPlayer,
+  black: TrfPlayer,
 }
+
+export type UnpairedStatus = typeof byeResults[number] | GameResult.UNASSIGNED;
+export type UnpairedMap = Map<TrfPlayer, UnpairedStatus>;
 
 function removeItem<T>(arr: Array<T>, value: T): Array<T> {
   const index = arr.indexOf(value);
@@ -40,39 +48,51 @@ function removeItem<T>(arr: Array<T>, value: T): Array<T> {
   return arr;
 }
 
-function internalReadPairsFromArray(players: TrfPlayer[],
-  pairsRaw: string[],
-  round: number): Pair[] {
+function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], round: number): {
+  pairs: Pair[],
+  unpaired: UnpairedMap,
+} {
+  const pairs: Pair[] = [];
+  const unpaired: UnpairedMap = new Map();
+
   const parseResult = parseNumber(pairsRaw[0]);
   if (isError(parseResult)) {
-    return [];
+    return { pairs, unpaired };
   }
 
-  const pairs: Pair[] = [];
   for (let i = 1; i < pairsRaw.length; ++i) {
     const indices = tokenizeToNumbers(pairsRaw[i]);
     if (isError(indices) || indices.length !== 2) {
-      return [];
+      return { pairs: [], unpaired: new Map() };
     }
-    // Unchecked read from array
-    const white = players[indices[0] - 1];
-    const black = (indices[1] === 0) ? undefined : players[indices[1] - 1];
 
-    pairs.push({
-      round,
-      pair: i,
-      white,
-      black
-    });
+    const white = players[indices[0] - 1];
+
+    if (indices[1] === 0) {
+      unpaired.set(white, GameResult.PAIRING_ALLOCATED_BYE);
+    } else {
+      const black = players[indices[1] - 1];
+
+      pairs.push({
+        round,
+        pair: i,
+        white,
+        black
+      });
+    }
   }
 
-  return pairs;
+  return { pairs, unpaired };
 }
 
-function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[] {
+function internalReadPairsFromGames(players: TrfPlayer[], round: number): {
+  pairs: Pair[],
+  unpaired: UnpairedMap,
+} {
   const pairs: Pair[] = [];
+  const unpaired: UnpairedMap = new Map();
   const usedIds: boolean[] = [];
-  let pairNo = 1;
+  let pairNo = 0;
 
   for (let i = 0; i < players.length; ++i) {
     if (players[i] !== undefined
@@ -81,51 +101,52 @@ function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[]
       const { color, opponent: opId, result } = players[i].games[round - 1];
       const opponent = (opId !== undefined) ? players[opId] : undefined;
 
-      if (color === Color.WHITE && opponent !== undefined) {
+      if (opponent === undefined) {
+        usedIds[players[i].playerId] = true;
+        if (isResultABye(result)) {
+          unpaired.set(players[i], result);
+        } else {
+          // Fallback - should never happen
+          unpaired.set(players[i], GameResult.UNASSIGNED);
+        }
+      } else {
         usedIds[players[i].playerId] = true;
         usedIds[opponent.playerId] = true;
-        pairs.push({
-          round,
-          pair: pairNo,
-          white: players[i],
-          black: opponent
-        });
         pairNo += 1;
-      } else if (color === Color.BLACK && opponent !== undefined) {
-        usedIds[players[i].playerId] = true;
-        usedIds[opponent.playerId] = true;
-        pairs.push({
-          round,
-          pair: pairNo,
-          white: opponent,
-          black: players[i]
-        });
-        pairNo += 1;
-      } else if (result === GameResult.PAIRING_ALLOCATED_BYE) {
-        usedIds[players[i].playerId] = true;
-        pairs.push({
-          round,
-          pair: pairNo,
-          white: players[i],
-          black: undefined
-        });
-        pairNo += 1;
+        if (color === Color.BLACK) {
+          pairs.push({
+            round,
+            pair: pairNo,
+            white: players[i],
+            black: opponent
+          });
+        } else {
+          pairs.push({
+            round,
+            pair: pairNo,
+            white: opponent,
+            black: players[i]
+          });
+        }
       }
     }
   }
 
-  return pairs;
+  return {
+    pairs,
+    unpaired,
+  };
 }
 
 type ReadPairsParams =
   | { players: TrfPlayer[], pairsRaw: string[] }
   | { players: TrfPlayer[], fromRound: number }
-  | { players: TrfPlayer[], pairs: Pair[] }
+  | { players: TrfPlayer[], pairs: Pair[], unpaired: UnpairedMap }
 
 export function readPairs(params: ReadPairsParams) {
   let pairs: Pair[];
   let round: number;
-  let unpaired: TrfPlayer[];
+  let unpaired: UnpairedMap = new Map();
   const { players } = params;
 
   function reassignPairIds() {
@@ -163,11 +184,10 @@ export function readPairs(params: ReadPairsParams) {
     reassignPairIds();
   }
 
-  function addPair(white: TrfPlayer, black?: TrfPlayer): boolean {
-    if (white !== black && unpaired.includes(white)
-      && (black === undefined || unpaired.includes(black))) {
-      removeItem(unpaired, white);
-      removeItem(unpaired, black);
+  function addPair(white: TrfPlayer, black: TrfPlayer): boolean {
+    if (white !== black && unpaired.has(white) && unpaired.has(black)) {
+      unpaired.delete(white);
+      unpaired.delete(black);
       pairs.push({
         round,
         pair: pairs.length,
@@ -182,22 +202,35 @@ export function readPairs(params: ReadPairsParams) {
   }
 
   function removePair(pair: Pair): boolean {
-    if (pairs.includes(pair)) {
-      removeItem(pairs, pair);
-      unpaired.push(pair.white);
-      if (pair.black !== undefined) {
-        unpaired.push(pair.black);
-      }
-      sortPairs();
-      return true;
+    if (!pairs.includes(pair)) {
+      return false;
     }
 
-    return false;
+    removeItem(pairs, pair);
+    unpaired.set(pair.white, GameResult.UNASSIGNED);
+    if (pair.black !== undefined) {
+      unpaired.set(pair.black, GameResult.UNASSIGNED);
+    }
+    sortPairs();
+    return true;
   }
 
-  function getNotPairedPlayers(): TrfPlayer[] {
+  function changeUnpairedStatus(player: TrfPlayer, status: UnpairedStatus): boolean {
+    if (!unpaired.has(player)) {
+      return false;
+    }
+
+    unpaired.set(player, status);
+    return true;
+  }
+
+  function calculateNotPairedPlayers() {
     const paired: boolean[] = [];
-    const notPaired: TrfPlayer[] = [];
+
+    // Avoid duplicates
+    unpaired.forEach((_, key) => {
+      paired[key.playerId] = true;
+    });
 
     for (let i = 0; i < pairs.length; ++i) {
       const white = pairs[i].white.playerId;
@@ -210,11 +243,12 @@ export function readPairs(params: ReadPairsParams) {
 
     for (let i = 0; i < players.length; ++i) {
       if (players[i] !== undefined && paired[players[i].playerId] === undefined) {
-        notPaired.push(players[i]);
+        const type = isAbsentFromRound(players[i], round)
+          ? GameResult.ZERO_POINT_BYE
+          : GameResult.UNASSIGNED;
+        unpaired.set(players[i], type);
       }
     }
-
-    return notPaired;
   }
 
   function validateAndAssignPairs(): ParseResult<undefined> {
@@ -222,33 +256,24 @@ export function readPairs(params: ReadPairsParams) {
 
     for (let i = 0; i < pairs.length; ++i) {
       const whiteId = pairs[i].white.playerId;
-      const blackId = pairs[i].black?.playerId;
+      const blackId = pairs[i].black.playerId;
 
-      if (rounds[whiteId] !== undefined
-        || (blackId !== undefined && rounds[blackId] !== undefined)) {
+      if (rounds[whiteId] !== undefined || rounds[blackId] !== undefined) {
         return { error: ErrorCode.INVALID_PAIR, number: i + 1 };
       }
 
-      if (blackId === undefined) {
-        rounds[whiteId] = {
-          round,
-          color: Color.NONE,
-          result: GameResult.PAIRING_ALLOCATED_BYE
-        };
-      } else {
-        rounds[whiteId] = {
-          round,
-          opponent: blackId,
-          color: Color.WHITE,
-          result: GameResult.UNASSIGNED
-        };
-        rounds[blackId] = {
-          round,
-          opponent: whiteId,
-          color: Color.BLACK,
-          result: GameResult.UNASSIGNED
-        };
-      }
+      rounds[whiteId] = {
+        round,
+        opponent: blackId,
+        color: Color.WHITE,
+        result: GameResult.UNASSIGNED
+      };
+      rounds[blackId] = {
+        round,
+        opponent: whiteId,
+        color: Color.BLACK,
+        result: GameResult.UNASSIGNED
+      };
     }
 
     // Validate pairs and their consistencies
@@ -259,10 +284,17 @@ export function readPairs(params: ReadPairsParams) {
           return { error: ErrorCode.PAIRING_ERROR, hasPairing: true, playerId };
         }
         if (rounds[playerId] === undefined && games[round - 1] === undefined) {
-          if (!isAbsentFromRound(players[i], round)) {
+          const result = unpaired.get(players[i]);
+          if (result !== undefined && result !== GameResult.UNASSIGNED) {
+            rounds[playerId] = {
+              round,
+              opponent: undefined,
+              color: Color.NONE,
+              result
+            };
+          } else {
             return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, playerId };
           }
-          rounds[playerId] = createByeRound(players[i], round);
         }
       }
     }
@@ -280,23 +312,25 @@ export function readPairs(params: ReadPairsParams) {
 
   if ('pairsRaw' in params) {
     round = calculatePlayedRounds(players) + 1;
-    pairs = internalReadPairsFromArray(players, params.pairsRaw, round);
+    ({ pairs, unpaired } = internalReadPairsFromArray(players, params.pairsRaw, round));
   } else if ('pairs' in params) {
     round = params.pairs[0]?.round ?? (calculatePlayedRounds(players) + 1);
     pairs = [...params.pairs];
+    unpaired = new Map(params.unpaired);
   } else {
     round = Math.max(1, params.fromRound);
-    pairs = internalReadPairsFromGames(players, round);
+    ({ pairs, unpaired } = internalReadPairsFromGames(players, round));
     sortPairs();
   }
 
-  unpaired = getNotPairedPlayers();
+  calculateNotPairedPlayers();
 
   return {
     pairs,
     unpaired,
     addPair,
     removePair,
+    changeUnpairedStatus,
     sortPairs,
     validateAndAssignPairs
   };

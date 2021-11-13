@@ -121,7 +121,7 @@ export function getDetails(error: ParseError): string {
     if (error.hasPairing) {
       return `Player ${error.playerId + 1} is already paired`;
     }
-    return `Player ${error.playerId + 1} is not paired against any opponent and doesn't have assigned bye`;
+    return `Player ${error.playerId + 1} is not paired against any opponent and doesn't have assigned status`;
   case ErrorCode.INTERNAL_ERROR:
     if (error.what !== undefined) {
       return `Internal error has occurred: ${error.what}`;

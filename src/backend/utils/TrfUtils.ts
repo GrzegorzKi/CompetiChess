@@ -29,17 +29,17 @@ const gameResults = [
   '1', '=', '0',
   'H', 'F', 'U', 'Z'
 ];
-const byeResults = [
+export const byeResults = [
   GameResult.ZERO_POINT_BYE,
   GameResult.HALF_POINT_BYE,
   GameResult.FULL_POINT_BYE,
   GameResult.PAIRING_ALLOCATED_BYE
-];
-const unplayedResults = [
+] as const;
+export const unplayedResults = [
   ...byeResults,
   GameResult.FORFEIT_WIN,
   GameResult.FORFEIT_LOSS
-];
+] as const;
 
 export function parseSex(char: string): Sex {
   if (char === 'm') {
@@ -59,16 +59,24 @@ export function isValidResult(result: string): result is GameResult {
   return gameResults.includes(result);
 }
 
+export function isResultABye(result: GameResult): result is typeof byeResults[number] {
+  return (byeResults as readonly GameResult[]).includes(result);
+}
+
+export function isResultAnUnplayed(result: GameResult): result is typeof unplayedResults[number] {
+  return (unplayedResults as readonly GameResult[]).includes(result);
+}
+
 export function validateGameEntry({ opponent, color, result }: TrfGame): boolean {
   if (color !== Color.NONE && opponent === undefined) {
     return false;
   }
 
-  if (byeResults.includes(result) && opponent !== undefined) {
+  if (isResultABye(result) && opponent !== undefined) {
     return false;
   }
 
-  if (!unplayedResults.includes(result)
+  if (!isResultAnUnplayed(result)
     && color === Color.NONE
     && (opponent !== undefined || result !== GameResult.DRAW)) {
     return false;
