@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  Grzegorz Kita
+ * Copyright (c) 2021-2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *

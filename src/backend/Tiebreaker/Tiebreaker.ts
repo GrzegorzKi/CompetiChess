@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021  Grzegorz Kita
+ * Copyright (c) 2021-2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -18,9 +18,7 @@
  */
 
 import TournamentData from '../types/TournamentData';
-import {
-  Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer
-} from '../types/TrfFileFormat';
+import { Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
 import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '../utils/TrfUtils';
 
 const enum Tiebreaker {
