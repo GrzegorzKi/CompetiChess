@@ -21,6 +21,7 @@
     "jsx-a11y"
   ],
   "rules": {
+    "semi": "error",
     "indent": ["error", 2],
     "quotes": ["error", "single"],
     "linebreak-style": "off",

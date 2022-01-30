@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import createBbpModule from './bbpPairings.js';
+import createBbpModule from './bbpPairingsWasm.js';
 
 interface BbpPairingsEmscriptenModule extends EmscriptenModule {
     FS: typeof FS;
@@ -46,14 +46,14 @@ export const enum StatusCode {
   FileError = 5,
 }
 
-export default class BbpPairingsWrapper {
+export default class BbpPairings {
   // eslint-disable-next-line no-useless-constructor
   private constructor() {
     // Constructor is private on purpose - use factory method instead.
   }
 
-  static async init(): Promise<BbpPairingsWrapper> {
-    const wrapper = new BbpPairingsWrapper();
+  static async init(): Promise<BbpPairings> {
+    const wrapper = new BbpPairings();
     return createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
       wrapper.bbpInstance = instance;
       return wrapper;

@@ -17,13 +17,15 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'regenerator-runtime/runtime';
+
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-import { readPairs } from '../../../backend/Pairings/Pairings';
-import parseTrfFile from '../../../backend/TrfxParser/parseTrfFile';
+import { readPairs } from '../../../src/backend/Pairings/Pairings';
+import parseTrfFile from '../../../src/backend/TrfxParser/parseTrfFile';
 
-test('Test reading from TrfPlayer array', async () => {
+test('reading from TrfPlayer array', async () => {
   const dirPath = path.join(__dirname, '../testTrfFile.txt');
 
   const data = await readFile(dirPath, 'utf8');

@@ -14,22 +14,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+import 'regenerator-runtime/runtime';
 
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-import BbpPairingsWrapper from '../../../backend/BbpPairings/bbpPairingsWrapper';
-import exportComparison from '../../../backend/DataExport/exportComparison';
-import exportToTrf from '../../../backend/DataExport/exportToTrf';
-import { readPairs } from '../../../backend/Pairings/Pairings';
-import parseTrfFile from '../../../backend/TrfxParser/parseTrfFile';
-import { getDetails, isError } from '../../../backend/types/ParseResult';
+import BbpPairings from '../../../src/backend/BbpPairings/bbpPairings';
+import exportComparison from '../../../src/backend/DataExport/exportComparison';
+import exportToTrf from '../../../src/backend/DataExport/exportToTrf';
+import { readPairs } from '../../../src/backend/Pairings/Pairings';
+import parseTrfFile from '../../../src/backend/TrfxParser/parseTrfFile';
+import { getDetails, isError } from '../../../src/backend/types/ParseResult';
 
 test('Parse sample file', async () => {
   const dirPath = path.join(__dirname, '../testTrfFile.txt');
-  // const dirPath = path.join(__dirname, '/testLargeFile.trf');
+  // const dirPath = path.join(__dirname, '../testLargeFile.trf');
   const forRound = 3;
 
   const data = await readFile(dirPath, 'utf8');
@@ -53,7 +55,7 @@ test('Parse sample file', async () => {
   console.info(trfOutput);
   console.info(comparison);
 
-  const wrapper = await BbpPairingsWrapper.init();
+  const wrapper = await BbpPairings.init();
   const bbpResult = wrapper.invoke(trfOutput!);
   console.info(bbpResult);
 
@@ -65,8 +67,7 @@ test('Parse sample file', async () => {
     players: tournament.trfxData.players,
     pairsRaw: bbpResult.data
   });
-  // const pairs = readPairsFromArray(tournament.trfxData.players, ['3', '1 2', '3 4', '5 6']);
-  const result = pairs.validateAndAssignPairs();
+  const result = pairs.apply(tournament.trfxData);
   if (isError(result)) {
     throw new Error(getDetails(result));
   }
