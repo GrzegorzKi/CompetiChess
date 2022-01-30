@@ -1,41 +1,41 @@
 {
+  "private": true,
   "name": "competichess",
   "version": "0.1.0",
-  "private": true,
+  "license": "GNU GPL 3.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "preact build",
+    "serve": "sirv build --port 8080 --cors --single",
+    "dev": "preact watch",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "test": "jest"
   },
   "dependencies": {
     "core-js": "^3.18.1",
-    "date-fns": "^2.24.0",
-    "gray-matter": "^4.0.3",
-    "next": "^11.0.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "remark": "^14.0.1",
-    "remark-html": "^14.0.1",
+    "preact": "^10.6.5",
+    "preact-render-to-string": "^5.1.4",
+    "preact-router": "^3.2.1",
     "sass": "^1.42.1",
-    "sharp": "^0.29.1",
-    "typescript": "^4.4.3"
+    "sharp": "^0.29.1"
   },
   "devDependencies": {
     "@types/emscripten": "^1.39.5",
+    "@types/enzyme": "^3.10.5",
     "@types/jest": "^27.0.2",
-    "@types/react": "^17.0.26",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "babel-jest": "^27.3.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-preact-pure": "^3.1.0",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-preact": "^1.1.1",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.24.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^27.3.1",
-    "ts-jest": "^27.0.7"
+    "jest-preset-preact": "^4.0.2",
+    "preact-cli": "^3.0.0",
+    "sirv-cli": "^1.0.0-next.3",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.5.5"
   }
 }

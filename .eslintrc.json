@@ -3,12 +3,11 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "airbnb"
-  ],
   "parser": "@typescript-eslint/parser",
+  "extends": [
+    "preact",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -17,8 +16,9 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react",
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "import",
+    "jsx-a11y"
   ],
   "rules": {
     "indent": ["error", 2],
