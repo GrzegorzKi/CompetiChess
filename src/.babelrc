@@ -1,5 +1,6 @@
 {
   "presets": [
-    "preact-cli/babel"
+    "preact-cli/babel",
+    "@babel/preset-env"
   ]
 }

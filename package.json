@@ -10,6 +10,11 @@
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "test": "jest"
   },
+  "browserslist": [
+    "last 3 years",
+    "not ie >= 1",
+    "maintained node versions"
+  ],
   "dependencies": {
     "core-js": "^3.18.1",
     "preact": "^10.6.5",
