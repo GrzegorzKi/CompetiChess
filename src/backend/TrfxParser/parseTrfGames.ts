@@ -20,9 +20,7 @@
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
 import { Color, GameResult, TrfGame } from '../types/TrfFileFormat';
 import { parsePlayerId } from '../utils/ParseUtils';
-import {
-  isValidColor, isValidResult, validateGameEntry
-} from '../utils/TrfUtils';
+import { isValidColor, isValidResult, validateGameEntry } from '../utils/TrfUtils';
 
 export function defaultTrfGame(round: number): TrfGame {
   return {
@@ -70,7 +68,9 @@ export function parseTrfGame(
     return { error: ErrorCode.INVALID_VALUE, value: result };
   }
 
-  validateGameEntry(trfGame);
+  if (!validateGameEntry(trfGame)) {
+    return { error: ErrorCode.INVALID_VALUE, value: roundLine };
+  }
 
   return trfGame;
 }
@@ -88,9 +88,10 @@ export default function parseTrfGames(gamesString: string, playerId: number)
       skippedRounds += 1;
     } else {
       // Append missing games as we've got a valid game line
-      for (; skippedRounds > 0; skippedRounds--) {
+      while (skippedRounds > 0) {
         const unplayedRound = defaultTrfGame(roundNum - skippedRounds);
         games.push(unplayedRound);
+        skippedRounds -= 1;
       }
       // Parse game line
       const parsedGame = parseTrfGame(gameLine, roundNum, playerId);

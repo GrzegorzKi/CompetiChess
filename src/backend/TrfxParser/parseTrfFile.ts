@@ -17,101 +17,95 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, {
-  ErrorCode, getDetails, isError, ParseError
-} from '../types/ParseResult';
+import { ErrorCode, getDetails, isError, ParseError } from '../types/ParseResult';
 import TournamentData from '../types/TournamentData';
-import { Color, TypeCodes, XXField } from '../types/TrfFileFormat';
-import { parseNumber, tokenize, tokenizeToNumbers } from '../utils/ParseUtils';
-import { calculatePlayedRounds, evenUpMatchHistories } from '../utils/TrfUtils';
+import { Color, Field } from '../types/TrfFileFormat';
+import WarnCode from '../types/WarnCode';
+import {
+  assignByesAndLates,
+  assignPairs,
+  calculatePlayedRounds,
+  evenUpMatchHistories,
+} from '../utils/TrfUtils';
 
-import parseAcceleration, { Acceleration } from './parseAcceleration';
-import parseTrfPlayer from './parseTrfPlayer';
+import { AdditionalData, fieldParser } from './parseValues';
 
-export const enum WarnCode {
-  ROUND_NUM,
-  INITIAL_COLOR,
-  HOLES_IN_IDS,
-}
-
+export type ValidTrfData = { trfxData: TournamentData, warnings: WarnCode[] };
 export type ParseTrfFileResult =
-  | { trfxData: TournamentData, warnings: WarnCode[] }
+  | ValidTrfData
   | { parsingErrors: string[] };
 
-function reorderAndAssignPositionalRanks(tournamentData: TournamentData) {
-  if (!tournamentData.configuration.matchByRank) {
-    // eslint-disable-next-line no-param-reassign
-    tournamentData.playersByPosition = [];
-    tournamentData.players.forEach((player) => {
-      tournamentData.playersByPosition.push(player);
-    });
+function postProcessData(
+  tournamentData: TournamentData,
+  { accelerations, forbiddenPairs, byes }: AdditionalData) {
+
+  const warnings: WarnCode[] = [];
+
+  const resultAcc = tournamentData.checkAndAssignAccelerations(accelerations);
+  if (isError(resultAcc)) {
+    return { parsingErrors: [getDetails(resultAcc)] };
   }
 
-  tournamentData.playersByPosition.forEach((player, index) => {
-    // eslint-disable-next-line no-param-reassign
-    player.rank = index;
+  const playedRounds = calculatePlayedRounds(tournamentData.players);
+  tournamentData.playedRounds = playedRounds;
+  if (tournamentData.expectedRounds <= 0
+    || tournamentData.playedRounds > tournamentData.expectedRounds) {
+    tournamentData.expectedRounds = playedRounds;
+    warnings.push(WarnCode.ROUND_NUM);
+  }
+
+  // Push forbidden pairs for the next round
+  tournamentData.forbiddenPairs.push({
+    round: playedRounds + 1,
+    pairs: forbiddenPairs,
   });
+
+  // Infer initial color if not set
+  if (tournamentData.configuration.initialColor === Color.NONE) {
+    const color = tournamentData.inferInitialColor();
+    if (color === Color.NONE) {
+      warnings.push(WarnCode.INITIAL_COLOR);
+    } else {
+      tournamentData.configuration.initialColor = color;
+    }
+  }
+
+  const pairResult = tournamentData.validatePairConsistency();
+  if (isError(pairResult)) {
+    return { parsingErrors: [getDetails(pairResult)] };
+  }
+
+  tournamentData.reorderAndAssignPositionalRanks();
+  // TODO Detect holes in player ids - add warning then
+
+  assignByesAndLates(tournamentData, byes);
+  evenUpMatchHistories(tournamentData.players, playedRounds);
+  assignPairs(tournamentData);
+
+  // Recalculate players' scores.
+  // We're calculating tiebreakers AFTER scores to avoid bugs
+  for (const player of tournamentData.playersByPosition) {
+    tournamentData.recalculateScores(player);
+  }
+  for (const player of tournamentData.playersByPosition) {
+    tournamentData.recalculateTiebreakers(player);
+  }
+
+  return {
+    trfxData: tournamentData,
+    warnings,
+  };
 }
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
   const tournamentData = new TournamentData();
-  const accelerations: Array<Acceleration> = [];
-  const forbiddenPairs: Array<number[]> = [];
-  const byes: Array<number> = [];
-
-  const warnings: WarnCode[] = [];
+  const additionalData: AdditionalData = {
+    accelerations: [],
+    byes: [],
+    forbiddenPairs: []
+  };
 
   const parsingErrors: string[] = [];
-
-  function parseXXFields(line: string): ParseResult<undefined> {
-    const prefix = line.substring(0, 3);
-    const value = line.substring(4);
-
-    if (prefix === XXField.ACCELERATION) {
-      const result = parseAcceleration(line);
-      if (isError(result)) {
-        return result;
-      }
-      accelerations.push(result);
-    } else if (prefix === XXField.FORBIDDEN_PAIRS) {
-      const result = tokenizeToNumbers(value);
-      if (isError(result)) {
-        return result;
-      }
-      if (result.length !== 0) {
-        forbiddenPairs.push(result);
-      }
-    } else if (prefix === XXField.NUM_ROUNDS) {
-      const numRounds = parseNumber(value);
-      if (isError(numRounds)) {
-        return numRounds;
-      }
-      tournamentData.expectedRounds = numRounds;
-    } else if (prefix === XXField.CONFIG) {
-      const strings = tokenize(value);
-      for (let i = 0; i < strings.length; ++i) {
-        if (strings[i] === 'rank') {
-          tournamentData.configuration.matchByRank = true;
-        } else if (strings[i] === 'white1') {
-          tournamentData.configuration.initialColor = Color.WHITE;
-        } else if (strings[i] === 'black1') {
-          tournamentData.configuration.initialColor = Color.BLACK;
-        }
-      }
-    } else if (prefix === XXField.BYES) {
-      const result = tokenizeToNumbers(value);
-      if (isError(result)) {
-        return result;
-      }
-      if (result.length !== 0) {
-        result.forEach((bye) => byes.push(bye - 1));
-      }
-    } else if (prefix === XXField.POINTS_MODIFIER) {
-      // TODO: Implement
-    }
-
-    return undefined;
-  }
 
   const parseLine = (line: string, lineNum: number) => {
     const errorCallback = (e: ParseError) => {
@@ -125,61 +119,10 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     const prefix = line.substring(0, 3);
     const value = line.substring(4).trimEnd();
 
-    if (prefix === TypeCodes.TOURNAMENT_NAME) {
-      tournamentData.tournamentName = value;
-    } else if (prefix === TypeCodes.CITY) {
-      tournamentData.city = value;
-    } else if (prefix === TypeCodes.FEDERATION) {
-      tournamentData.federation = value;
-    } else if (prefix === TypeCodes.START_DATE) {
-      tournamentData.dateOfStart = value;
-    } else if (prefix === TypeCodes.END_DATE) {
-      tournamentData.dateOfEnd = value;
-    } else if (prefix === TypeCodes.NUM_PLAYERS) {
-      const numPlayers = parseNumber(value);
-      if (isError(numPlayers)) {
-        errorCallback(numPlayers);
-      } else {
-        tournamentData.numberOfPlayers = numPlayers;
-      }
-    } else if (prefix === TypeCodes.NUM_RATED_PLAYERS) {
-      const numRatedPlayers = parseNumber(value);
-      if (isError(numRatedPlayers)) {
-        errorCallback(numRatedPlayers);
-      } else {
-        tournamentData.numberOfRatedPlayers = numRatedPlayers;
-      }
-    } else if (prefix === TypeCodes.NUM_TEAMS) {
-      const numTeams = parseNumber(value);
-      if (isError(numTeams)) {
-        errorCallback(numTeams);
-      } else {
-        tournamentData.numberOfTeams = numTeams;
-      }
-    } else if (prefix === TypeCodes.TYPE) {
-      tournamentData.tournamentType = value;
-    } else if (prefix === TypeCodes.CHIEF_ARBITER) {
-      tournamentData.chiefArbiter = value;
-    } else if (prefix === TypeCodes.DEPUTY_ARBITER) {
-      tournamentData.deputyArbiters.push(value);
-    } else if (prefix === TypeCodes.RATE_OF_PLAY) {
-      tournamentData.rateOfPlay = value;
-    } else if (prefix === TypeCodes.ROUND_DATES) {
-      // Pass - no idea how to parse it with current specification
-    } else if (prefix === TypeCodes.PLAYER_ENTRY) {
-      const trfPlayer = parseTrfPlayer(line);
-      if (isError(trfPlayer)) {
-        errorCallback(trfPlayer);
-      } else if (tournamentData.players[trfPlayer.playerId] !== undefined) {
-        errorCallback({ error: ErrorCode.PLAYER_DUPLICATE, playerId: trfPlayer.playerId });
-      } else {
-        tournamentData.players[trfPlayer.playerId] = trfPlayer;
-        tournamentData.playersByPosition.push(trfPlayer);
-      }
-    } else if (prefix === TypeCodes.TEAM_ENTRY) {
-      // TODO Implement
-    } else {
-      const result = parseXXFields(line);
+    const parseFunc = fieldParser[prefix as Field];
+
+    if (parseFunc !== undefined) {
+      const result = parseFunc(tournamentData, value, additionalData);
       if (isError(result)) {
         errorCallback(result);
       }
@@ -193,58 +136,12 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
       const line = stringArray[i];
       if (line.length >= 3) {
         parseLine(line, i);
+        if (parsingErrors.length >= 20) {
+          parsingErrors.push('Processing stopped due to multiple errors found');
+          return;
+        }
       }
     }
-  };
-
-  const postProcessData = (): ParseTrfFileResult => {
-    const resultAcc = tournamentData.checkAndAssignAccelerations(accelerations);
-    if (isError(resultAcc)) {
-      return {
-        parsingErrors: [getDetails(resultAcc)]
-      };
-    }
-
-    const playedRounds = calculatePlayedRounds(tournamentData.players);
-    tournamentData.playedRounds = playedRounds;
-    if (tournamentData.expectedRounds <= 0
-        || tournamentData.playedRounds > tournamentData.expectedRounds) {
-      tournamentData.expectedRounds = playedRounds;
-      warnings.push(WarnCode.ROUND_NUM);
-    }
-
-    tournamentData.forbiddenPairs.push({
-      round: playedRounds + 1,
-      pairs: forbiddenPairs
-    });
-
-    evenUpMatchHistories(tournamentData.players, playedRounds);
-    if (tournamentData.configuration.initialColor === Color.NONE) {
-      const color = tournamentData.inferInitialColor();
-      if (color === Color.NONE) {
-        warnings.push(WarnCode.INITIAL_COLOR);
-      } else {
-        tournamentData.configuration.initialColor = color;
-      }
-    }
-
-    const result = tournamentData.validatePairConsistency();
-    if (isError(result)) {
-      return {
-        parsingErrors: [getDetails(result)]
-      };
-    }
-
-    for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
-      tournamentData.recalculateScores(tournamentData.playersByPosition[i]);
-    }
-    for (let i = 0, len = tournamentData.playersByPosition.length; i < len; ++i) {
-      tournamentData.recalculateTiebreakers(tournamentData.playersByPosition[i]);
-    }
-    reorderAndAssignPositionalRanks(tournamentData);
-    // TODO At last, check ranks and normalize if necessary
-
-    return { trfxData: tournamentData, warnings };
   };
 
   parseFile();
@@ -252,5 +149,5 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     return { parsingErrors };
   }
 
-  return postProcessData();
+  return postProcessData(tournamentData, additionalData);
 }

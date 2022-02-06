@@ -17,10 +17,10 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { readPairs } from '../Pairings/Pairings';
 import { defaultTrfGame } from '../TrfxParser/parseTrfGames';
-import {
-  Color, GameResult, Sex, TrfGame, TrfPlayer
-} from '../types/TrfFileFormat';
+import TournamentData from '../types/TournamentData';
+import { Color, GameResult, Sex, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
 
 const colors = ['w', 'b', '-'];
 const gameResults = [
@@ -35,7 +35,7 @@ export const byeResults = [
   GameResult.FULL_POINT_BYE,
   GameResult.PAIRING_ALLOCATED_BYE
 ] as const;
-export const unplayedResults = [
+const unplayedResults = [
   ...byeResults,
   GameResult.FORFEIT_WIN,
   GameResult.FORFEIT_LOSS
@@ -63,22 +63,23 @@ export function isResultABye(result: GameResult): result is typeof byeResults[nu
   return (byeResults as readonly GameResult[]).includes(result);
 }
 
-export function isResultAnUnplayed(result: GameResult): result is typeof unplayedResults[number] {
-  return (unplayedResults as readonly GameResult[]).includes(result);
+export function isResultAnUnplayed(result: GameResult, opponent?: number)
+    : result is (typeof unplayedResults[number] | GameResult.DRAW) {
+  return (unplayedResults as readonly GameResult[]).includes(result)
+    || (result === GameResult.DRAW && opponent === undefined);
 }
 
 export function validateGameEntry({ opponent, color, result }: TrfGame): boolean {
-  if (color !== Color.NONE && opponent === undefined) {
+  if (opponent === undefined && color !== Color.NONE) {
     return false;
   }
 
-  if (isResultABye(result) && opponent !== undefined) {
+  if (opponent !== undefined && isResultABye(result)) {
     return false;
   }
 
-  if (!isResultAnUnplayed(result)
-    && color === Color.NONE
-    && (opponent !== undefined || result !== GameResult.DRAW)) {
+  if (!isResultAnUnplayed(result, opponent)
+    && color === Color.NONE) {
     return false;
   }
 
@@ -130,12 +131,69 @@ export function calculatePlayedRounds(players: TrfPlayer[]): number {
   return playedRounds;
 }
 
+export function addByeToPlayer(player: TrfPlayer, round: number): void {
+  if (!player.notPlayed.includes(round)) {
+    player.notPlayed.push(round);
+    player.notPlayed.sort((a, b) => a - b);
+  }
+}
+
+function findLateRound(games: TrfGame[], _default: number) {
+  for (const game of games) {
+    if (participatedInPairing(game)) {
+      return game.round;
+    }
+  }
+  return _default;
+}
+
+export function assignByesAndLates(
+  { players, playedRounds }: TournamentData,
+  byes: Array<number>
+): void {
+  const nextRound = playedRounds + 1;
+
+  players.forEach((player) => {
+    player.notPlayed = [];
+    const { games } = player;
+
+    for (const game of games) {
+      if (!participatedInPairing(game)) {
+        player.notPlayed.push(game.round);
+      }
+    }
+
+    const late = findLateRound(games, nextRound);
+
+    if (late > 1) {
+      player.late = late;
+    }
+  });
+
+  for (const bye of byes) {
+    const player = players[bye];
+    if (player !== undefined) {
+      addByeToPlayer(player, nextRound);
+    }
+  }
+}
+
 export function evenUpMatchHistories(players: TrfPlayer[], upTo: number): void {
   players.forEach((player) => {
     for (let num = player.games.length; num < upTo; ++num) {
       player.games.push(defaultTrfGame(num));
     }
   });
+}
+
+export function assignPairs(tournamentData: TournamentData): void {
+  for (let i = 0; i < tournamentData.playedRounds; ++i) {
+    const pairs = readPairs({
+      players: tournamentData.players,
+      fromRound: i + 1,
+    });
+    tournamentData.pairs[i] = pairs.pairs;
+  }
 }
 
 export function invertColor(color: Color): Color {
@@ -148,28 +206,34 @@ export function invertColor(color: Color): Color {
   return Color.NONE;
 }
 
-export function isAbsentFromRound({ withdrawn, late, notPlayed }: TrfPlayer,
+export function isWithdrawnOrLate({ withdrawn, late }: TrfPlayer,
   roundOneIndexed: number): boolean {
-  return (withdrawn === undefined || roundOneIndexed < withdrawn)
-    && (late === undefined || roundOneIndexed >= late)
-    && (notPlayed.includes(roundOneIndexed));
+  return (withdrawn !== undefined && roundOneIndexed >= withdrawn)
+    || (late !== undefined && roundOneIndexed < late);
 }
 
-export function createByeRound(player: TrfPlayer, atRound: number): TrfGame {
+export function isAbsentFromRound({ withdrawn, late, notPlayed }: TrfPlayer,
+  roundOneIndexed: number): boolean {
+  return (withdrawn !== undefined && roundOneIndexed >= withdrawn)
+    || (late !== undefined && roundOneIndexed < late)
+    || (notPlayed.includes(roundOneIndexed));
+}
+
+export function getTypeOfBye(player: TrfPlayer)
+    : GameResult.HALF_POINT_BYE | GameResult.ZERO_POINT_BYE {
   const found = player.games.findIndex((value) => value.result === GameResult.HALF_POINT_BYE
     || value.result === GameResult.FULL_POINT_BYE);
 
-  if (found === -1) {
-    return {
-      round: atRound,
-      color: Color.NONE,
-      result: GameResult.HALF_POINT_BYE
-    };
+  if (found < 0) {
+    return GameResult.HALF_POINT_BYE;
   }
+  return GameResult.ZERO_POINT_BYE;
+}
 
+export function createByeRound(player: TrfPlayer, atRound: number): TrfGame {
   return {
     round: atRound,
     color: Color.NONE,
-    result: GameResult.ZERO_POINT_BYE
+    result: getTypeOfBye(player)
   };
 }

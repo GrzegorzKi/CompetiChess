@@ -18,21 +18,24 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import {
-  Color, GameResult, TrfGame, TrfPlayer
-} from '../types/TrfFileFormat';
+import TournamentData from '../types/TournamentData';
+import { Color, GameResult, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
 import { parseNumber, tokenizeToNumbers } from '../utils/ParseUtils';
 import { sortByRank, sortByScore } from '../utils/SortUtils';
 import {
+  addByeToPlayer,
   byeResults,
   calculatePlayedRounds,
+  createByeRound,
+  getTypeOfBye,
   isAbsentFromRound,
   isResultABye,
+  isWithdrawnOrLate,
 } from '../utils/TrfUtils';
 
 export type Pair = {
   round: number,
-  pair: number,
+  no: number,
   white: TrfPlayer,
   black: TrfPlayer,
 }
@@ -75,7 +78,7 @@ function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], ro
 
       pairs.push({
         round,
-        pair: i,
+        no: i,
         white,
         black
       });
@@ -85,74 +88,61 @@ function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], ro
   return { pairs, unpaired };
 }
 
-function internalReadPairsFromGames(players: TrfPlayer[], round: number): {
-  pairs: Pair[],
-  unpaired: UnpairedMap,
-} {
+function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[] {
   const pairs: Pair[] = [];
-  const unpaired: UnpairedMap = new Map();
   const usedIds: boolean[] = [];
   let pairNo = 0;
 
-  for (let i = 0; i < players.length; ++i) {
-    if (players[i] !== undefined
-      && players[i].games[round - 1] !== undefined
-      && usedIds[players[i].playerId] === undefined) {
-      const { color, opponent: opId, result } = players[i].games[round - 1];
+  for (const player of players) {
+    if (player !== undefined
+      && player.games[round - 1] !== undefined
+      && usedIds[player.playerId] === undefined) {
+      const { color, opponent: opId } = player.games[round - 1];
       const opponent = (opId !== undefined) ? players[opId] : undefined;
 
-      if (opponent === undefined) {
-        usedIds[players[i].playerId] = true;
-        if (isResultABye(result)) {
-          unpaired.set(players[i], result);
-        } else {
-          // Fallback - should never happen
-          unpaired.set(players[i], GameResult.UNASSIGNED);
-        }
-      } else {
-        usedIds[players[i].playerId] = true;
+      if (opponent !== undefined) {
+        usedIds[player.playerId] = true;
         usedIds[opponent.playerId] = true;
         pairNo += 1;
         if (color === Color.BLACK) {
           pairs.push({
             round,
-            pair: pairNo,
-            white: players[i],
+            no: pairNo,
+            white: player,
             black: opponent
           });
         } else {
           pairs.push({
             round,
-            pair: pairNo,
+            no: pairNo,
             white: opponent,
-            black: players[i]
+            black: player
           });
         }
       }
     }
   }
 
-  return {
-    pairs,
-    unpaired,
-  };
+  return pairs;
 }
 
 type ReadPairsParams =
   | { players: TrfPlayer[], pairsRaw: string[] }
   | { players: TrfPlayer[], fromRound: number }
-  | { players: TrfPlayer[], pairs: Pair[], unpaired: UnpairedMap }
+  | { players: TrfPlayer[], pairs: Pair[] }
 
 export function readPairs(params: ReadPairsParams) {
   let pairs: Pair[];
   let round: number;
   let unpaired: UnpairedMap = new Map();
+  let readUnpairedFromResults = false;
+
   const { players } = params;
 
   function reassignPairIds() {
     let pairNo = 1;
-    for (let i = 0; i < pairs.length; ++i) {
-      pairs[i].pair = pairNo;
+    for (const pair of pairs) {
+      pair.no = pairNo;
       pairNo += 1;
     }
   }
@@ -190,7 +180,7 @@ export function readPairs(params: ReadPairsParams) {
       unpaired.delete(black);
       pairs.push({
         round,
-        pair: pairs.length,
+        no: pairs.length,
         white,
         black
       });
@@ -232,26 +222,37 @@ export function readPairs(params: ReadPairsParams) {
       paired[key.playerId] = true;
     });
 
-    for (let i = 0; i < pairs.length; ++i) {
-      const white = pairs[i].white.playerId;
+    for (const pair of pairs) {
+      const white = pair.white.playerId;
       paired[white] = true;
-      const black = pairs[i].black?.playerId;
+      const black = pair.black?.playerId;
       if (black !== undefined) {
         paired[black] = true;
       }
     }
 
-    for (let i = 0; i < players.length; ++i) {
-      if (players[i] !== undefined && paired[players[i].playerId] === undefined) {
-        const type = isAbsentFromRound(players[i], round)
-          ? GameResult.ZERO_POINT_BYE
-          : GameResult.UNASSIGNED;
-        unpaired.set(players[i], type);
+    for (const player of players) {
+      if (player !== undefined
+          && paired[player.playerId] === undefined
+          && !isWithdrawnOrLate(player, round)) {
+        if (readUnpairedFromResults) {
+          const { result } = player.games[round - 1];
+          if (isResultABye(result)) {
+            unpaired.set(player, result);
+          } else {
+            unpaired.set(player, GameResult.UNASSIGNED);
+          }
+        } else {
+          const type = isAbsentFromRound(player, round)
+            ? getTypeOfBye(player)
+            : GameResult.UNASSIGNED;
+          unpaired.set(player, type);
+        }
       }
     }
   }
 
-  function validateAndAssignPairs(): ParseResult<undefined> {
+  function validateAndGenerateRounds(): ParseResult<TrfGame[]> {
     const rounds: TrfGame[] = [];
 
     for (let i = 0; i < pairs.length; ++i) {
@@ -277,35 +278,62 @@ export function readPairs(params: ReadPairsParams) {
     }
 
     // Validate pairs and their consistencies
-    for (let i = 0; i < players.length; ++i) {
-      if (players[i] !== undefined) {
-        const { playerId, games } = players[i];
+    for (const player of players) {
+      if (player !== undefined) {
+        const { playerId, games } = player;
+
         if (rounds[playerId] !== undefined && games[round - 1] !== undefined) {
           return { error: ErrorCode.PAIRING_ERROR, hasPairing: true, playerId };
         }
-        if (rounds[playerId] === undefined && games[round - 1] === undefined) {
-          const result = unpaired.get(players[i]);
-          if (result !== undefined && result !== GameResult.UNASSIGNED) {
-            rounds[playerId] = {
-              round,
-              opponent: undefined,
-              color: Color.NONE,
-              result
-            };
+
+        if (rounds[playerId] === undefined) {
+          if (games[round - 1] === undefined) {
+            const result = unpaired.get(player);
+            if (result !== undefined && result !== GameResult.UNASSIGNED) {
+              rounds[playerId] = {
+                round,
+                color: Color.NONE,
+                result
+              };
+            } else if (isWithdrawnOrLate(player, round)) {
+              rounds[playerId] = createByeRound(player, round);
+            } else {
+              return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, playerId };
+            }
           } else {
-            return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, playerId };
+            rounds[playerId] = games[round - 1];
           }
         }
       }
     }
 
+    return rounds;
+  }
+
+  function apply(tournament: TournamentData): ParseResult<undefined> {
+    const rounds = validateAndGenerateRounds();
+    if (isError(rounds)) {
+      return rounds;
+    }
+
     // Assign created rounds to players
-    for (let i = 0; i < players.length; ++i) {
-      if (players[i] !== undefined) {
-        const { playerId, games } = players[i];
+    // and an entry to notPlayed list for a player
+    for (const player of players) {
+      if (player !== undefined) {
+        const { playerId, games } = player;
         games[round - 1] = rounds[playerId];
+
+        const { result } = games[round - 1];
+        if (isResultABye(result) && result !== GameResult.PAIRING_ALLOCATED_BYE) {
+          addByeToPlayer(player, round);
+        } else {
+          removeItem(player.notPlayed, round);
+        }
       }
     }
+
+    // Assign pairs to tournament data
+    tournament.pairs[round - 1] = pairs;
 
     return undefined;
   }
@@ -316,10 +344,11 @@ export function readPairs(params: ReadPairsParams) {
   } else if ('pairs' in params) {
     round = params.pairs[0]?.round ?? (calculatePlayedRounds(players) + 1);
     pairs = [...params.pairs];
-    unpaired = new Map(params.unpaired);
+    readUnpairedFromResults = true;
   } else {
     round = Math.max(1, params.fromRound);
-    ({ pairs, unpaired } = internalReadPairsFromGames(players, round));
+    pairs = internalReadPairsFromGames(players, round);
+    readUnpairedFromResults = true;
     sortPairs();
   }
 
@@ -332,6 +361,7 @@ export function readPairs(params: ReadPairsParams) {
     removePair,
     changeUnpairedStatus,
     sortPairs,
-    validateAndAssignPairs
+    validateAndGenerateRounds,
+    apply,
   };
 }

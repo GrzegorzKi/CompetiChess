@@ -18,9 +18,8 @@
  */
 
 import TournamentData from '../types/TournamentData';
-import {
-  Color, GameResult, TrfGame, TrfPlayer
-} from '../types/TrfFileFormat';
+import { Color, GameResult, TrfPlayer } from '../types/TrfFileFormat';
+import { isAbsentFromRound } from '../utils/TrfUtils';
 
 export type ExportConfig = {
   forRound?: number;
@@ -37,10 +36,10 @@ const nextRoundByes = [
   GameResult.DRAW,
 ];
 
-function stringifyGames(games: TrfGame[],
-  playerId: number,
+function stringifyGames(player: TrfPlayer,
   toRound: number,
   includeNextRoundBye: boolean): string {
+  const { games } = player;
   let string = '';
 
   const len = Math.min(games.length, toRound);
@@ -58,6 +57,8 @@ function stringifyGames(games: TrfGame[],
       && games[toRound].opponent === undefined
       && nextRoundByes.includes(games[toRound].result)) {
       string += `       - ${games[toRound].result}`;
+    } else if (isAbsentFromRound(player, toRound + 1)) {
+      string += '       - Z';
     }
   }
 
@@ -69,11 +70,11 @@ function stringifyGames(games: TrfGame[],
   return string;
 }
 
-function stringifyAccelerations(arr: number[]): string {
+function stringifyAccelerations(accelerations: number[]): string {
   let string = '';
-  for (let i = 0; i < arr.length; ++i) {
-    string += ' ';
-    string += arr[i].toFixed(1).padStart(4);
+
+  for (const acc of accelerations) {
+    string += ` ${  acc.toFixed(1).padStart(4)}`;
   }
 
   return string;
@@ -81,45 +82,20 @@ function stringifyAccelerations(arr: number[]): string {
 
 function exportTournamentInfo(tournament: TournamentData): string {
   let string = '';
-  if (tournament.tournamentName !== '') {
-    string += `012 ${tournament.tournamentName}\n`;
-  }
-  if (tournament.city !== '') {
-    string += `022 ${tournament.city}\n`;
-  }
-  if (tournament.federation !== '') {
-    string += `032 ${tournament.federation}\n`;
-  }
-  if (tournament.dateOfStart !== '') {
-    string += `042 ${tournament.dateOfStart}\n`;
-  }
-  if (tournament.dateOfEnd !== '') {
-    string += `052 ${tournament.dateOfEnd}\n`;
-  }
-  if (tournament.numberOfPlayers > 0) {
-    string += `062 ${tournament.numberOfPlayers}\n`;
-  }
-  if (tournament.numberOfRatedPlayers > 0) {
-    string += `072 ${tournament.numberOfRatedPlayers}\n`;
-  }
-  if (tournament.numberOfTeams > 0) {
-    string += `082 ${tournament.numberOfTeams}\n`;
-  }
-  if (tournament.tournamentType !== '') {
-    string += `092 ${tournament.tournamentType}\n`;
-  }
-  if (tournament.chiefArbiter !== '') {
-    string += `102 ${tournament.chiefArbiter}\n`;
-  }
-  if (tournament.deputyArbiters.length > 0) {
-    string += `112 ${tournament.deputyArbiters.join(' ')}\n`;
-  }
-  if (tournament.rateOfPlay !== '') {
-    string += `122 ${tournament.rateOfPlay}\n`;
-  }
-  if (tournament.roundDates.length > 0) {
-    string += `132 ${tournament.roundDates.join(' ')}\n`;
-  }
+
+  tournament.tournamentName && (string += `012 ${tournament.tournamentName}\n`);
+  tournament.city && (string += `022 ${tournament.city}\n`);
+  tournament.federation && (string += `032 ${tournament.federation}\n`);
+  tournament.dateOfStart && (string += `042 ${tournament.dateOfStart}\n`);
+  tournament.dateOfEnd && (string += `052 ${tournament.dateOfEnd}\n`);
+  tournament.numberOfPlayers && (string += `062 ${tournament.numberOfPlayers}\n`);
+  tournament.numberOfRatedPlayers && (string += `072 ${tournament.numberOfRatedPlayers}\n`);
+  tournament.numberOfTeams && (string += `082 ${tournament.numberOfTeams}\n`);
+  tournament.tournamentType && (string += `092 ${tournament.tournamentType}\n`);
+  tournament.chiefArbiter && (string += `102 ${tournament.chiefArbiter}\n`);
+  tournament.deputyArbiters.length && (string += `112 ${tournament.deputyArbiters.join(' ')}\n`);
+  tournament.rateOfPlay && (string += `122 ${tournament.rateOfPlay}\n`);
+  tournament.roundDates.length && (string += `132 ${tournament.roundDates.join(' ')}\n`);
 
   return string;
 }
@@ -134,10 +110,23 @@ function exportColorRankConfig({ configuration }: TournamentData) {
       ? ' white1'
       : ' black1';
   }
-  if (string !== '') {
-    return `XXC${string}\n`;
+
+  return string !== '' ? `XXC${string}\n` : '';
+}
+
+function getPoints({ scores, games }: TrfPlayer, exportForPairing: boolean, round: number) {
+  if (exportForPairing) {
+    if (games[round] !== undefined
+      && games[round].opponent === undefined
+      && nextRoundByes.includes(games[round].result)) {
+      return scores[round].points;
+    }
   }
-  return '';
+
+  if (round <= 0) {
+    return 0;
+  }
+  return scores[round - 1].points;
 }
 
 export default function exportToTrf(tournament: TournamentData, {
@@ -145,20 +134,6 @@ export default function exportToTrf(tournament: TournamentData, {
   exportForPairing = true,
   pointsModFormat = 'JaVaFo'
 }: ExportConfig): string | undefined {
-  function getPoints({ scores, games }: TrfPlayer) {
-    if (exportForPairing) {
-      if (games[forRound] !== undefined
-        && games[forRound].opponent === undefined
-        && nextRoundByes.includes(games[forRound].result)) {
-        return scores[forRound].points;
-      }
-    }
-
-    if (forRound <= 0) {
-      return 0;
-    }
-    return scores[forRound - 1].points;
-  }
 
   const {
     playedRounds,
@@ -170,7 +145,6 @@ export default function exportToTrf(tournament: TournamentData, {
   let resultString = '';
 
   if (forRound < 0 || forRound > playedRounds) {
-    // eslint-disable-next-line no-param-reassign
     forRound = playedRounds;
   }
 
@@ -201,9 +175,8 @@ export default function exportToTrf(tournament: TournamentData, {
         federation,
         id,
         birthDate,
-        games,
       } = playersToIter[i];
-      const points = getPoints(playersToIter[i]);
+      const points = getPoints(playersToIter[i], exportForPairing, forRound);
 
       if (playerId > 9999 || rating > 9999 || points > 99.9) {
         // FIXME Return error code instead
@@ -213,7 +186,7 @@ export default function exportToTrf(tournament: TournamentData, {
         + ` ${name.padEnd(33)} ${rating.toString().padStart(4)} ${federation.padStart(3)}`
         + ` ${id.padStart(11)} ${birthDate.padEnd(10)} ${points.toFixed(1).padStart(4)}`
         + ` ${playersByRank[playerId].toString().padStart(4)}`;
-      resultString += `${stringifyGames(games, playerId, forRound, exportForPairing)}\n`;
+      resultString += `${stringifyGames(playersToIter[i], forRound, exportForPairing)}\n`;
     }
   }
 

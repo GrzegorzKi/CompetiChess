@@ -25,11 +25,11 @@ export type Acceleration = {
   values: number[],
 };
 
-export default function parseAcceleration(line: string): ParseResult<Acceleration> {
+export default function parseAcceleration(value: string): ParseResult<Acceleration> {
   const values: number[] = [];
 
-  const regexp = /^.{4}(?<startingRank>[ \d]{4})(?<acc>(?: [ \d]\d[.,]\d)*)\s*$/;
-  const match = regexp.exec(line);
+  const regexp = /^(?<startingRank>[ \d]{4})(?<acc>(?: [ \d]\d[.,]\d)*)\s*$/;
+  const match = regexp.exec(value);
 
   if (match === null || match.groups === undefined) {
     return { error: ErrorCode.INVALID_LINE };

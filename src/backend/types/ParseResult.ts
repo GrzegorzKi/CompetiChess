@@ -35,10 +35,6 @@ export type ParseError =
   | PairingError
   | InternalError
 
-export function isError(obj: ParseResult<unknown>): obj is ParseError {
-  return typeof obj === 'object' && obj !== null && 'error' in obj;
-}
-
 export const enum ErrorCode {
   INTERNAL_ERROR,
   INVALID_LINE,
@@ -50,6 +46,10 @@ export const enum ErrorCode {
   TOO_MANY_ACCELERATIONS,
   INVALID_PAIR,
   PAIRING_ERROR,
+}
+
+export function isError(obj: ParseResult<unknown>): obj is ParseError {
+  return typeof obj === 'object' && obj !== null && 'error' in obj;
 }
 
 export type InvalidLine = {
@@ -96,6 +96,10 @@ export type InternalError = {
   what?: string,
 }
 
+function assertUnreachable(x: never): never {
+  throw new Error(`Unexpected error has occurred: ${x}`);
+}
+
 export function getDetails(error: ParseError): string {
   switch (error.error) {
   case ErrorCode.INVALID_LINE:
@@ -127,10 +131,7 @@ export function getDetails(error: ParseError): string {
       return `Internal error has occurred: ${error.what}`;
     }
     return 'Internal error has occurred';
-  default:
-    // Should never happen
-    // eslint-disable-next-line no-case-declarations
-    const invalidValue: never = error;
-    return `Unexpected error has occurred: ${invalidValue}`;
   }
+
+  assertUnreachable(error);
 }

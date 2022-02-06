@@ -106,22 +106,6 @@ export interface Configuration {
   tiebreakers: Tiebreaker[];
 }
 
-export const enum XXField {
-  ACCELERATION = 'XXA',
-  FORBIDDEN_PAIRS = 'XXP',
-  NUM_ROUNDS = 'XXR',
-  CONFIG = 'XXC',
-  BYES = 'XXZ',
-  POINTS_MODIFIER = 'XXS',
-
-  P_FOR_WIN = 'BBW',
-  P_FOR_DRAW = 'BBD',
-  P_FOR_LOSS = 'BBL',
-  P_FOR_ZP_BYE = 'BBZ',
-  P_FOR_FORFEIT = 'BBF',
-  P_FOR_PA_BYE = 'BBU',
-}
-
 export type XXScoringField =
   | 'WW' // Points for win with White
   | 'BW' // Points for win with Black
@@ -138,7 +122,7 @@ export type XXScoringField =
   | 'W' // Encompasses all the codes WW, BW, FW, FPB
   | 'D' // Encompasses all the codes WD, BD, HPB
 
-export const enum TypeCodes {
+export const enum Field {
   TOURNAMENT_NAME = '012',
   CITY = '022',
   FEDERATION = '032',
@@ -153,10 +137,23 @@ export const enum TypeCodes {
   RATE_OF_PLAY = '122',
   ROUND_DATES = '132',
   PLAYER_ENTRY = '001',
-  TEAM_ENTRY = '013'
-}
+  TEAM_ENTRY = '013',
 
-export type RoundId = number;
+  // Modifiers
+  ACCELERATION = 'XXA',
+  FORBIDDEN_PAIRS = 'XXP',
+  NUM_ROUNDS = 'XXR',
+  CONFIG = 'XXC',
+  BYES = 'XXZ',
+  POINTS_MODIFIER = 'XXS',
+
+  // P_FOR_WIN = 'BBW',
+  // P_FOR_DRAW = 'BBD',
+  // P_FOR_LOSS = 'BBL',
+  // P_FOR_ZP_BYE = 'BBZ',
+  // P_FOR_FORFEIT = 'BBF',
+  // P_FOR_PA_BYE = 'BBU',
+}
 
 /* <pre>
 Line format:

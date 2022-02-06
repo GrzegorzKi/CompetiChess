@@ -57,7 +57,7 @@ export function parseFloat(value: string): ParseResult<number> {
   return num;
 }
 
-export function isInRange(num: number, min: number, max: number): boolean {
+export function isBetween(num: number, min: number, max: number): boolean {
   return num >= min && num <= max;
 }
 
@@ -77,8 +77,8 @@ export function tokenize(value: string): string[] {
 export function tokenizeToNumbers(value: string): ParseResult<number[]> {
   const tokens = value.split(/[ \t]/);
   const numbers: number[] = [];
-  for (let i = 0; i < tokens.length; i++) {
-    const id = parseNumber(tokens[i]);
+  for (const token of tokens) {
+    const id = parseNumber(token);
     if (isError(id)) {
       return id;
     }

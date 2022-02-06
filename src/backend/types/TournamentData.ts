@@ -198,7 +198,6 @@ class TournamentData implements TrfFileFormat {
   recalculateScores = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
     const { games, scores } = player;
     if (fromRound - 1 < scores.length) {
-      // eslint-disable-next-line no-param-reassign
       fromRound = scores.length + 1;
     }
     let calcPts = (fromRound > 1 ? scores[fromRound - 2].points : 0.0);
@@ -309,6 +308,19 @@ class TournamentData implements TrfFileFormat {
       ...tbComparators,
     ]));
     return playersSorted;
+  }
+
+  reorderAndAssignPositionalRanks = (): void => {
+    if (!this.configuration.matchByRank) {
+      this.playersByPosition = [];
+      this.players.forEach((player) => {
+        this.playersByPosition.push(player);
+      });
+    }
+
+    this.playersByPosition.forEach((player, index) => {
+      player.rank = index;
+    });
   }
 }
 

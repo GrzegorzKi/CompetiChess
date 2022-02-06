@@ -44,14 +44,14 @@ export function createDefaultTrfPlayer(): TrfPlayer {
   };
 }
 
-export default function parseTrfPlayer(line: string): ParseResult<TrfPlayer> {
-  if (line.length < 84) {
+export default function parseTrfPlayer(value: string): ParseResult<TrfPlayer> {
+  if (value.length < 80) {
     return { error: ErrorCode.INVALID_LINE };
   }
 
   // Rank is omitted - should be recalculated based on selected tie-breaks etc.
-  const regexp = /^.{4}(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<id>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d) [ \d]{4}(?<games>([ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
-  const match = regexp.exec(line);
+  const regexp = /^(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<id>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d) [ \d]{4}(?<games>([ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
+  const match = regexp.exec(value);
 
   if (match === null || match.groups === undefined) {
     return { error: ErrorCode.INVALID_LINE };
