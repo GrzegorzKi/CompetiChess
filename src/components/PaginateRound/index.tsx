@@ -17,12 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export default (config, env, helpers) => {
-  // Makes absolute imports possible
-  config.resolve.modules.push(env.src);
+import PaginateRound from './PaginateRound';
 
-  // Necessary for loading Emscripten-generated scripts
-  config.node.fs = 'empty';
-  config.node.path = 'empty';
-  config.node.crypto = 'empty';
-};
+export default PaginateRound;

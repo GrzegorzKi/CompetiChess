@@ -195,7 +195,18 @@ class TournamentData implements TrfFileFormat {
     return calcPts;
   }
 
-  recalculateScores = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
+  /// Recalculate players' scores.
+  /// This method recalculates tiebreakers AFTER scores to avoid bugs.
+  recalculatePlayerScores = (): void => {
+    for (const player of this.playersByPosition) {
+      this.recalculateScores(player);
+    }
+    for (const player of this.playersByPosition) {
+      this.recalculateTiebreakers(player);
+    }
+  }
+
+  recalculateScores = (player: TrfPlayer, fromRound = 1, toRound = Infinity): void => {
     const { games, scores } = player;
     if (fromRound - 1 < scores.length) {
       fromRound = scores.length + 1;
@@ -212,7 +223,7 @@ class TournamentData implements TrfFileFormat {
   recalculateTiebreakers = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
     const { games, scores } = player;
     if (fromRound - 1 < scores.length) {
-      this.recalculateScores(player, toRound, scores.length + 1);
+      this.recalculateScores(player, scores.length + 1, toRound);
     }
 
     const maxLen = Math.min(games.length, toRound);

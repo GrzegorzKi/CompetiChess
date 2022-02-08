@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,12 +17,26 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export default (config, env, helpers) => {
-  // Makes absolute imports possible
-  config.resolve.modules.push(env.src);
+@import '/styles/global.scss';
 
-  // Necessary for loading Emscripten-generated scripts
-  config.node.fs = 'empty';
-  config.node.path = 'empty';
-  config.node.crypto = 'empty';
-};
+.inputFile {
+  overflow: hidden;
+  width: 0;
+
+  & + label {
+    border: 3px dashed rgba(0, 0, 0, 0);
+    font-weight: bold;
+
+    transition: all 0.5s;
+  }
+
+  //&.dropActive + label,
+  //&:focus + label,
+  //& + label:hover {
+  //  background-color: $hover;
+  //}
+
+  &.dropActive + label {
+    border-color: mix(black, $hover, 30%);
+  }
+}

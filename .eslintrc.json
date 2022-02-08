@@ -22,7 +22,7 @@
   ],
   "rules": {
     "semi": "error",
-    "indent": ["error", 2],
+    "indent": ["error", 2, { "ignoredNodes": ["JSXAttribute"]}],
     "quotes": ["error", "single"],
     "linebreak-style": "off",
 

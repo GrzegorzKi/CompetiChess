@@ -8,7 +8,7 @@
     ],
     "baseUrl": "src",
     "allowJs": true,
-    "jsx": "react",
+    "jsx": "preserve",
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
 

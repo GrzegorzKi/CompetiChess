@@ -42,7 +42,7 @@ export const USCFSwiss = [
   @link https://web.archive.org/web/20211103095321/https://madisonchess.com/tiebreakrules
  */
 export const MadisonCityChessLeagueSwiss = [
-  // Tiebreaker.MODIFIED_MEDIAN,
+  Tiebreaker.MODIFIED_MEDIAN,
   Tiebreaker.CUMULATIVE,
   Tiebreaker.SOLKOFF,
   Tiebreaker.OPPOSITION_CUMULATIVE

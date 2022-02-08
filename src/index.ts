@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import './styles/global.css';
+import './styles/global.scss';
 import App from './components/app';
 
 export default App;

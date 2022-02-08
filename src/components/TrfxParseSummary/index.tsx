@@ -17,12 +17,26 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-export default (config, env, helpers) => {
-  // Makes absolute imports possible
-  config.resolve.modules.push(env.src);
+import { h, FunctionalComponent } from 'preact';
 
-  // Necessary for loading Emscripten-generated scripts
-  config.node.fs = 'empty';
-  config.node.path = 'empty';
-  config.node.crypto = 'empty';
+import { ParseTrfFileResult } from '../../backend/TrfxParser/parseTrfFile';
+import { getMessageForWarnCode } from '../../backend/types/WarnCode';
+
+interface Props {
+  data?: ParseTrfFileResult,
+}
+
+const TrfxParseSummary: FunctionalComponent<Props> = ({ data }) => {
+  if (!data) {
+    return null;
+  }
+
+  return (
+    <ul>
+      {'parsingErrors' in data ? data.parsingErrors.map((value, index) => <li key={index}>{value}</li>) : null}
+      {!('parsingErrors' in data) ? data.warnings.map((value, index) => <li key={index}>{getMessageForWarnCode(value)}</li>) : null}
+    </ul>
+  );
 };
+
+export default TrfxParseSummary;

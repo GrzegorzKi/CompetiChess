@@ -17,15 +17,97 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h } from 'preact';
+import { FunctionalComponent, h, JSX } from 'preact';
+import { useState } from 'preact/hooks';
+
+import BbpPairings from '../../backend/BbpPairings/bbpPairings';
+import exportToTrf from '../../backend/DataExport/exportToTrf';
+import { readPairs } from '../../backend/Pairings/Pairings';
+import parseTrfFile, {
+  ParseTrfFileResult,
+  ValidTrfData,
+} from '../../backend/TrfxParser/parseTrfFile';
+import { getDetails, isError } from '../../backend/types/ParseResult';
+import FileSelector from '../../components/FileSelector';
+import PaginateRound from '../../components/PaginateRound';
+import PairsView from '../../components/PairsView';
+import TrfxParseSummary from '../../components/TrfxParseSummary';
 
 import style from './style.scss';
 
+function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
+  return data !== undefined && !('parsingErrors' in data);
+}
+
 const Home: FunctionalComponent = () => {
+  const [tournament, setTournament] = useState<ParseTrfFileResult>();
+  const [round, setRound] = useState(0);
+
+  function fileHandler(files: FileList) {
+    if (files.length > 0) {
+      const fr = new FileReader();
+
+      fr.addEventListener('loadend', (e) => {
+        const target = e.target;
+        if (target && typeof target.result === 'string') {
+          const result = parseTrfFile(target.result);
+          setTournament(result);
+          setRound(0);
+        }
+      });
+
+      fr.readAsBinaryString(files[0]);
+    }
+  }
+
+  async function startNextRound() {
+    // TODO Verify whether all pairs have assigned results
+    if (isTournamentValid(tournament)) {
+      const trfOutput = exportToTrf(
+        tournament.trfxData,
+        { exportForPairing: true,
+          forRound: tournament.trfxData.playedRounds + 1 }
+      );
+
+      const wrapper = await BbpPairings.init();
+      const bbpResult = wrapper.invoke(trfOutput!);
+
+      console.info(bbpResult);
+
+      if (bbpResult.statusCode !== 0) {
+        throw new Error(bbpResult.errorOutput.join('\n'));
+      }
+
+      const pairs = readPairs({
+        players: tournament.trfxData.players,
+        pairsRaw: bbpResult.data
+      });
+      const result = pairs.apply(tournament.trfxData);
+      if (isError(result)) {
+        throw new Error(getDetails(result));
+      }
+
+      tournament.trfxData.playedRounds += 1;
+
+      setTournament(tournament);
+      setRound(tournament.trfxData.playedRounds - 1);
+    }
+  }
+
   return (
     <div class={style.home}>
-      <h1>Home</h1>
-      <p>This is the Home component.</p>
+      <FileSelector fileHandler={fileHandler} />
+      <TrfxParseSummary data={tournament} />
+      {isTournamentValid(tournament)
+        ? <>
+          <PaginateRound pageCount={tournament.trfxData.playedRounds}
+                         page={round}
+                         onPageChange={({ selected }) => setRound(selected)} />
+          <button class="button is-primary trans-bg" onClick={startNextRound}><strong>Start next round</strong></button>
+          <PairsView data={tournament.trfxData} round={round} />
+        </>
+        : null
+      }
     </div>
   );
 };

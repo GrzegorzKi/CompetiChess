@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "license": "GNU GPL 3.0",
   "scripts": {
-    "build": "preact build",
-    "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
+    "build": "preact build",
+    "serve": "sirv build --port 8080 --cors --single",
     "test": "jest"
   },
   "browserslist": [
@@ -20,6 +20,7 @@
     "preact": "^10.6.5",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1",
+    "react-paginate": "^8.1.0",
     "sass": "^1.42.1",
     "sharp": "^0.29.1"
   },
@@ -29,6 +30,7 @@
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
+    "bulma": "^0.9.3",
     "enzyme": "^3.11.0",
     "enzyme-adapter-preact-pure": "^3.1.0",
     "eslint": "^7.32.0",
@@ -47,6 +49,12 @@
   },
   "jest": {
     "preset": "jest-preset-preact",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^react$": "preact/compat",
+      "^react-dom/test-utils$": "preact/test-utils",
+      "^react-dom$": "preact/compat",
+      "^react/jsx-runtime$": "preact/jsx-runtime"
+    }
   }
 }

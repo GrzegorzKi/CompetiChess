@@ -82,14 +82,7 @@ function postProcessData(
   evenUpMatchHistories(tournamentData.players, playedRounds);
   assignPairs(tournamentData);
 
-  // Recalculate players' scores.
-  // We're calculating tiebreakers AFTER scores to avoid bugs
-  for (const player of tournamentData.playersByPosition) {
-    tournamentData.recalculateScores(player);
-  }
-  for (const player of tournamentData.playersByPosition) {
-    tournamentData.recalculateTiebreakers(player);
-  }
+  tournamentData.recalculatePlayerScores();
 
   return {
     trfxData: tournamentData,
@@ -129,22 +122,19 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     }
   };
 
-  const parseFile = () => {
-    const stringArray = content.split(/[\r\n]+/);
+  const stringArray = content.split(/[\r\n]+/);
 
-    for (let i = 0; i < stringArray.length; ++i) {
-      const line = stringArray[i];
-      if (line.length >= 3) {
-        parseLine(line, i);
-        if (parsingErrors.length >= 20) {
-          parsingErrors.push('Processing stopped due to multiple errors found');
-          return;
-        }
+  for (let i = 0; i < stringArray.length; ++i) {
+    const line = stringArray[i];
+    if (line.length >= 3) {
+      parseLine(line, i);
+      if (parsingErrors.length >= 20) {
+        parsingErrors.push('Processing stopped due to multiple errors found');
+        break;
       }
     }
-  };
+  }
 
-  parseFile();
   if (parsingErrors.length !== 0) {
     return { parsingErrors };
   }

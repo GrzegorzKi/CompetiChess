@@ -501,6 +501,7 @@ type TiebreakerInfo = {
 };
 
 type CalcFunction = (tournament: TournamentData, player: TrfPlayer, forRound: number) => number;
+
 export const tiebreakers: Record<Tiebreaker, TiebreakerInfo> = {
   [Tiebreaker.DIRECT_ENCOUNTER]: {
     abbr: 'DirEn',
@@ -511,6 +512,7 @@ znajdzie się osoba, która wygrała w tej parze.`,
     calculate: () => 0,
     decimalPlaces: 0
   } as const,
+
   [Tiebreaker.CUMULATIVE]: {
     abbr: 'Cumul',
     name: 'Kumulacyjny',
@@ -524,6 +526,7 @@ i wygrał tę rundę walkowerem, przy dodawaniu punktów do punktacji pomocnicze
 zostaną dodane tylko DWA punkty, a nie trzy za tę rundę.`,
     calculate: calcCumulativeCut(0)
   } as const,
+
   [Tiebreaker.CUMULATIVE_CUT_1]: {
     abbr: 'Cuml1',
     name: 'Kumulacyjny zredukowany 1',
@@ -532,6 +535,7 @@ w kolejnych rundach. Identycznie do p. pomocniczej "Kumulacyjny", z odrzuceniem
 pierwszej rundy w obliczeniach.`,
     calculate: calcCumulativeCut(1)
   } as const,
+
   [Tiebreaker.OPPOSITION_CUMULATIVE]: {
     abbr: 'OpCuml',
     name: 'Kumulacyjny przeciwników',
@@ -544,6 +548,7 @@ Stosowana jest m.in. przez Federację Szachową Stanów Zjednoczonych jako czwar
 w kolejności używaną punktację pomocniczą.`,
     calculate: calcOppositionCumulative
   } as const,
+
   [Tiebreaker.PROGRESSIVE]: {
     abbr: 'Prog',
     name: 'Progres',
@@ -553,6 +558,7 @@ ewentualne niegrane partie (np. przez walkower czy nieobecność) nie obniżają
 łącznej ilości punktów.`,
     calculate: calcProgressiveCut(0)
   } as const,
+
   [Tiebreaker.PROGRESSIVE_CUT_1]: {
     abbr: 'Prog',
     name: 'Progres zredukowany 1',
@@ -561,6 +567,7 @@ w kolejnych rundach. Identycznie do p. pomocniczej "Progress", z odrzuceniem
 pierwszej rundy w obliczeniach.`,
     calculate: calcProgressiveCut(1)
   } as const,
+
   [Tiebreaker.ROUNDS_WON]: {
     abbr: 'RWon',
     name: 'Wygrane rundy',
@@ -569,6 +576,7 @@ niezależnie od tego, czy przez walkower bądź wygraną partię.`,
     calculate: calcRoundsWon,
     decimalPlaces: 0
   } as const,
+
   [Tiebreaker.ROUNDS_WON_BLACK_PIECES]: {
     abbr: 'RWnB',
     name: 'Wygrane rundy czarnymi',
@@ -578,6 +586,7 @@ wobec czego nie wlicza się do punktacji.`,
     calculate: calcRoundsWonBlackPieces,
     decimalPlaces: 0
   } as const,
+
   [Tiebreaker.TIME_OF_LOSS]: {
     abbr: 'TmOL',
     name: 'Czas do pierwszej przegranej',
@@ -587,6 +596,7 @@ Bye. Pauza wynikająca z braku przeciwnika do pary nie jest brana pod uwagę.`,
     calculate: calcTimeOfLoss,
     decimalPlaces: 0
   } as const,
+
   [Tiebreaker.PLAYED_BLACKS]: {
     abbr: 'Blks',
     name: 'Rundy grane czarnymi',
@@ -594,6 +604,7 @@ Bye. Pauza wynikająca z braku przeciwnika do pary nie jest brana pod uwagę.`,
     calculate: calcGamesWithBlack,
     decimalPlaces: 0
   } as const,
+
   [Tiebreaker.KASHDAN]: {
     abbr: 'Kash',
     name: 'Kashdan',
@@ -602,6 +613,7 @@ punkty za wygraną, dwa punkty za remis i jeden punkt za przegraną. Niegrane
 partie (walkower, pauza, nieobecność) liczą się jako zero punktów.`,
     calculate: calcKashdan
   } as const,
+
   [Tiebreaker.SONNEBORN_BERGER]: {
     abbr: 'SoBe',
     name: 'Sonneborn-Berger',
@@ -621,6 +633,7 @@ przeciwnik. Dokładny sposób obliczania znajduje się w regulacjach FIDE
 and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
     calculate: calcSonnebornBerger
   } as const,
+
   [Tiebreaker.BUCHHOLZ]: {
     abbr: 'Buch',
     name: 'Buchholz',
@@ -639,6 +652,7 @@ przeciwnik. Dokładny sposób obliczania znajduje się w regulacjach FIDE
 and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
     calculate: calcBuchholz
   } as const,
+
   [Tiebreaker.BUCHHOLZ_CUT_1]: {
     abbr: 'Bch1',
     name: 'Buchholz zredukowany 1',
@@ -650,6 +664,7 @@ Sposób obliczania identyczny jak w p. pomocniczej "Buchholz", z odrzuceniem
 przeciwnika, który zdobył najmniejszą liczbą punktów.`,
     calculate: calcBuchholzCutOne
   } as const,
+
   [Tiebreaker.MEDIAN_BUCHHOLZ]: {
     abbr: 'ModM',
     name: 'Median Buchholz 1',
@@ -662,6 +677,7 @@ rezultatów skrajnych, czyli przeciwników, którzy zdobyli najmniejszą
 i największą liczbę punktów.`,
     calculate: calcMedianBuchholz
   } as const,
+
   [Tiebreaker.SOLKOFF]: {
     abbr: 'SOff',
     name: 'Solkoff',
@@ -673,6 +689,7 @@ W przypadku obliczania punktów przeciwników, partie niegrane przez przeciwnika
 są liczone jako partie zremisowane (przyznaje się 1/2 punktu).`,
     calculate: calcSolkoff
   } as const,
+
   [Tiebreaker.MODIFIED_MEDIAN]: {
     abbr: 'ModM',
     name: 'Zmodyfikowana mediana',
@@ -694,6 +711,7 @@ System zmodyfikowanej mediany jest podobna do systemu mediany, z wyjątkiem:
   uzyskał najwyższy wynik.`,
     calculate: calcModifiedMedian
   },
+
   [Tiebreaker.ARO]: {
     abbr: 'ARO',
     name: 'Średni ranking przeciwników',
@@ -703,6 +721,7 @@ zakończone walkowerem.`,
     calculate: calcAvgRatingOfOpposition,
     decimalPlaces: 0
   },
+
   [Tiebreaker.AROC_1]: {
     abbr: 'ARO1',
     name: 'Średni ranking przeciwników zredukowany 1',
@@ -716,6 +735,7 @@ dowolnej z partii, to nie są odrzucane żadne rankingi.`,
     calculate: calcAvgRatingOfOpponentsCutOne,
     decimalPlaces: 0
   },
+
   [Tiebreaker.OPPOSITION_PERFORMANCE]: {
     abbr: 'OpPf',
     name: 'Średnia siła przeciwników',
@@ -725,6 +745,7 @@ przegrane odejmują 400 punktów.`,
     calculate: calcOppositionPerformance,
     decimalPlaces: 0
   },
+
   [Tiebreaker.KOYA]: {
     abbr: 'Koya',
     name: 'System Koya',
@@ -749,10 +770,11 @@ export function calculateTiebreakers(
   player: TrfPlayer,
   forRound: number
 ): TiebreakersPoints {
-  const { tiebreakers: tbs } = tournament.configuration;
   const tbValues: TiebreakersPoints = Object.create(null);
-  for (let i = 0, len = tbs.length; i < len; ++i) {
-    tbValues[tbs[i]] = calculateValue(tbs[i], tournament, player, forRound);
+
+  for (const tb of tournament.configuration.tiebreakers) {
+    tbValues[tb] = calculateValue(tb, tournament, player, forRound);
   }
+
   return tbValues;
 }

@@ -17,6 +17,15 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+$green: #8ebf42;
+$hover: #00ab97;
+
+// Bulma's global variables
+$primary: $green;
+
+@import 'bulma/bulma';
+
 html,
 body {
   height: 100%;
@@ -34,4 +43,8 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+.trans-bg {
+  transition: background-color 0.5s;
 }
