@@ -33,13 +33,20 @@ function includePurgeCss(config, env, helpers) {
     defaultExtractor: (content = '') => content.match(/[\w-/:]+(?<!:)/g) || []
   });
 
-  const postCssLoaders = helpers.getLoadersByName(config, 'postcss-loader') || [];
+  const postCssLoaders = helpers.getLoadersByName(config, 'postcss-loader');
   postCssLoaders.forEach(({ loader }) => {
     const plugins = loader.options.postcssOptions.plugins;
 
     if (env.production) {
       plugins.push(purgeCss);
     }
+  });
+}
+
+function addToCopyPlugin(config, helpers, patterns) {
+  const copyPlugins = helpers.getPluginsByName(config, 'CopyPlugin');
+  copyPlugins.forEach(({ plugin }) => {
+    plugin.patterns.push(...patterns);
   });
 }
 
@@ -52,5 +59,6 @@ export default (config, env, helpers) => {
   config.node.path = 'empty';
   config.node.crypto = 'empty';
 
+  addToCopyPlugin(config, helpers, [{ from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }]);
   includePurgeCss(config, env, helpers);
 };
