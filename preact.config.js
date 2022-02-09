@@ -17,6 +17,32 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import purgeCssPlugin from '@fullhuman/postcss-purgecss';
+
+function includePurgeCss(config, env, helpers) {
+  const purgeCss = purgeCssPlugin({
+    // Specify the paths to all the template files in your project
+    content: [
+      './src/**/*.html',
+      './src/**/*.ts',
+      './src/**/*.tsx',
+      './src/**/*.js',
+      './src/**/*.jsx',
+    ],
+
+    defaultExtractor: (content = '') => content.match(/[\w-/:]+(?<!:)/g) || []
+  });
+
+  const postCssLoaders = helpers.getLoadersByName(config, 'postcss-loader') || [];
+  postCssLoaders.forEach(({ loader }) => {
+    const plugins = loader.options.postcssOptions.plugins;
+
+    if (env.production) {
+      plugins.push(purgeCss);
+    }
+  });
+}
+
 export default (config, env, helpers) => {
   // Makes absolute imports possible
   config.resolve.modules.push(env.src);
@@ -25,4 +51,6 @@ export default (config, env, helpers) => {
   config.node.fs = 'empty';
   config.node.path = 'empty';
   config.node.crypto = 'empty';
+
+  includePurgeCss(config, env, helpers);
 };
