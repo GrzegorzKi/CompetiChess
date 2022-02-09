@@ -26,6 +26,21 @@ $primary: $green;
 
 @import 'bulma/bulma';
 
+
+// Bulma monkey-patches for 0.9.3
+.pagination-previous,
+.pagination-next,
+.pagination-link {
+  &.is-disabled {
+    background-color: $pagination-disabled-background-color;
+    border-color: $pagination-disabled-border-color;
+    box-shadow: none;
+    color: $pagination-disabled-color;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 html,
 body {
   height: 100%;

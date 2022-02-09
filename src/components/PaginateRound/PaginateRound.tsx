@@ -20,8 +20,6 @@
 import { FunctionalComponent, h } from 'preact';
 import ReactPaginate from 'react-paginate';
 
-import styles from './style.scss';
-
 export type PageChangeHandler = (selectedItem: { selected: number }) => void;
 
 interface Props {
@@ -31,25 +29,36 @@ interface Props {
 }
 
 const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChange }) => {
-  return <ReactPaginate
-    pageCount={pageCount}
-    forcePage={page}
-    onPageChange={onPageChange}
+  return <nav class="pagination">
+    <ReactPaginate
+      pageCount={pageCount}
+      forcePage={page}
+      onPageChange={onPageChange}
 
-    previousLabel="Previous"
-    nextLabel="Next"
-    breakLabel="..."
+      previousLabel="Previous"
+      nextLabel="Next"
+      breakLabel="..."
 
-    containerClassName={styles.paginationContainer}
-    disabledClassName={styles.disabled}
-    activeClassName={styles.active}
-    previousClassName={styles.previous}
-    nextClassName={styles.next}
+      containerClassName="pagination-list"
+      pageLinkClassName="pagination-link"
+      activeLinkClassName="is-current"
+      disabledLinkClassName="is-disabled"
+      previousLinkClassName="pagination-previous"
+      nextLinkClassName="pagination-next"
+      breakLinkClassName="pagination-ellipsis"
 
-    ariaLabelBuilder={index => `Round ${index}`}
-    previousAriaLabel="Previous round"
-    nextAriaLabel="Next round"
-  />;
+      pageClassName=""
+      activeClassName=""
+      disabledClassName=""
+      previousClassName=""
+      nextClassName=""
+      breakClassName=""
+
+      ariaLabelBuilder={index => `Round ${index}`}
+      previousAriaLabel="Previous round"
+      nextAriaLabel="Next round"
+    />
+  </nav>;
 };
 
 export default PaginateRound;

@@ -30,12 +30,6 @@
     transition: all 0.5s;
   }
 
-  //&.dropActive + label,
-  //&:focus + label,
-  //& + label:hover {
-  //  background-color: $hover;
-  //}
-
   &.dropActive + label {
     border-color: mix(black, $hover, 30%);
   }
