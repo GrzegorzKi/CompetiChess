@@ -50,8 +50,14 @@ const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
 
   useEffect(() => {
     if (forceRound !== undefined) setRound(forceRound);
-  }, [forceRound]);
-  useEffect(() => focusOnFirst(), [round, focusOnFirst]);
+  }, [data, forceRound]);
+  useEffect(() => {
+    if (ref.current === document.activeElement) {
+      focusOnFirst();
+    } else {
+      setIdx(1);
+    }
+  }, [round, ref, focusOnFirst]);
 
   const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
     if (event.code === 'ArrowLeft') {

@@ -18,46 +18,70 @@
  */
 
 import { RefObject } from 'preact';
-import { useCallback, useRef } from 'preact/hooks';
+import { useCallback, useMemo, useRef } from 'preact/hooks';
 
 type FocusOnNextCallback = () => void
 type FocusOnPrevCallback = () => void
 type FocusOnFirstCallback = () => void
 
+function scrollIntoElement(element: Element, { top, bottom }: Offset) {
+  const elementDistanceTop = element.getBoundingClientRect().top - top;
+  if (elementDistanceTop < 0) {
+    window.scrollBy({ top: elementDistanceTop, behavior: 'smooth' });
+  } else {
+    const elementDistanceBot = element.getBoundingClientRect().bottom + bottom - window.innerHeight;
+    if (elementDistanceBot > 0) {
+      window.scrollBy({ top: elementDistanceBot, behavior: 'smooth' });
+    }
+  }
+}
+
+type Offset = { top: number, bottom: number }
+
 export function useElementFocus<H extends HTMLElement = HTMLElement>(
-  initialRef: H | null = null
+  initialRef: H | null = null,
+  offset?: Offset
 ): [RefObject<H>, FocusOnNextCallback, FocusOnPrevCallback, FocusOnFirstCallback] {
   const ref = useRef<H>(initialRef);
+  const _offset = useMemo(() => {
+    return offset ?? {
+      top: 58,
+      bottom: 0,
+    };
+  }, [offset]);
 
   const focusOnNext: FocusOnNextCallback = useCallback(() => {
     if (ref.current?.nextElementSibling instanceof HTMLElement) {
-      ref.current.nextElementSibling.focus();
-      ref.current.nextElementSibling.scrollIntoView({ block: 'nearest' });
+      ref.current.nextElementSibling.focus({ preventScroll: true });
+      scrollIntoElement(ref.current.nextElementSibling, _offset);
     }
-  }, []);
+  }, [_offset]);
 
   const focusOnPrev: FocusOnPrevCallback = useCallback(() => {
     if (ref.current?.previousElementSibling instanceof HTMLElement) {
-      ref.current.previousElementSibling.focus();
-      ref.current.previousElementSibling.scrollIntoView({ block: 'nearest' });
+      ref.current.previousElementSibling.focus({ preventScroll: true });
+      scrollIntoElement(ref.current.previousElementSibling, _offset);
     }
-  }, []);
+  }, [_offset]);
 
   const focusOnFirst: FocusOnFirstCallback = useCallback(() => {
-    const firstChild = ref.current?.parentElement?.firstElementChild;
-    if (firstChild instanceof HTMLElement) {
-      firstChild.focus();
-    } else if (ref.current) {
-      let sibling: Element = ref.current;
-      let currSibling;
-      while ((currSibling = ref.current.previousElementSibling)) {
-        sibling = currSibling;
+    if (ref.current) {
+      let el = ref.current.parentElement?.firstElementChild;
+      if (!el) {
+        el = ref.current;
+
+        let currSibling;
+        while ((currSibling = ref.current.previousElementSibling)) {
+          el = currSibling;
+        }
       }
-      if (sibling instanceof HTMLElement) {
-        sibling.focus();
+
+      if (el instanceof HTMLElement) {
+        el.focus({ preventScroll: true });
       }
+      scrollIntoElement(el, _offset);
     }
-  }, []);
+  }, [_offset]);
 
   return [ref, focusOnNext, focusOnPrev, focusOnFirst];
 }
