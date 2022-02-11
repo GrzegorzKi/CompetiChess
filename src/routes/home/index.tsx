@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h, JSX } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 import { useState } from 'preact/hooks';
 
 import BbpPairings from '../../backend/BbpPairings/bbpPairings';
@@ -29,7 +29,6 @@ import parseTrfFile, {
 } from '../../backend/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '../../backend/types/ParseResult';
 import FileSelector from '../../components/FileSelector';
-import PaginateRound from '../../components/PaginateRound';
 import PairsView from '../../components/PairsView';
 import TrfxParseSummary from '../../components/TrfxParseSummary';
 
@@ -41,7 +40,7 @@ function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
 
 const Home: FunctionalComponent = () => {
   const [tournament, setTournament] = useState<ParseTrfFileResult>();
-  const [round, setRound] = useState(0);
+  const [forceRound, setForceRound] = useState(0);
 
   function fileHandler(files: FileList) {
     if (files.length > 0) {
@@ -52,7 +51,7 @@ const Home: FunctionalComponent = () => {
         if (target && typeof target.result === 'string') {
           const result = parseTrfFile(target.result);
           setTournament(result);
-          setRound(0);
+          setForceRound(0);
         }
       });
 
@@ -90,7 +89,7 @@ const Home: FunctionalComponent = () => {
       tournament.trfxData.playedRounds += 1;
 
       setTournament(tournament);
-      setRound(tournament.trfxData.playedRounds - 1);
+      setForceRound(tournament.trfxData.playedRounds - 1);
     }
   }
 
@@ -100,11 +99,8 @@ const Home: FunctionalComponent = () => {
       <TrfxParseSummary data={tournament} />
       {isTournamentValid(tournament)
         ? <>
-          <PaginateRound pageCount={tournament.trfxData.playedRounds}
-                         page={round}
-                         onPageChange={({ selected }) => setRound(selected)} />
-          <button class="button is-primary trans-bg" onClick={startNextRound}><strong>Start next round</strong></button>
-          <PairsView data={tournament.trfxData} round={round} />
+          <button class="button is-primary trans-bg mb-5" onClick={startNextRound}><strong>Start next round</strong></button>
+          <PairsView data={tournament.trfxData} forceRound={forceRound} />
         </>
         : null
       }

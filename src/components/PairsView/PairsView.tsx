@@ -18,15 +18,17 @@
  */
 
 import { h, FunctionalComponent, Fragment, JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import { Pair } from '../../backend/Pairings/Pairings';
 import TournamentData from '../../backend/types/TournamentData';
 import { TrfPlayer } from '../../backend/types/TrfFileFormat';
+import { useElementFocus } from '../../hooks/useElementFocus';
+import PaginateRound from '../PaginateRound';
 
 interface Props {
   data: TournamentData,
-  round: number
+  forceRound?: number
 }
 
 function prevRoundPoints(player: TrfPlayer, round: number): number {
@@ -39,42 +41,82 @@ function getResult(pair: Pair, round: number) {
   return `${pair.white.games[round].result} : ${pair.black.games[round].result}`;
 }
 
-const PairsView: FunctionalComponent<Props> = ({ data, round }) => {
-  const [selectedIdx, setSelectedIdx] = useState(-1);
+const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
+  const [idx, setIdx] = useState(0);
+  const [round, setRound] = useState(forceRound || 0);
+  const [ref, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>();
+
+  const pairs: Pair[] = data.pairs[round];
 
   useEffect(() => {
-    setSelectedIdx(-1);
-  }, [data, round]);
+    if (forceRound !== undefined) setRound(forceRound);
+  }, [forceRound]);
+  useEffect(() => focusOnFirst(), [round, focusOnFirst]);
 
-  const pairsArr = data.pairs;
-  if (round < 0 || round >= pairsArr.length) {
+  const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
+    if (event.code === 'ArrowLeft') {
+      if (round > 0) setRound(r => r - 1);
+    } else if (event.code === 'ArrowRight') {
+      if (round < data.playedRounds - 1) setRound(r => r + 1);
+    } else if (event.code === 'ArrowUp') {
+      if (idx > 1) {
+        event.preventDefault();
+        focusOnPrev();
+      }
+    } else if (event.code === 'ArrowDown') {
+      if (idx < pairs.length) {
+        event.preventDefault();
+        focusOnNext();
+      }
+    }
+  }, [idx, round, data.playedRounds, pairs, focusOnPrev, focusOnNext]);
+
+  // Register keys handler
+  useEffect(() => {
+    document.addEventListener('keydown', arrowHandling);
+    return () => document.removeEventListener('keydown', arrowHandling);
+  }, [arrowHandling]);
+
+  if (!pairs) {
     return <h2>No data found for round {round + 1}</h2>;
   }
 
-  const pairs: Pair[] = pairsArr[round];
-
-  function handleSingleClick(event: JSX.TargetedMouseEvent<HTMLTableRowElement>) {
-    const attribute = event.currentTarget.getAttribute('data-index');
+  const selectRow = (event: JSX.TargetedEvent<HTMLElement>) => {
+    const attribute = event.currentTarget.dataset['index'];
     if (attribute) {
-      setSelectedIdx(+attribute);
+      setIdx(+attribute);
     }
-  }
+  };
 
-  function handleDoubleClick(event: JSX.TargetedMouseEvent<HTMLTableRowElement>) {
+  const enterRow = (event: JSX.TargetedEvent<HTMLElement>) => {
+    const attribute = event.currentTarget.dataset['index'];
+    if (attribute) {
+      alert(`Selected pair no ${attribute}`);
+    }
+  };
+
+  const handleDoubleClick = (event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1) {
       event.preventDefault();
-      const attribute = event.currentTarget.getAttribute('data-index');
-      if (attribute) {
-        alert('You picked the wrong house, fool!');
-      }
+      enterRow(event);
     }
-  }
+  };
+
+  const handleKeyOnRow = (event: JSX.TargetedKeyboardEvent<HTMLElement>) => {
+    if (['Enter', 'Space'].includes(event.code)) {
+      event.preventDefault();
+      enterRow(event);
+    }
+  };
 
   return (
     <>
-      <h2>Data for round {round + 1}</h2>
-      <div class="table-container">
-        <table class="table is-striped is-hoverable">
+      <PaginateRound pageCount={data.playedRounds}
+                     page={round}
+                     onPageChange={({ selected }) => setRound(selected)} />
+      <div class='table-container'>
+        <table class='table is-striped is-hoverable'>
+          <caption>Data for round {round + 1}</caption>
           <thead>
             <tr>
               <th>No.</th>
@@ -88,9 +130,11 @@ const PairsView: FunctionalComponent<Props> = ({ data, round }) => {
           <tbody>
             {pairs.map((pair) =>
               <tr key={pair.no} data-index={pair.no}
-                  onClick={handleSingleClick}
-                  onMouseDown={handleDoubleClick}
-                  class={selectedIdx === pair.no ? 'is-selected' : ''}
+                  onClick={selectRow} onFocus={selectRow}
+                  onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
+                  class={idx === pair.no ? 'is-selected' : ''}
+                  ref={idx === pair.no ? ref : undefined}
+                  tabIndex={0}
               >
                 <td>{pair.no}</td>
                 <td>{prevRoundPoints(pair.white, round)
