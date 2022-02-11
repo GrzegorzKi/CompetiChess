@@ -22,47 +22,16 @@ $width: 1px;
 
 @import 'bulma/bulma';
 
-.paginationContainer {
+.customOrdering {
 	//@extend %unselectable;
 	display: flex;
-	padding: 1rem 0;
-	list-style: none;
 
 	li {
-		a {
-			display: flex;
-			border: solid black;
-			border-width: $width 0 $width $width;
-			padding: 0.5rem;
-			color: black;
-			transition: background-color 0.5s;
-		}
+		order: 2;
 
-		&.previous a {
-			border-start-start-radius: $radius;
-			border-end-start-radius: $radius;
-		}
-
-		&.next a {
-			border-start-end-radius: $radius;
-			border-end-end-radius: $radius;
-			border: $width solid black;
-		}
-
-		&.active a {
-			background-color: #4CAF50;
-			color: white;
-		}
-
-		&:hover:not(.active, .disabled) a {
-			background-color: #ddd;
-		}
-
-		&.disabled a {
-			cursor: not-allowed;
-			color: #aaa;
+		&:last-child,
+		&:first-child {
+			order: 1;
 		}
 	}
 }
-
-

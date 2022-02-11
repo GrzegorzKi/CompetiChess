@@ -20,6 +20,8 @@
 import { FunctionalComponent, h } from 'preact';
 import ReactPaginate from 'react-paginate';
 
+import styles from './style.scss';
+
 export type PageChangeHandler = (selectedItem: { selected: number }) => void;
 
 interface Props {
@@ -29,6 +31,10 @@ interface Props {
 }
 
 const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChange }) => {
+  if (pageCount <= 0) {
+    return null;
+  }
+
   return <nav class="pagination">
     <ReactPaginate
       pageCount={pageCount}
@@ -39,7 +45,7 @@ const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChan
       nextLabel="Next"
       breakLabel="..."
 
-      containerClassName="pagination-list"
+      containerClassName={`pagination-list ${styles.customOrdering}`}
       pageLinkClassName="pagination-link"
       activeLinkClassName="is-current"
       disabledLinkClassName="is-disabled"

@@ -60,7 +60,7 @@ const FileSelector: FunctionalComponent<Props> = ({ fileHandler }) => {
            type="file" id="trfxFile" name="file"
            onChange={onChange}
     />
-    <label class="button is-primary" htmlFor="trfxFile"
+    <label class="button is-primary mb-5" htmlFor="trfxFile"
            onDragOver={onDragOver}
            onDragLeave={onDragLeave}
            onDrop={onDrop}>
