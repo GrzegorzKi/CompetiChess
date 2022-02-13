@@ -17,6 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { ParseTrfFileResult, ValidTrfData } from '../TrfxParser/parseTrfFile';
+
 import createBbpModule from './bbpPairingsWasm.js';
 
 interface BbpPairingsEmscriptenModule extends EmscriptenModule {
@@ -46,13 +48,15 @@ export const enum StatusCode {
   FileError = 5,
 }
 
+export function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
+  return data !== undefined && !('parsingErrors' in data);
+}
+
 export default class BbpPairings {
   // eslint-disable-next-line no-useless-constructor
-  private constructor() {
-    // Constructor is private on purpose - use factory method instead.
-  }
+  private constructor() {/* Use factory method instead */}
 
-  static async init(): Promise<BbpPairings> {
+  static async createInstance(): Promise<BbpPairings> {
     const wrapper = new BbpPairings();
     return createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
       wrapper.bbpInstance = instance;

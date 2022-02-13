@@ -18,15 +18,12 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 
-import BbpPairings from '../../backend/BbpPairings/bbpPairings';
+import BbpPairings, { isTournamentValid } from '../../backend/BbpPairings/bbpPairings';
 import exportToTrf from '../../backend/DataExport/exportToTrf';
 import { readPairs } from '../../backend/Pairings/Pairings';
-import parseTrfFile, {
-  ParseTrfFileResult,
-  ValidTrfData,
-} from '../../backend/TrfxParser/parseTrfFile';
+import parseTrfFile, { ParseTrfFileResult } from '../../backend/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '../../backend/types/ParseResult';
 import FileSelector from '../../components/FileSelector';
 import PairsView from '../../components/PairsView';
@@ -34,13 +31,10 @@ import TrfxParseSummary from '../../components/TrfxParseSummary';
 
 import style from './style.scss';
 
-function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
-  return data !== undefined && !('parsingErrors' in data);
-}
-
 const Home: FunctionalComponent = () => {
   const [tournament, setTournament] = useState<ParseTrfFileResult>();
   const [forceRound, setForceRound] = useState(0);
+  const bbpInstance = useRef<BbpPairings>();
 
   function fileHandler(files: FileList) {
     if (files.length > 0) {
@@ -60,7 +54,6 @@ const Home: FunctionalComponent = () => {
   }
 
   async function startNextRound() {
-    // TODO Verify whether all pairs have assigned results
     if (isTournamentValid(tournament)) {
       const trfOutput = exportToTrf(
         tournament.trfxData,
@@ -68,8 +61,10 @@ const Home: FunctionalComponent = () => {
           forRound: tournament.trfxData.playedRounds + 1 }
       );
 
-      const wrapper = await BbpPairings.init();
-      const bbpResult = wrapper.invoke(trfOutput!);
+      if (!bbpInstance.current) {
+        bbpInstance.current = await BbpPairings.createInstance();
+      }
+      const bbpResult = bbpInstance.current.invoke(trfOutput!);
 
       console.info(bbpResult);
 
