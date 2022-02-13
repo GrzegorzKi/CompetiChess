@@ -17,11 +17,11 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import TournamentData from '../types/TournamentData';
-import { Color, GameResult, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
-import { parseNumber, tokenizeToNumbers } from '../utils/ParseUtils';
-import { sortByRank, sortByScore } from '../utils/SortUtils';
+import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
+import TournamentData from '#/types/TournamentData';
+import { Color, GameResult, TrfGame, TrfPlayer } from '#/types/TrfFileFormat';
+import { parseNumber, tokenizeToNumbers } from '#/utils/ParseUtils';
+import { sortByRank, sortByScore } from '#/utils/SortUtils';
 import {
   addByeToPlayer,
   byeResults,
@@ -31,7 +31,7 @@ import {
   isAbsentFromRound,
   isResultABye,
   isWithdrawnOrLate,
-} from '../utils/TrfUtils';
+} from '#/utils/TrfUtils';
 
 export type Pair = {
   round: number,

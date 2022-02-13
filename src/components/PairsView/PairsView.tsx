@@ -20,12 +20,14 @@
 import { h, FunctionalComponent, Fragment, JSX } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import { Pair } from '../../backend/Pairings/Pairings';
-import TournamentData from '../../backend/types/TournamentData';
-import { TrfPlayer } from '../../backend/types/TrfFileFormat';
-import useContextMenuHandler from '../../hooks/useContextMenuHandler';
-import { useElementFocus } from '../../hooks/useElementFocus';
-import PaginateRound from '../PaginateRound';
+import useContextMenuHandler from 'hooks/useContextMenuHandler';
+import { useElementFocus } from 'hooks/useElementFocus';
+
+import { Pair } from '#/Pairings/Pairings';
+import TournamentData from '#/types/TournamentData';
+import { TrfPlayer } from '#/types/TrfFileFormat';
+
+import PaginateRound from '@/PaginateRound';
 
 interface Props {
   data: TournamentData,

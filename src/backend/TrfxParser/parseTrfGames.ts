@@ -17,10 +17,10 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import { Color, GameResult, TrfGame } from '../types/TrfFileFormat';
-import { parsePlayerId } from '../utils/ParseUtils';
-import { isValidColor, isValidResult, validateGameEntry } from '../utils/TrfUtils';
+import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
+import { Color, GameResult, TrfGame } from '#/types/TrfFileFormat';
+import { parsePlayerId } from '#/utils/ParseUtils';
+import { isValidColor, isValidResult, validateGameEntry } from '#/utils/TrfUtils';
 
 export function defaultTrfGame(round: number): TrfGame {
   return {

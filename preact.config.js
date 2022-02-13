@@ -17,6 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import path from 'path';
+
 import purgeCssPlugin from '@fullhuman/postcss-purgecss';
 
 function includePurgeCss(config, env, helpers) {
@@ -53,6 +55,12 @@ function addToCopyPlugin(config, helpers, patterns) {
 export default (config, env, helpers) => {
   // Makes absolute imports possible
   config.resolve.modules.push(env.src);
+
+  config.resolve.alias = {
+    '@': path.resolve(__dirname, 'src/components'),
+    '#': path.resolve(__dirname, 'src/backend'),
+    ...config.resolve.alias
+  };
 
   // Necessary for loading Emscripten-generated scripts
   config.node.fs = 'empty';

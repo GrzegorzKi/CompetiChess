@@ -7,6 +7,11 @@
       "esnext"
     ],
     "baseUrl": "src",
+    "paths": {
+      "@/*": ["components/*"],
+      "#/*": ["backend/*"],
+    },
+
     "allowJs": true,
     "jsx": "preserve",
     "jsxFactory": "h",

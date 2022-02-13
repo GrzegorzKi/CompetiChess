@@ -52,7 +52,13 @@
   "jest": {
     "preset": "jest-preset-preact",
     "testEnvironment": "node",
+    "moduleDirectories": [
+      "<rootDir>/src",
+      "node_modules"
+    ],
     "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/components/$1",
+      "^#/(.*)$": "<rootDir>/src/backend/$1",
       "^react$": "preact/compat",
       "^react-dom/test-utils$": "preact/test-utils",
       "^react-dom$": "preact/compat",

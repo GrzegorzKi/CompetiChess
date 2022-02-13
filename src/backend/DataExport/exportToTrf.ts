@@ -17,9 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import TournamentData from '../types/TournamentData';
-import { Color, GameResult, TrfPlayer } from '../types/TrfFileFormat';
-import { isAbsentFromRound } from '../utils/TrfUtils';
+import TournamentData from '#/types/TournamentData';
+import { Color, GameResult, TrfPlayer } from '#/types/TrfFileFormat';
+import { isAbsentFromRound } from '#/utils/TrfUtils';
 
 export type ExportConfig = {
   forRound?: number;

@@ -17,12 +17,12 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import { Sex, TrfPlayer } from '../types/TrfFileFormat';
-import { parseFloat, parseNumber, parsePlayerId } from '../utils/ParseUtils';
-import { parseSex } from '../utils/TrfUtils';
-
 import parseTrfGames from './parseTrfGames';
+
+import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
+import { Sex, TrfPlayer } from '#/types/TrfFileFormat';
+import { parseFloat, parseNumber, parsePlayerId } from '#/utils/ParseUtils';
+import { parseSex } from '#/utils/TrfUtils';
 
 export function createDefaultTrfPlayer(): TrfPlayer {
   return {

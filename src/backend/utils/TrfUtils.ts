@@ -17,10 +17,10 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { readPairs } from '../Pairings/Pairings';
-import { defaultTrfGame } from '../TrfxParser/parseTrfGames';
-import TournamentData from '../types/TournamentData';
-import { Color, GameResult, Sex, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
+import { readPairs } from '#/Pairings/Pairings';
+import { defaultTrfGame } from '#/TrfxParser/parseTrfGames';
+import TournamentData from '#/types/TournamentData';
+import { Color, GameResult, Sex, TrfGame, TrfPlayer } from '#/types/TrfFileFormat';
 
 const colors = ['w', 'b', '-'];
 const gameResults = [

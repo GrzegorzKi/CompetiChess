@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
+import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
 
 export function parseNumber(value: string): ParseResult<number> {
   if (value === '') {

@@ -20,13 +20,13 @@
 import { ComponentChildren, h } from 'preact';
 import { useCallback, useRef } from 'preact/hooks';
 
-import BbpPairings from '../../backend/BbpPairings/bbpPairings';
-import exportToTrf from '../../backend/DataExport/exportToTrf';
-import checkPairingsFilled from '../../backend/Pairings/checkPairingsFilled';
-import { readPairs } from '../../backend/Pairings/Pairings';
-import { ParsingErrors, ValidTrfData } from '../../backend/TrfxParser/parseTrfFile';
-import { getDetails, isError } from '../../backend/types/ParseResult';
-import { evenUpMatchHistories } from '../../backend/utils/TrfUtils';
+import BbpPairings from '#/BbpPairings/bbpPairings';
+import exportToTrf from '#/DataExport/exportToTrf';
+import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
+import { readPairs } from '#/Pairings/Pairings';
+import { ParsingErrors, ValidTrfData } from '#/TrfxParser/parseTrfFile';
+import { getDetails, isError } from '#/types/ParseResult';
+import { evenUpMatchHistories } from '#/utils/TrfUtils';
 
 interface Props {
   tournament: ValidTrfData;

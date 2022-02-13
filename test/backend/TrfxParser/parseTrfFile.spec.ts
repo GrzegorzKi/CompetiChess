@@ -22,12 +22,12 @@ import 'regenerator-runtime/runtime';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-import BbpPairings from '../../../src/backend/BbpPairings/bbpPairings';
-import exportComparison from '../../../src/backend/DataExport/exportComparison';
-import exportToTrf from '../../../src/backend/DataExport/exportToTrf';
-import { readPairs } from '../../../src/backend/Pairings/Pairings';
-import parseTrfFile from '../../../src/backend/TrfxParser/parseTrfFile';
-import { getDetails, isError } from '../../../src/backend/types/ParseResult';
+import BbpPairings from '#/BbpPairings/bbpPairings';
+import exportComparison from '#/DataExport/exportComparison';
+import exportToTrf from '#/DataExport/exportToTrf';
+import { readPairs } from '#/Pairings/Pairings';
+import parseTrfFile from '#/TrfxParser/parseTrfFile';
+import { getDetails, isError } from '#/types/ParseResult';
 
 test('Parse sample file', async () => {
   const dirPath = path.join(__dirname, '../testTrfFile.txt');

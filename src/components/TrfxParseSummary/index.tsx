@@ -19,8 +19,8 @@
 
 import { h, FunctionalComponent } from 'preact';
 
-import { ParseTrfFileResult } from '../../backend/TrfxParser/parseTrfFile';
-import { getMessageForWarnCode } from '../../backend/types/WarnCode';
+import { ParseTrfFileResult } from '#/TrfxParser/parseTrfFile';
+import { getMessageForWarnCode } from '#/types/WarnCode';
 
 interface Props {
   data?: ParseTrfFileResult,

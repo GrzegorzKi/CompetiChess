@@ -22,7 +22,7 @@ import { Router, Route } from 'preact-router';
 
 import Home from 'routes/home';
 
-import Header from './Header';
+import Header from '@/Header';
 
 const App: FunctionalComponent = () => {
   return (

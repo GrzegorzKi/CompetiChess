@@ -17,8 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tiebreaker, { compareHeadToHead } from '../Tiebreaker/Tiebreaker';
-import { TrfPlayer } from '../types/TrfFileFormat';
+import Tiebreaker, { compareHeadToHead } from '#/Tiebreaker/Tiebreaker';
+import { TrfPlayer } from '#/types/TrfFileFormat';
 
 export function createComparator(compareFuncs: PlayerComparator[]) {
   return (a: TrfPlayer, b: TrfPlayer): number => {

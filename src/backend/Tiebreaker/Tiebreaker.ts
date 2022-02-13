@@ -17,9 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import TournamentData from '../types/TournamentData';
-import { Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer } from '../types/TrfFileFormat';
-import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '../utils/TrfUtils';
+import TournamentData from '#/types/TournamentData';
+import { Color, GameResult, TiebreakersPoints, TrfGame, TrfPlayer } from '#/types/TrfFileFormat';
+import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '#/utils/TrfUtils';
 
 const enum Tiebreaker {
   DIRECT_ENCOUNTER,

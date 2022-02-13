@@ -17,8 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode, isError } from '../types/ParseResult';
-import { parseFloat, parsePlayerId } from '../utils/ParseUtils';
+import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
+import { parseFloat, parsePlayerId } from '#/utils/ParseUtils';
 
 export type Acceleration = {
   playerId: number,

@@ -17,18 +17,18 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ErrorCode, getDetails, isError, ParseError } from '../types/ParseResult';
-import TournamentData from '../types/TournamentData';
-import { Color, Field } from '../types/TrfFileFormat';
-import WarnCode from '../types/WarnCode';
+import { AdditionalData, fieldParser } from './parseValues';
+
+import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
+import TournamentData from '#/types/TournamentData';
+import { Color, Field } from '#/types/TrfFileFormat';
+import WarnCode from '#/types/WarnCode';
 import {
   assignByesAndLates,
   assignPairs,
   calculatePlayedRounds,
   evenUpMatchHistories,
-} from '../utils/TrfUtils';
-
-import { AdditionalData, fieldParser } from './parseValues';
+} from '#/utils/TrfUtils';
 
 export type ValidTrfData = { trfxData: TournamentData, warnings: WarnCode[] };
 export type ParsingErrors = { parsingErrors: string[] };

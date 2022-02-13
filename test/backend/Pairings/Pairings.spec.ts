@@ -22,8 +22,8 @@ import 'regenerator-runtime/runtime';
 import { readFile } from 'fs/promises';
 import path from 'path';
 
-import { readPairs } from '../../../src/backend/Pairings/Pairings';
-import parseTrfFile from '../../../src/backend/TrfxParser/parseTrfFile';
+import { readPairs } from '#/Pairings/Pairings';
+import parseTrfFile from '#/TrfxParser/parseTrfFile';
 
 test('reading from TrfPlayer array', async () => {
   const dirPath = path.join(__dirname, '../testTrfFile.txt');

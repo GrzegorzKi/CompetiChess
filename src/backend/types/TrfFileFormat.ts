@@ -35,8 +35,8 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
-import { Pair } from '../Pairings/Pairings';
-import Tiebreaker from '../Tiebreaker/Tiebreaker';
+import { Pair } from '#/Pairings/Pairings';
+import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
 interface TrfFileFormat {
   tournamentName: string;

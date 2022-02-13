@@ -17,9 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tiebreaker, { tiebreakers } from '../Tiebreaker/Tiebreaker';
-import TournamentData from '../types/TournamentData';
-import { TrfPlayer } from '../types/TrfFileFormat';
+import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import TournamentData from '#/types/TournamentData';
+import { TrfPlayer } from '#/types/TrfFileFormat';
 
 function stringifyTiebreakers(tbList: Tiebreaker[],
   { games, scores }: TrfPlayer,

@@ -36,9 +36,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { GameResult } from '../types/TrfFileFormat';
-
 import { Pair } from './Pairings';
+
+import { GameResult } from '#/types/TrfFileFormat';
 
 export default function checkPairingsFilled(pairs: Pair[], round: number): boolean {
   for (const pair of pairs) {

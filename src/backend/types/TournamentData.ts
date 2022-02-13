@@ -17,13 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Pair } from '../Pairings/Pairings';
-import { calculateTiebreakers } from '../Tiebreaker/Tiebreaker';
-import { FideSwissRatingsNotConsistent } from '../Tiebreaker/TiebreakerSets';
-import { Acceleration } from '../TrfxParser/parseAcceleration';
-import { createComparator, sortByScore, sortByTiebreaker } from '../utils/SortUtils';
-import { gameWasPlayed, invertColor, participatedInPairing } from '../utils/TrfUtils';
-
 import ParseResult, { ErrorCode } from './ParseResult';
 import TrfFileFormat, {
   Color,
@@ -34,6 +27,13 @@ import TrfFileFormat, {
   TrfPlayer,
   TrfTeam,
 } from './TrfFileFormat';
+
+import { Pair } from '#/Pairings/Pairings';
+import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
+import { Acceleration } from '#/TrfxParser/parseAcceleration';
+import { createComparator, sortByScore, sortByTiebreaker } from '#/utils/SortUtils';
+import { gameWasPlayed, invertColor, participatedInPairing } from '#/utils/TrfUtils';
 
 export function createDefaultConfiguration(): Configuration {
   return {

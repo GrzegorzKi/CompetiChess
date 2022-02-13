@@ -17,13 +17,13 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ErrorCode, isError, ParseError } from '../types/ParseResult';
-import TournamentData from '../types/TournamentData';
-import { Color, Field } from '../types/TrfFileFormat';
-import { parseNumber, tokenize, tokenizeToNumbers } from '../utils/ParseUtils';
-
 import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseTrfPlayer from './parseTrfPlayer';
+
+import { ErrorCode, isError, ParseError } from '#/types/ParseResult';
+import TournamentData from '#/types/TournamentData';
+import { Color, Field } from '#/types/TrfFileFormat';
+import { parseNumber, tokenize, tokenizeToNumbers } from '#/utils/ParseUtils';
 
 export type ParseFunc = (tournament: TournamentData, value: string, additionalData: AdditionalData) => ParseError | void;
 

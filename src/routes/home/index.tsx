@@ -20,17 +20,18 @@
 import { FunctionalComponent, h } from 'preact';
 import { useState } from 'preact/hooks';
 
-import { isTournamentValid } from '../../backend/BbpPairings/bbpPairings';
+import style from './style.scss';
+
+import { isTournamentValid } from '#/BbpPairings/bbpPairings';
 import parseTrfFile, {
   ParseTrfFileResult,
   ValidTrfData,
-} from '../../backend/TrfxParser/parseTrfFile';
-import FileSelector from '../../components/FileSelector';
-import NextRoundButton from '../../components/NextRoundButton/NextRoundButton';
-import PairsView from '../../components/PairsView';
-import TrfxParseSummary from '../../components/TrfxParseSummary';
+} from '#/TrfxParser/parseTrfFile';
 
-import style from './style.scss';
+import FileSelector from '@/FileSelector';
+import NextRoundButton from '@/NextRoundButton/NextRoundButton';
+import PairsView from '@/PairsView';
+import TrfxParseSummary from '@/TrfxParseSummary';
 
 const Home: FunctionalComponent = () => {
   const [tournament, setTournament] = useState<ParseTrfFileResult>();
