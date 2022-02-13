@@ -17,12 +17,14 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-let isTouch: boolean | null = null;
+import { useRef } from 'preact/hooks';
 
 export default function useTouchCheck(): boolean {
-  if (isTouch === null) {
+  const ref = useRef<boolean | null>(null);
+
+  if (ref.current === null) {
     const match = window.matchMedia('(pointer:coarse)');
-    isTouch = match && match.matches;
+    ref.current = match && match.matches;
   }
-  return isTouch;
+  return ref.current;
 }

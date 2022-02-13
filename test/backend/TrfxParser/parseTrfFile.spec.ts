@@ -55,7 +55,7 @@ test('Parse sample file', async () => {
   console.info(trfOutput);
   console.info(comparison);
 
-  const wrapper = await BbpPairings.createInstance();
+  const wrapper = await BbpPairings.getInstance();
   const bbpResult = wrapper.invoke(trfOutput!);
   console.info(bbpResult);
 

@@ -64,6 +64,8 @@ function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], ro
   }
 
   for (let i = 1; i < pairsRaw.length; ++i) {
+    if (!pairsRaw[i].trim()) continue;
+
     const indices = tokenizeToNumbers(pairsRaw[i]);
     if (isError(indices) || indices.length !== 2) {
       return { pairs: [], unpaired: new Map() };

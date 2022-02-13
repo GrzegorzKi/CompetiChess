@@ -75,7 +75,7 @@ const NextRoundButton = ({
     );
 
     if (!bbpInstance.current) {
-      bbpInstance.current = await BbpPairings.createInstance();
+      bbpInstance.current = await BbpPairings.getInstance();
     }
     const bbpResult = bbpInstance.current.invoke(trfOutput!);
 

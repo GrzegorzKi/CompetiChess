@@ -22,8 +22,8 @@ import { useState } from 'preact/hooks';
 
 import style from './style.scss';
 
-import { isTournamentValid } from '#/BbpPairings/bbpPairings';
 import parseTrfFile, {
+  isTournamentValid,
   ParseTrfFileResult,
   ValidTrfData,
 } from '#/TrfxParser/parseTrfFile';

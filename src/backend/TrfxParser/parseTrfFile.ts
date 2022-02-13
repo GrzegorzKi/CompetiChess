@@ -143,3 +143,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
 
   return postProcessData(tournamentData, additionalData);
 }
+
+export function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
+  return data !== undefined && !('parsingErrors' in data);
+}

@@ -17,8 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ParseTrfFileResult, ValidTrfData } from '../TrfxParser/parseTrfFile';
-
 import createBbpModule from './bbpPairingsWasm.js';
 
 interface BbpPairingsEmscriptenModule extends EmscriptenModule {
@@ -32,6 +30,8 @@ type ModuleInitialize = Partial<BbpPairingsEmscriptenModule |
     preRun: Array<{ (createdModule: BbpPairingsEmscriptenModule): void }>
   }
 >
+
+let privateInstance: BbpPairings;
 
 export interface BbpResult {
   data: string[],
@@ -48,22 +48,20 @@ export const enum StatusCode {
   FileError = 5,
 }
 
-export function isTournamentValid(data?: ParseTrfFileResult): data is ValidTrfData {
-  return data !== undefined && !('parsingErrors' in data);
-}
-
 export default class BbpPairings {
   // eslint-disable-next-line no-useless-constructor
   private constructor() {/* Use factory method instead */}
 
-  static async createInstance(): Promise<BbpPairings> {
-    const wrapper = new BbpPairings();
-    return createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
-      wrapper.bbpInstance = instance;
-      return wrapper;
-    }).catch((error: never) => {
-      throw error;
-    });
+  static async getInstance(): Promise<BbpPairings> {
+    if (!privateInstance) {
+      const wrapper = new BbpPairings();
+      privateInstance = await createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
+        wrapper.bbpInstance = instance;
+        return wrapper;
+      });
+    }
+
+    return privateInstance;
   }
 
   private charsRead = 0;
@@ -74,7 +72,7 @@ export default class BbpPairings {
 
   private Module: ModuleInitialize = {
     preRun: [(module: BbpPairingsEmscriptenModule): void => {
-      const stdin = (): null => null;
+      const stdin = () => null;
 
       let stdoutBuffer = '';
       const stdout = (code: number /* char code */) => {
@@ -106,17 +104,21 @@ export default class BbpPairings {
     noInitialRun: true,
   };
 
-  invoke = (input: string | string[]): BbpResult => {
-    if (this.bbpInstance === undefined) {
-      throw new Error('BbpPairings module is not yet initialized!');
-    }
-
+  private resetOutput() {
     this.charsRead = 0;
     this.output = [];
     this.errorOutput = [];
+  }
+
+  invoke = (input: string | string[]): BbpResult => {
+    if (this.bbpInstance === undefined) {
+      throw new Error('BbpPairings module has not been initialized');
+    }
+
+    this.resetOutput();
 
     const fs = this.bbpInstance.FS;
-    const tmpFile = 'temp.trf';
+    const tmpFile = 'input';
 
     if (typeof input === 'string') {
       fs.writeFile(tmpFile, input);

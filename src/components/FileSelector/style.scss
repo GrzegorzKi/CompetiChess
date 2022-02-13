@@ -20,8 +20,7 @@
 @import '/styles/global.scss';
 
 .inputFile {
-  overflow: hidden;
-  width: 0;
+  @extend .is-sr-only;
 
   & + label {
     border: 3px dashed rgba(0, 0, 0, 0);

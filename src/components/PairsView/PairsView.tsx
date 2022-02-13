@@ -55,30 +55,32 @@ const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
     if (forceRound !== undefined) setRound(forceRound);
   }, [data, forceRound]);
   useEffect(() => {
+    setIdx(1);
     if (ref.current === document.activeElement) {
       focusOnFirst();
-    } else {
-      setIdx(1);
     }
   }, [round, ref, focusOnFirst]);
 
   const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
-    if (event.code === 'ArrowLeft') {
-      if (round > 0) setRound(r => r - 1);
-    } else if (event.code === 'ArrowRight') {
-      if (round < data.playedRounds - 1) setRound(r => r + 1);
-    } else if (event.code === 'ArrowUp') {
-      if (idx > 1) {
+    switch (event.code) {
+    case 'ArrowLeft':
+      setRound(r => (r > 0) ? r - 1 : r);
+      break;
+    case 'ArrowRight':
+      setRound(r => (r < data.playedRounds - 1) ? r + 1 : r);
+      break;
+    case 'ArrowUp':
+      if (focusOnPrev()) {
         event.preventDefault();
-        focusOnPrev();
       }
-    } else if (event.code === 'ArrowDown') {
-      if (idx < pairs.length) {
+      break;
+    case 'ArrowDown':
+      if (focusOnNext()) {
         event.preventDefault();
-        focusOnNext();
       }
+      break;
     }
-  }, [idx, round, data.playedRounds, pairs, focusOnPrev, focusOnNext]);
+  }, [data.playedRounds, focusOnPrev, focusOnNext]);
 
   // Register keys handler
   useEffect(() => {

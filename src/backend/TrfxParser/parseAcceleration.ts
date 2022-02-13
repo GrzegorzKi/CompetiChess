@@ -43,7 +43,7 @@ export default function parseAcceleration(value: string): ParseResult<Accelerati
   }
 
   let i = 0;
-  for (; i <= acc.length; i += 5) {
+  for (; i < acc.length; i += 5) {
     const parsedPoints = parseFloat(acc.substring(i, i + 5).trimLeft());
     if (isError(parsedPoints)) {
       return parsedPoints;

@@ -20,8 +20,8 @@
 import { RefObject } from 'preact';
 import { useCallback, useMemo, useRef } from 'preact/hooks';
 
-type FocusOnNextCallback = () => void
-type FocusOnPrevCallback = () => void
+type FocusOnNextCallback = () => boolean
+type FocusOnPrevCallback = () => boolean
 type FocusOnFirstCallback = () => void
 
 function scrollIntoElement(element: Element, { top, bottom }: Offset) {
@@ -54,14 +54,18 @@ export function useElementFocus<H extends HTMLElement = HTMLElement>(
     if (ref.current?.nextElementSibling instanceof HTMLElement) {
       ref.current.nextElementSibling.focus({ preventScroll: true });
       scrollIntoElement(ref.current.nextElementSibling, _offset);
+      return true;
     }
+    return false;
   }, [_offset]);
 
   const focusOnPrev: FocusOnPrevCallback = useCallback(() => {
     if (ref.current?.previousElementSibling instanceof HTMLElement) {
       ref.current.previousElementSibling.focus({ preventScroll: true });
       scrollIntoElement(ref.current.previousElementSibling, _offset);
+      return true;
     }
+    return false;
   }, [_offset]);
 
   const focusOnFirst: FocusOnFirstCallback = useCallback(() => {
