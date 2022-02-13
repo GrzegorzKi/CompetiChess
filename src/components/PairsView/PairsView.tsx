@@ -23,6 +23,7 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 import { Pair } from '../../backend/Pairings/Pairings';
 import TournamentData from '../../backend/types/TournamentData';
 import { TrfPlayer } from '../../backend/types/TrfFileFormat';
+import useContextMenuHandler from '../../hooks/useContextMenuHandler';
 import { useElementFocus } from '../../hooks/useElementFocus';
 import PaginateRound from '../PaginateRound';
 
@@ -83,10 +84,6 @@ const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
     return () => document.removeEventListener('keydown', arrowHandling);
   }, [arrowHandling]);
 
-  if (!pairs) {
-    return <h2>No data found for round {round + 1}</h2>;
-  }
-
   const selectRow = (event: JSX.TargetedEvent<HTMLElement>) => {
     const attribute = event.currentTarget.dataset['index'];
     if (attribute) {
@@ -101,8 +98,17 @@ const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
     }
   };
 
+  const handleContextMenu = useContextMenuHandler<HTMLTableRowElement>((event) => {
+    selectRow(event);
+    // TODO Display custom context menu. Check if it's active and discard event otherwise
+  });
+
+  if (!pairs) {
+    return <h2>No data found for round {round + 1}</h2>;
+  }
+
   const handleDoubleClick = (event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
-    if (event.detail > 1) {
+    if (event.detail > 1 && event.button === 0 /* Main button */) {
       event.preventDefault();
       enterRow(event);
     }
@@ -138,6 +144,7 @@ const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
               <tr key={pair.no} data-index={pair.no}
                   onClick={selectRow} onFocus={selectRow}
                   onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
+                  onContextMenu={handleContextMenu}
                   class={idx === pair.no ? 'is-selected' : ''}
                   ref={idx === pair.no ? ref : undefined}
                   tabIndex={0}
