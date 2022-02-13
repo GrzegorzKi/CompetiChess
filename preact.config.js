@@ -21,6 +21,22 @@ import path from 'path';
 
 import purgeCssPlugin from '@fullhuman/postcss-purgecss';
 
+function configSizePlugin(config, helpers, regex = /\.(\w{5})(\.esm)?\.(js|css)$/, toStrip = 1) {
+  const sizePlugins = helpers.getPluginsByName(config, 'SizePlugin');
+  sizePlugins.forEach(({ plugin }) => {
+    plugin.stripHash = (fileName = '') => {
+      const matchArray = fileName.match(regex);
+      if (!matchArray) {
+        return fileName;
+      }
+
+      const group = matchArray[toStrip];
+      const mask = '*'.repeat(group.length);
+      return fileName.replace(group, mask);
+    };
+  });
+}
+
 function includePurgeCss(config, env, helpers) {
   const purgeCss = purgeCssPlugin({
     // Specify the paths to all the template files in your project
@@ -67,6 +83,7 @@ export default (config, env, helpers) => {
   config.node.path = 'empty';
   config.node.crypto = 'empty';
 
+  configSizePlugin(config, helpers);
   addToCopyPlugin(config, helpers, [{ from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }]);
   includePurgeCss(config, env, helpers);
 };
