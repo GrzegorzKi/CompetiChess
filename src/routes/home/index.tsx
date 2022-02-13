@@ -18,14 +18,15 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useRef, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
 
-import BbpPairings, { isTournamentValid } from '../../backend/BbpPairings/bbpPairings';
-import exportToTrf from '../../backend/DataExport/exportToTrf';
-import { readPairs } from '../../backend/Pairings/Pairings';
-import parseTrfFile, { ParseTrfFileResult } from '../../backend/TrfxParser/parseTrfFile';
-import { getDetails, isError } from '../../backend/types/ParseResult';
+import { isTournamentValid } from '../../backend/BbpPairings/bbpPairings';
+import parseTrfFile, {
+  ParseTrfFileResult,
+  ValidTrfData,
+} from '../../backend/TrfxParser/parseTrfFile';
 import FileSelector from '../../components/FileSelector';
+import NextRoundButton from '../../components/NextRoundButton/NextRoundButton';
 import PairsView from '../../components/PairsView';
 import TrfxParseSummary from '../../components/TrfxParseSummary';
 
@@ -34,7 +35,6 @@ import style from './style.scss';
 const Home: FunctionalComponent = () => {
   const [tournament, setTournament] = useState<ParseTrfFileResult>();
   const [forceRound, setForceRound] = useState(0);
-  const bbpInstance = useRef<BbpPairings>();
 
   function fileHandler(files: FileList) {
     if (files.length > 0) {
@@ -53,39 +53,8 @@ const Home: FunctionalComponent = () => {
     }
   }
 
-  async function startNextRound() {
-    if (isTournamentValid(tournament)) {
-      const trfOutput = exportToTrf(
-        tournament.trfxData,
-        { exportForPairing: true,
-          forRound: tournament.trfxData.playedRounds + 1 }
-      );
-
-      if (!bbpInstance.current) {
-        bbpInstance.current = await BbpPairings.createInstance();
-      }
-      const bbpResult = bbpInstance.current.invoke(trfOutput!);
-
-      console.info(bbpResult);
-
-      if (bbpResult.statusCode !== 0) {
-        throw new Error(bbpResult.errorOutput.join('\n'));
-      }
-
-      const pairs = readPairs({
-        players: tournament.trfxData.players,
-        pairsRaw: bbpResult.data
-      });
-      const result = pairs.apply(tournament.trfxData);
-      if (isError(result)) {
-        throw new Error(getDetails(result));
-      }
-
-      tournament.trfxData.playedRounds += 1;
-
-      setTournament(tournament);
-      setForceRound(tournament.trfxData.playedRounds - 1);
-    }
+  async function processNextRound(data: ValidTrfData) {
+    setForceRound(data.trfxData.playedRounds - 1);
   }
 
   return (
@@ -94,7 +63,7 @@ const Home: FunctionalComponent = () => {
       <TrfxParseSummary data={tournament} />
       {isTournamentValid(tournament)
         ? <>
-          <button class="button is-primary trans-bg mb-5" onClick={startNextRound}><strong>Start next round</strong></button>
+          <NextRoundButton tournament={tournament} onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
           <PairsView data={tournament.trfxData} forceRound={forceRound} />
         </>
         : null

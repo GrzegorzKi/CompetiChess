@@ -31,9 +31,11 @@ import {
 import { AdditionalData, fieldParser } from './parseValues';
 
 export type ValidTrfData = { trfxData: TournamentData, warnings: WarnCode[] };
+export type ParsingErrors = { parsingErrors: string[] };
+
 export type ParseTrfFileResult =
   | ValidTrfData
-  | { parsingErrors: string[] };
+  | ParsingErrors;
 
 function postProcessData(
   tournamentData: TournamentData,

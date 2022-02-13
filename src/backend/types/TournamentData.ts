@@ -173,9 +173,7 @@ class TournamentData implements TrfFileFormat {
     }
 
     this.players.forEach((player) => {
-      // eslint-disable-next-line no-param-reassign
       player.games = player.games.slice(0, fromRound - 1);
-      // eslint-disable-next-line no-param-reassign
       player.scores = player.scores.slice(0, fromRound - 1);
     });
     this.pairs = this.pairs.slice(0, fromRound - 1);
@@ -196,22 +194,25 @@ class TournamentData implements TrfFileFormat {
   }
 
   /// Recalculate players' scores.
-  /// This method recalculates tiebreakers AFTER scores to avoid bugs.
-  recalculatePlayerScores = (): void => {
+  ///
+  /// Note: This method recalculates tiebreakers AFTER scores to avoid bugs.
+  ///
+  /// @param {number} fromRound - Round number (one-offset) from which to recalculate
+  /// @param {number} toRound   - Round number (one-offset) to which recalculate (exclusive)
+  recalculatePlayerScores = (fromRound?: number, toRound?: number): void => {
     for (const player of this.playersByPosition) {
-      this.recalculateScores(player);
+      this.recalculateScores(player, fromRound, toRound);
     }
     for (const player of this.playersByPosition) {
-      this.recalculateTiebreakers(player);
+      this.recalculateTiebreakers(player, fromRound, toRound);
     }
   }
 
   recalculateScores = (player: TrfPlayer, fromRound = 1, toRound = Infinity): void => {
     const { games, scores } = player;
-    if (fromRound - 1 < scores.length) {
-      fromRound = scores.length + 1;
-    }
-    let calcPts = (fromRound > 1 ? scores[fromRound - 2].points : 0.0);
+    fromRound = Math.max(fromRound, 1);
+
+    let calcPts = (fromRound >= 2 ? scores[fromRound - 2].points : 0.0);
 
     const maxLen = Math.min(games.length, toRound);
     for (let r = fromRound - 1; r < maxLen; ++r) {
@@ -220,11 +221,9 @@ class TournamentData implements TrfFileFormat {
     }
   }
 
-  recalculateTiebreakers = (player: TrfPlayer, toRound = Infinity, fromRound = 1): void => {
+  recalculateTiebreakers = (player: TrfPlayer, fromRound = 1, toRound = Infinity): void => {
     const { games, scores } = player;
-    if (fromRound - 1 < scores.length) {
-      this.recalculateScores(player, scores.length + 1, toRound);
-    }
+    fromRound = Math.max(fromRound, 1);
 
     const maxLen = Math.min(games.length, toRound);
     for (let r = fromRound - 1; r < maxLen; ++r) {
