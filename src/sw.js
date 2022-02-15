@@ -17,7 +17,10 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getFiles, setupPrecaching, setupRouting } from 'preact-cli/sw/';
+import { getFiles, setupPrecaching, setupRouting } from 'preact-cli/sw';
 
 setupRouting();
-setupPrecaching(getFiles());
+
+const urlsToCache = getFiles();
+urlsToCache.push({ url: '/bbpPairingsWasm.wasm', revision: '2' });
+setupPrecaching(urlsToCache);
