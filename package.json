@@ -7,7 +7,7 @@
     "dev": "preact watch",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
     "build": "preact build",
-    "serve": "sirv build --port 8080 --cors --single",
+    "serve": "sirv build --port 8080 --cors --single 404.html",
     "test": "jest"
   },
   "browserslist": [
@@ -19,10 +19,10 @@
     "core-js": "^3.18.1",
     "preact": "^10.6.5",
     "preact-render-to-string": "^5.1.4",
-    "preact-router": "^3.2.1",
     "react-paginate": "^8.1.0",
     "sass": "^1.42.1",
-    "sharp": "^0.29.1"
+    "sharp": "^0.29.1",
+    "wouter-preact": "^2.8.0-alpha.2"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.1.3",

@@ -68,6 +68,21 @@ function addToCopyPlugin(config, helpers, patterns) {
   });
 }
 
+function disableSourceMapsOnProd(config, env) {
+  if (env.production) {
+    config.devtool = false; // Disable sourcemaps
+  }
+}
+
+function fixPrerenderLocations(config, env, helpers) {
+  const prerenderDataPlugins = helpers.getPluginsByName(config, 'PrerenderDataExtractPlugin');
+  prerenderDataPlugins.forEach(({ plugin }) => {
+    if (plugin.location_.endsWith('.html/') && plugin.location_ !== '/200.html/') {
+      plugin.location_ = plugin.location_.replace(new RegExp('/.*\.html/'), '/');
+    }
+  });
+}
+
 export default (config, env, helpers) => {
   // Makes absolute imports possible
   config.resolve.modules.push(env.src);
@@ -82,6 +97,10 @@ export default (config, env, helpers) => {
   config.node.fs = 'empty';
   config.node.path = 'empty';
   config.node.crypto = 'empty';
+
+  disableSourceMapsOnProd(config, env);
+
+  fixPrerenderLocations(config, env, helpers);
 
   configSizePlugin(config, helpers);
   addToCopyPlugin(config, helpers, [{ from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }]);

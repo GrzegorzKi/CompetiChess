@@ -17,24 +17,21 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h } from 'preact';
-import { Route, Switch } from 'wouter-preact';
+import { h } from 'preact';
 
-import Home from 'routes/home';
-import NotFound from 'routes/notFound';
+import style from './style.scss';
 
-import Header from '@/Header';
+export default function NotFound() {
+  // Preact's pre-render works in Node environment,
+  // so we check if window object is defined
+  const currentPage = typeof window !== 'undefined'
+    ? <p class="is-size-7">Current page: <a href={window.location.href} >{window.location.href}</a></p>
+    : null;
 
-const App: FunctionalComponent = () => {
   return (
-    <div id="root">
-      <Header />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route component={NotFound} />
-      </Switch>
-    </div>
+    <section class={style.notFound}>
+      <p>This page has not been found! <a class="has-text-link" onClick={() => window.history.back()}>Do you want to go back?</a></p>
+      {currentPage}
+    </section>
   );
-};
-
-export default App;
+}
