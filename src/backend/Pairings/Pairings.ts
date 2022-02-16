@@ -18,30 +18,29 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
-import TournamentData from '#/types/TournamentData';
-import { Color, GameResult, TrfGame, TrfPlayer } from '#/types/TrfFileFormat';
-import { parseNumber, tokenizeToNumbers } from '#/utils/ParseUtils';
-import { sortByRank, sortByScore } from '#/utils/SortUtils';
+import Tournament, { Color, GameResult, Game, Player } from '#/types/Tournament';
 import {
   addByeToPlayer,
   byeResults,
-  calculatePlayedRounds,
   createByeRound,
   getTypeOfBye,
   isAbsentFromRound,
   isResultABye,
   isWithdrawnOrLate,
-} from '#/utils/TrfUtils';
+} from '#/utils/GamesUtils';
+import { parseNumber, tokenizeToNumbers } from '#/utils/ParseUtils';
+import { sortByRank, sortByScore } from '#/utils/SortUtils';
+import { calculatePlayedRounds } from '#/utils/TournamentUtils';
 
 export type Pair = {
   round: number,
   no: number,
-  white: TrfPlayer,
-  black: TrfPlayer,
+  white: Player,
+  black: Player,
 }
 
 export type UnpairedStatus = typeof byeResults[number] | GameResult.UNASSIGNED;
-export type UnpairedMap = Map<TrfPlayer, UnpairedStatus>;
+export type UnpairedMap = Map<Player, UnpairedStatus>;
 
 function removeItem<T>(arr: Array<T>, value: T): Array<T> {
   const index = arr.indexOf(value);
@@ -51,7 +50,7 @@ function removeItem<T>(arr: Array<T>, value: T): Array<T> {
   return arr;
 }
 
-function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], round: number): {
+function internalReadPairsFromArray(players: Player[], pairsRaw: string[], round: number): {
   pairs: Pair[],
   unpaired: UnpairedMap,
 } {
@@ -90,7 +89,7 @@ function internalReadPairsFromArray(players: TrfPlayer[], pairsRaw: string[], ro
   return { pairs, unpaired };
 }
 
-function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[] {
+function internalReadPairsFromGames(players: Player[], round: number): Pair[] {
   const pairs: Pair[] = [];
   const usedIds: boolean[] = [];
   let pairNo = 0;
@@ -129,9 +128,9 @@ function internalReadPairsFromGames(players: TrfPlayer[], round: number): Pair[]
 }
 
 type ReadPairsParams =
-  | { players: TrfPlayer[], pairsRaw: string[] }
-  | { players: TrfPlayer[], fromRound: number }
-  | { players: TrfPlayer[], pairs: Pair[] }
+  | { players: Player[], pairsRaw: string[] }
+  | { players: Player[], fromRound: number }
+  | { players: Player[], pairs: Pair[] }
 
 export function readPairs(params: ReadPairsParams) {
   let pairs: Pair[];
@@ -176,7 +175,7 @@ export function readPairs(params: ReadPairsParams) {
     reassignPairIds();
   }
 
-  function addPair(white: TrfPlayer, black: TrfPlayer): boolean {
+  function addPair(white: Player, black: Player): boolean {
     if (white !== black && unpaired.has(white) && unpaired.has(black)) {
       unpaired.delete(white);
       unpaired.delete(black);
@@ -207,7 +206,7 @@ export function readPairs(params: ReadPairsParams) {
     return true;
   }
 
-  function changeUnpairedStatus(player: TrfPlayer, status: UnpairedStatus): boolean {
+  function changeUnpairedStatus(player: Player, status: UnpairedStatus): boolean {
     if (!unpaired.has(player)) {
       return false;
     }
@@ -254,8 +253,8 @@ export function readPairs(params: ReadPairsParams) {
     }
   }
 
-  function validateAndGenerateRounds(): ParseResult<TrfGame[]> {
-    const rounds: TrfGame[] = [];
+  function validateAndGenerateRounds(): ParseResult<Game[]> {
+    const rounds: Game[] = [];
 
     for (let i = 0; i < pairs.length; ++i) {
       const whiteId = pairs[i].white.playerId;
@@ -312,7 +311,7 @@ export function readPairs(params: ReadPairsParams) {
     return rounds;
   }
 
-  function apply(tournament: TournamentData): ParseResult<undefined> {
+  function apply(tournament: Tournament): ParseResult<undefined> {
     const rounds = validateAndGenerateRounds();
     if (isError(rounds)) {
       return rounds;

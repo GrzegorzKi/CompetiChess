@@ -18,11 +18,11 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
-import { Color, GameResult, TrfGame } from '#/types/TrfFileFormat';
+import { Color, GameResult, Game } from '#/types/Tournament';
+import { isValidColor, isValidResult, validateGameEntry } from '#/utils/GamesUtils';
 import { parsePlayerId } from '#/utils/ParseUtils';
-import { isValidColor, isValidResult, validateGameEntry } from '#/utils/TrfUtils';
 
-export function defaultTrfGame(round: number): TrfGame {
+export function defaultTrfGame(round: number): Game {
   return {
     opponent: undefined,
     color: Color.NONE,
@@ -35,7 +35,7 @@ export function parseTrfGame(
   roundLine: string,
   round: number,
   playerId: number
-): ParseResult<TrfGame> {
+): ParseResult<Game> {
   const trfGame = defaultTrfGame(round);
 
   const opponentString = roundLine.substring(2, 6);
@@ -76,8 +76,8 @@ export function parseTrfGame(
 }
 
 export default function parseTrfGames(gamesString: string, playerId: number)
-    : ParseResult<TrfGame[]> {
-  const games: TrfGame[] = [];
+    : ParseResult<Game[]> {
+  const games: Game[] = [];
   let roundNum = 1;
   let skippedRounds = 0;
 

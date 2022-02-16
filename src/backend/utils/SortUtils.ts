@@ -18,12 +18,12 @@
  */
 
 import Tiebreaker, { compareHeadToHead } from '#/Tiebreaker/Tiebreaker';
-import { TrfPlayer } from '#/types/TrfFileFormat';
+import { Player } from '#/types/Tournament';
 
 export function createComparator(compareFuncs: PlayerComparator[]) {
-  return (a: TrfPlayer, b: TrfPlayer): number => {
-    for (let i = 0; i < compareFuncs.length; ++i) {
-      const result = compareFuncs[i](a, b);
+  return (a: Player, b: Player): number => {
+    for (const compareFunc of compareFuncs) {
+      const result = compareFunc(a, b);
       if (result !== 0) {
         return result;
       }
@@ -34,21 +34,21 @@ export function createComparator(compareFuncs: PlayerComparator[]) {
   };
 }
 
-type PlayerComparator = (first: TrfPlayer, second: TrfPlayer) => number;
+type PlayerComparator = (first: Player, second: Player) => number;
 
 // Sorts players by score in descending order
 export function sortByScore(round: number): PlayerComparator {
   if (round < 1) {
     return () => 0;
   }
-  return (first: TrfPlayer, second: TrfPlayer): number => {
+  return (first: Player, second: Player): number => {
     const firstScore = first.scores[round - 1]?.points ?? 0;
     const secondScore = second.scores[round - 1]?.points ?? 0;
     return secondScore - firstScore;
   };
 }
 
-export function sortByRank(first: TrfPlayer, second: TrfPlayer): number {
+export function sortByRank(first: Player, second: Player): number {
   return first.rank - second.rank;
 }
 
@@ -57,9 +57,13 @@ export function sortByTiebreaker(round: number, tiebreaker: Tiebreaker): PlayerC
   if (tiebreaker === Tiebreaker.DIRECT_ENCOUNTER) {
     return compareHeadToHead;
   }
-  return (first: TrfPlayer, second: TrfPlayer): number => {
+  return (first: Player, second: Player): number => {
     const firstScore = first.scores[round - 1]?.tiebreakers[tiebreaker] ?? 0;
     const secondScore = second.scores[round - 1]?.tiebreakers[tiebreaker] ?? 0;
     return secondScore - firstScore;
   };
+}
+
+export function numberComparator(first: number, second: number): number {
+  return first - second;
 }

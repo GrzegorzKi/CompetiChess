@@ -21,11 +21,10 @@ import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseTrfPlayer from './parseTrfPlayer';
 
 import { ErrorCode, isError, ParseError } from '#/types/ParseResult';
-import TournamentData from '#/types/TournamentData';
-import { Color, Field } from '#/types/TrfFileFormat';
+import Tournament, { Color, Field } from '#/types/Tournament';
 import { parseNumber, tokenize, tokenizeToNumbers } from '#/utils/ParseUtils';
 
-export type ParseFunc = (tournament: TournamentData, value: string, additionalData: AdditionalData) => ParseError | void;
+export type ParseFunc = (tournament: Tournament, value: string, additionalData: AdditionalData) => ParseError | void;
 
 export interface AdditionalData {
   accelerations: Array<Acceleration>;

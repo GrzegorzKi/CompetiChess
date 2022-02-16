@@ -18,6 +18,7 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
+import { Sex } from '#/types/Tournament';
 
 export function parseNumber(value: string): ParseResult<number> {
   if (value === '') {
@@ -55,6 +56,16 @@ export function parseFloat(value: string): ParseResult<number> {
     return { error: ErrorCode.INVALID_VALUE, value };
   }
   return num;
+}
+
+export function parseSex(char: string): Sex {
+  if (char === 'm') {
+    return Sex.MALE;
+  }
+  if (char === 'w' || char === 'f') {
+    return Sex.FEMALE;
+  }
+  return Sex.UNSPECIFIED;
 }
 
 export function isBetween(num: number, min: number, max: number): boolean {

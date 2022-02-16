@@ -38,7 +38,7 @@
 
 import { Pair } from './Pairings';
 
-import { GameResult } from '#/types/TrfFileFormat';
+import { GameResult } from '#/types/Tournament';
 
 export default function checkPairingsFilled(pairs: Pair[], round: number): boolean {
   for (const pair of pairs) {

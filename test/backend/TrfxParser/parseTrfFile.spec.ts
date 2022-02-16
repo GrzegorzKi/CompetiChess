@@ -28,6 +28,7 @@ import exportToTrf from '#/DataExport/exportToTrf';
 import { readPairs } from '#/Pairings/Pairings';
 import parseTrfFile from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
+import { deletePairings } from '#/utils/TournamentUtils';
 
 test('Parse sample file', async () => {
   const dirPath = path.join(__dirname, '../testTrfFile.txt');
@@ -42,7 +43,7 @@ test('Parse sample file', async () => {
     throw new Error('Unable to parse TRF file');
   }
 
-  tournament.trfxData.deletePairings(forRound + 1);
+  deletePairings(tournament.trfxData, forRound + 1);
 
   const trfOutput = exportToTrf(
     tournament.trfxData,

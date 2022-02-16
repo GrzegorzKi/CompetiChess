@@ -20,11 +20,10 @@
 import parseTrfGames from './parseTrfGames';
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
-import { Sex, TrfPlayer } from '#/types/TrfFileFormat';
-import { parseFloat, parseNumber, parsePlayerId } from '#/utils/ParseUtils';
-import { parseSex } from '#/utils/TrfUtils';
+import { Sex, Player } from '#/types/Tournament';
+import { parseFloat, parseNumber, parsePlayerId, parseSex } from '#/utils/ParseUtils';
 
-export function createDefaultTrfPlayer(): TrfPlayer {
+export function createDefaultTrfPlayer(): Player {
   return {
     playerId: 0,
     name: '',
@@ -44,7 +43,7 @@ export function createDefaultTrfPlayer(): TrfPlayer {
   };
 }
 
-export default function parseTrfPlayer(value: string): ParseResult<TrfPlayer> {
+export default function parseTrfPlayer(value: string): ParseResult<Player> {
   if (value.length < 80) {
     return { error: ErrorCode.INVALID_LINE };
   }

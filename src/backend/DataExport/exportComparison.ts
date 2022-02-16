@@ -18,11 +18,11 @@
  */
 
 import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
-import TournamentData from '#/types/TournamentData';
-import { TrfPlayer } from '#/types/TrfFileFormat';
+import Tournament, { Player } from '#/types/Tournament';
+import { computeRanks } from '#/utils/TournamentUtils';
 
 function stringifyTiebreakers(tbList: Tiebreaker[],
-  { games, scores }: TrfPlayer,
+  { games, scores }: Player,
   forRound: number): string {
   let string = '';
 
@@ -46,9 +46,9 @@ function createHeader(tbList: Tiebreaker[]) {
   return string;
 }
 
-export default function exportComparison(tournament: TournamentData,
+export default function exportComparison(tournament: Tournament,
   forRound: number = tournament.playedRounds): string {
-  function getPoints({ scores }: TrfPlayer) {
+  function getPoints({ scores }: Player) {
     if (forRound <= 0) {
       return 0;
     }
@@ -61,7 +61,7 @@ export default function exportComparison(tournament: TournamentData,
   }
 
   const { configuration } = tournament;
-  const { playersByRank, sortedPlayers } = tournament.computeRanks(forRound);
+  const { playersByRank, sortedPlayers } = computeRanks(tournament, forRound);
 
   let resultString = '';
   resultString += createHeader(configuration.tiebreakers);

@@ -38,7 +38,7 @@ Tournament section:
 import { Pair } from '#/Pairings/Pairings';
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
-interface TrfFileFormat {
+interface Tournament {
   tournamentName: string;
   city: string;
   federation: string;
@@ -52,9 +52,9 @@ interface TrfFileFormat {
   deputyArbiters: string[];
   rateOfPlay: string;
   roundDates: string[];
-  players: TrfPlayer[];
-  playersByPosition: TrfPlayer[];
-  teams: TrfTeam[];
+  players: Player[];
+  playersByPosition: Player[];
+  teams: Team[];
   pairs: Array<Pair[]>;
   configuration: Configuration;
   otherFields: Record<string, string>;
@@ -64,7 +64,7 @@ interface TrfFileFormat {
   expectedRounds: number;
 }
 
-export default TrfFileFormat;
+export default Tournament;
 
 export interface ForbiddenPairs {
   round: number;
@@ -160,7 +160,7 @@ Line format:
 001 [no] M GM [Player name  33 characters long] 1800 POL [FIDE  num] YYYY/MM/DD 10.0 RANK
   [No] W R  [No] W R  ...
  */
-export interface TrfPlayer {
+export interface Player {
   playerId: number;
   name: string;
   sex: Sex;
@@ -170,7 +170,7 @@ export interface TrfPlayer {
   id: string;
   birthDate: string;
   rank: number;
-  games: TrfGame[];
+  games: Game[];
   scores: Score[];
 
   accelerations: number[],
@@ -184,12 +184,12 @@ export interface TrfPlayer {
 Line format:
 013 [Team name  32 characters long ] [no] [no] [no] ...
  */
-export interface TrfTeam {
+export interface Team {
   name: string;
   playerStartingRanks: number[];
 }
 
-export interface TrfGame {
+export interface Game {
   opponent?: number;
   color: Color;
   result: GameResult;

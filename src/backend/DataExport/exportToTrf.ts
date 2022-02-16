@@ -17,9 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import TournamentData from '#/types/TournamentData';
-import { Color, GameResult, TrfPlayer } from '#/types/TrfFileFormat';
-import { isAbsentFromRound } from '#/utils/TrfUtils';
+import Tournament, { Color, GameResult, Player } from '#/types/Tournament';
+import { isAbsentFromRound } from '#/utils/GamesUtils';
+import { computeRanks } from '#/utils/TournamentUtils';
 
 export type ExportConfig = {
   forRound?: number;
@@ -36,7 +36,7 @@ const nextRoundByes = [
   GameResult.DRAW,
 ];
 
-function stringifyGames(player: TrfPlayer,
+function stringifyGames(player: Player,
   toRound: number,
   includeNextRoundBye: boolean): string {
   const { games } = player;
@@ -80,7 +80,7 @@ function stringifyAccelerations(accelerations: number[]): string {
   return string;
 }
 
-function exportTournamentInfo(tournament: TournamentData): string {
+function exportTournamentInfo(tournament: Tournament): string {
   let string = '';
 
   tournament.tournamentName && (string += `012 ${tournament.tournamentName}\n`);
@@ -100,7 +100,7 @@ function exportTournamentInfo(tournament: TournamentData): string {
   return string;
 }
 
-function exportColorRankConfig({ configuration }: TournamentData) {
+function exportColorRankConfig({ configuration }: Tournament) {
   let string = '';
   if (configuration.matchByRank) {
     string += ' rank';
@@ -114,7 +114,7 @@ function exportColorRankConfig({ configuration }: TournamentData) {
   return string !== '' ? `XXC${string}\n` : '';
 }
 
-function getPoints({ scores, games }: TrfPlayer, exportForPairing: boolean, round: number) {
+function getPoints({ scores, games }: Player, exportForPairing: boolean, round: number) {
   if (exportForPairing) {
     if (games[round] !== undefined
       && games[round].opponent === undefined
@@ -129,7 +129,7 @@ function getPoints({ scores, games }: TrfPlayer, exportForPairing: boolean, roun
   return scores[round - 1].points;
 }
 
-export default function exportToTrf(tournament: TournamentData, {
+export default function exportToTrf(tournament: Tournament, {
   forRound = tournament.playedRounds,
   exportForPairing = true,
   pointsModFormat = 'JaVaFo'
@@ -158,7 +158,7 @@ export default function exportToTrf(tournament: TournamentData, {
     resultString += exportColorRankConfig(tournament);
   }
 
-  const { playersByRank } = tournament.computeRanks(forRound);
+  const { playersByRank } = computeRanks(tournament, forRound);
 
   const playersToIter = configuration.matchByRank
     ? playersByPosition

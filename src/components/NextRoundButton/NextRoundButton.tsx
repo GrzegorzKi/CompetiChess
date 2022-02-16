@@ -26,7 +26,8 @@ import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
 import { readPairs } from '#/Pairings/Pairings';
 import { ParsingErrors, ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
-import { evenUpMatchHistories } from '#/utils/TrfUtils';
+import { evenUpMatchHistories } from '#/utils/GamesUtils';
+import { recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 interface Props {
   tournament: ValidTrfData;
@@ -97,7 +98,7 @@ const NextRoundButton = ({
     }
 
     evenUpMatchHistories(data.players, data.playedRounds);
-    data.recalculatePlayerScores(data.playedRounds);
+    recalculatePlayerScores(data, data.playedRounds);
 
     data.playedRounds += 1;
 

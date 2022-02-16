@@ -24,17 +24,16 @@ import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import useElementFocus from 'hooks/useElementFocus';
 
 import { Pair } from '#/Pairings/Pairings';
-import TournamentData from '#/types/TournamentData';
-import { TrfPlayer } from '#/types/TrfFileFormat';
+import Tournament, { Player } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 
 interface Props {
-  data: TournamentData,
+  data: Tournament,
   forceRound?: number
 }
 
-function prevRoundPoints(player: TrfPlayer, round: number): number {
+function prevRoundPoints(player: Player, round: number): number {
   return (round <= 0)
     ? 0.0
     : player.scores[round - 1].points;

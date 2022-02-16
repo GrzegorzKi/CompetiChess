@@ -20,17 +20,24 @@
 import { AdditionalData, fieldParser } from './parseValues';
 
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import TournamentData from '#/types/TournamentData';
-import { Color, Field } from '#/types/TrfFileFormat';
+import Tournament, { Color, Field } from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
 import {
   assignByesAndLates,
+  evenUpMatchHistories,
+} from '#/utils/GamesUtils';
+import {
   assignPairs,
   calculatePlayedRounds,
-  evenUpMatchHistories,
-} from '#/utils/TrfUtils';
+  checkAndAssignAccelerations,
+  createTournamentData,
+  inferInitialColor,
+  recalculatePlayerScores,
+  reorderAndAssignPositionalRanks,
+  validatePairConsistency,
+} from '#/utils/TournamentUtils';
 
-export type ValidTrfData = { trfxData: TournamentData, warnings: WarnCode[] };
+export type ValidTrfData = { trfxData: Tournament, warnings: WarnCode[] };
 export type ParsingErrors = { parsingErrors: string[] };
 
 export type ParseTrfFileResult =
@@ -38,12 +45,15 @@ export type ParseTrfFileResult =
   | ParsingErrors;
 
 function postProcessData(
-  tournamentData: TournamentData,
+  tournamentData: Tournament,
   { accelerations, forbiddenPairs, byes }: AdditionalData) {
 
   const warnings: WarnCode[] = [];
 
-  const resultAcc = tournamentData.checkAndAssignAccelerations(accelerations);
+  const resultAcc = checkAndAssignAccelerations(tournamentData.players,
+    accelerations,
+    tournamentData.expectedRounds);
+
   if (isError(resultAcc)) {
     return { parsingErrors: [getDetails(resultAcc)] };
   }
@@ -64,7 +74,7 @@ function postProcessData(
 
   // Infer initial color if not set
   if (tournamentData.configuration.initialColor === Color.NONE) {
-    const color = tournamentData.inferInitialColor();
+    const color = inferInitialColor(tournamentData);
     if (color === Color.NONE) {
       warnings.push(WarnCode.INITIAL_COLOR);
     } else {
@@ -72,19 +82,18 @@ function postProcessData(
     }
   }
 
-  const pairResult = tournamentData.validatePairConsistency();
+  const pairResult = validatePairConsistency(tournamentData.players);
   if (isError(pairResult)) {
     return { parsingErrors: [getDetails(pairResult)] };
   }
 
-  tournamentData.reorderAndAssignPositionalRanks();
+  reorderAndAssignPositionalRanks(tournamentData);
   // TODO Detect holes in player ids - add warning then
 
   assignByesAndLates(tournamentData, byes);
-  evenUpMatchHistories(tournamentData.players, playedRounds);
   assignPairs(tournamentData);
-
-  tournamentData.recalculatePlayerScores();
+  evenUpMatchHistories(tournamentData.players, playedRounds);
+  recalculatePlayerScores(tournamentData);
 
   return {
     trfxData: tournamentData,
@@ -93,7 +102,7 @@ function postProcessData(
 }
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
-  const tournamentData = new TournamentData();
+  const tournamentData = createTournamentData();
   const additionalData: AdditionalData = {
     accelerations: [],
     byes: [],
@@ -114,10 +123,10 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     const prefix = line.substring(0, 3);
     const value = line.substring(4).trimEnd();
 
-    const parseFunc = fieldParser[prefix as Field];
+    const parseField = fieldParser[prefix as Field];
 
-    if (parseFunc !== undefined) {
-      const result = parseFunc(tournamentData, value, additionalData);
+    if (parseField !== undefined) {
+      const result = parseField(tournamentData, value, additionalData);
       if (isError(result)) {
         errorCallback(result);
       }
