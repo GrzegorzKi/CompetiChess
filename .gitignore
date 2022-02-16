@@ -32,3 +32,6 @@ yarn-error.log*
 # .idea files
 **/.idea/
 /size-plugin.json
+
+# Local Netlify folder
+.netlify

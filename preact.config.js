@@ -74,15 +74,6 @@ function disableSourceMapsOnProd(config, env) {
   }
 }
 
-function fixPrerenderLocations(config, env, helpers) {
-  const prerenderDataPlugins = helpers.getPluginsByName(config, 'PrerenderDataExtractPlugin');
-  prerenderDataPlugins.forEach(({ plugin }) => {
-    if (plugin.location_.endsWith('.html/') && plugin.location_ !== '/200.html/') {
-      plugin.location_ = plugin.location_.replace(new RegExp('/.*\.html/'), '/');
-    }
-  });
-}
-
 export default (config, env, helpers) => {
   // Makes absolute imports possible
   config.resolve.modules.push(env.src);
@@ -100,9 +91,10 @@ export default (config, env, helpers) => {
 
   disableSourceMapsOnProd(config, env);
 
-  fixPrerenderLocations(config, env, helpers);
-
   configSizePlugin(config, helpers);
-  addToCopyPlugin(config, helpers, [{ from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }]);
+  addToCopyPlugin(config, helpers, [
+    { from: 'public' },
+    { from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }
+  ]);
   includePurgeCss(config, env, helpers);
 };
