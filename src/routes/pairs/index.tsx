@@ -43,7 +43,7 @@ const Pairs: FunctionalComponent = () => {
       {tournament
         ? (
           <>
-            <NextRoundButton tournament={tournament} onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
+            <NextRoundButton onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
             <PairsView data={tournament.trfxData} forceRound={forceRound} />
           </>
         )

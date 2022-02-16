@@ -18,31 +18,31 @@
  */
 
 import { ComponentChildren, h } from 'preact';
-import { useCallback, useRef } from 'preact/hooks';
+import { useCallback } from 'preact/hooks';
+
+import { useAppDispatch, useAppSelector } from '../../hooks';
+
+import { createNextRound, selectTournament } from '../../reducers/tournamentReducer';
 
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
-import { readPairs } from '#/Pairings/Pairings';
 import { ParsingErrors, ValidTrfData } from '#/TrfxParser/parseTrfFile';
-import { getDetails, isError } from '#/types/ParseResult';
-import { evenUpMatchHistories } from '#/utils/GamesUtils';
-import { recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 interface Props {
-  tournament: ValidTrfData;
   onSuccess: (data: ValidTrfData) => void;
   onFailure?: (errors: ParsingErrors) => void;
   children: ComponentChildren;
 }
 
 const NextRoundButton = ({
-  tournament,
   onSuccess: onSuccessCallback,
   onFailure,
   children
 }: Props) => {
-  const bbpInstance = useRef<BbpPairings>();
+  const tournament = useAppSelector(selectTournament);
+  const dispatch = useAppDispatch();
+
   const onFailureCallback = useCallback((error: string | string[]) => {
     if (onFailure) {
       if (typeof error === 'string') {
@@ -58,6 +58,11 @@ const NextRoundButton = ({
   }, [onFailure]);
 
   async function startNextRound() {
+    if (!tournament) {
+      onFailureCallback('There is no tournament active. Cannot start new round.');
+      return;
+    }
+
     const data = tournament.trfxData;
 
     const {
@@ -75,10 +80,8 @@ const NextRoundButton = ({
       { exportForPairing: true, forRound: data.playedRounds + 1 }
     );
 
-    if (!bbpInstance.current) {
-      bbpInstance.current = await BbpPairings.getInstance();
-    }
-    const bbpResult = bbpInstance.current.invoke(trfOutput!);
+    const bbpInstance = await BbpPairings.getInstance();
+    const bbpResult = bbpInstance.invoke(trfOutput!);
 
     console.info(bbpResult);
 
@@ -87,20 +90,7 @@ const NextRoundButton = ({
       return;
     }
 
-    const pairs = readPairs({
-      players: data.players,
-      pairsRaw: bbpResult.data
-    });
-    const result = pairs.apply(data);
-    if (isError(result)) {
-      onFailureCallback(getDetails(result));
-      return;
-    }
-
-    evenUpMatchHistories(data.players, data.playedRounds);
-    recalculatePlayerScores(data, data.playedRounds);
-
-    data.playedRounds += 1;
+    dispatch(createNextRound(bbpResult));
 
     onSuccessCallback(tournament);
   }

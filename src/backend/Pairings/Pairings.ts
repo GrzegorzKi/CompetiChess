@@ -311,7 +311,7 @@ export function readPairs(params: ReadPairsParams) {
     return rounds;
   }
 
-  function apply(tournament: Tournament): ParseResult<undefined> {
+  function apply(tournament: Tournament): ParseResult<void> {
     const rounds = validateAndGenerateRounds();
     if (isError(rounds)) {
       return rounds;
@@ -335,8 +335,6 @@ export function readPairs(params: ReadPairsParams) {
 
     // Assign pairs to tournament data
     tournament.pairs[round - 1] = pairs;
-
-    return undefined;
   }
 
   if ('pairsRaw' in params) {

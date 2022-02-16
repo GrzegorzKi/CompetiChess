@@ -19,11 +19,19 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+
+import { BbpResult } from '#/BbpPairings/bbpPairings';
+import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
+import { getDetails, isError } from '#/types/ParseResult';
+import { evenUpMatchHistories } from '#/utils/GamesUtils';
+import { recalculatePlayerScores } from '#/utils/TournamentUtils';
+
 import { RootState } from '@/store';
 
 export interface TournamentState {
   value?: ValidTrfData;
+  error?: string;
 }
 
 const initialState: TournamentState = {
@@ -37,13 +45,43 @@ export const tournamentSlice = createSlice({
     loadNew: (state, action: PayloadAction<ValidTrfData>) => {
       state.value = action.payload;
     },
+    createNextRound: (state, action: PayloadAction<BbpResult>) => {
+      if (!state.value) {
+        return state;
+      }
+
+      const tournament = state.value.trfxData;
+      const payloadData = action.payload.data;
+
+      const pairs = readPairs({
+        players: tournament.players,
+        pairsRaw: payloadData
+      });
+      const result = pairs.apply(tournament);
+      if (isError(result)) {
+        return {
+          ...state,
+          error: getDetails(result)
+        };
+      }
+
+      evenUpMatchHistories(tournament.players, tournament.playedRounds);
+      recalculatePlayerScores(tournament, tournament.playedRounds);
+
+      tournament.playedRounds += 1;
+
+      return {
+        ...state,
+        error: undefined
+      };
+    },
     close: (state) => {
       state.value = undefined;
     }
   }
 });
 
-export const { loadNew, close } = tournamentSlice.actions;
+export const { loadNew, createNextRound, close } = tournamentSlice.actions;
 
 export const selectTournament = (state: RootState) => state.tournament.value;
 

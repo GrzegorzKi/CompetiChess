@@ -28,7 +28,7 @@ import Tournament, {
 
 import { readPairs } from '#/Pairings/Pairings';
 import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
-import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
+// import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
 import { gameWasPlayed, invertColor, participatedInPairing } from '#/utils/GamesUtils';
 import { createComparator, sortByScore, sortByTiebreaker } from '#/utils/SortUtils';
@@ -43,7 +43,7 @@ export function createDefaultConfiguration(): Configuration {
     pointsForPairingAllocatedBye: 1.0,
     pointsForZeroPointBye: 0.0,
     pointsForForfeitLoss: 0.0,
-    tiebreakers: [...FideSwissRatingsNotConsistent],
+    tiebreakers: [],
   };
 }
 
