@@ -20,8 +20,10 @@
 import { FunctionalComponent, h } from 'preact';
 import { Route, Switch } from 'wouter-preact';
 
+import CreateTournament from 'routes/create';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
+import Pairs from 'routes/pairs';
 
 import Header from '@/Header';
 
@@ -30,6 +32,8 @@ const App: FunctionalComponent = () => {
     <div id="root">
       <Header />
       <Switch>
+        <Route path="/create" component={CreateTournament} />
+        <Route path="/pairs" component={Pairs} />
         <Route path="/" component={Home} />
         <Route component={NotFound} />
       </Switch>

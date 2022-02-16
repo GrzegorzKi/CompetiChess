@@ -54,11 +54,11 @@
 			color: #FFF;
 			will-change: background-color;
 
-			:hover, :active {
+			&:hover, &:active {
 				background: rgba(0,0,0,0.2);
 			}
 
-			.active {
+			&.active {
 				background: rgba(0,0,0,0.4);
 			}
 		}

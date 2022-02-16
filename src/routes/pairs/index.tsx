@@ -18,33 +18,43 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { Link, useLocation } from 'wouter-preact';
+import { useState } from 'preact/hooks';
+import { Link } from 'wouter-preact';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
-import style from './style.scss';
+import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 
-const Header: FunctionalComponent = () => {
-  const [location] = useLocation();
+import NextRoundButton from '@/NextRoundButton';
+import PairsView from '@/PairsView';
+
+const Pairs: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
 
+  const [forceRound, setForceRound] = useState(0);
+
+  async function processNextRound(data: ValidTrfData) {
+    setForceRound(data.trfxData.playedRounds - 1);
+  }
+
   return (
-    <header class={style.header}>
-      <Link href="/">
-        <a><h1>Preact App</h1></a>
-      </Link>
-      <nav>
-        {tournament ?
-          <Link href="/">
-            Tournament: <strong>{tournament.trfxData.tournamentName}</strong>
-          </Link>
-          : null}
-        <Link class={location === '/create' ? style.active : ''} href="/create">Create a tournament</Link>
-        <Link class={location === '/pairs' ? style.active : ''} href="/pairs">Pairs</Link>
-      </nav>
-    </header>
+    <div>
+      {tournament
+        ? (
+          <>
+            <NextRoundButton tournament={tournament} onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
+            <PairsView data={tournament.trfxData} forceRound={forceRound} />
+          </>
+        )
+        :
+        <p>There is no tournament open right now.
+          {' '}
+          <Link class="has-text-link" href="/create">Do you want to create one?</Link>
+        </p>
+      }
+    </div>
   );
 };
 
-export default Header;
+export default Pairs;
