@@ -21,7 +21,7 @@ import { h, FunctionalComponent, Fragment, JSX } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
-import { useElementFocus } from 'hooks/useElementFocus';
+import useElementFocus from 'hooks/useElementFocus';
 
 import { Pair } from '#/Pairings/Pairings';
 import TournamentData from '#/types/TournamentData';

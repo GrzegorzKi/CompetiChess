@@ -104,7 +104,7 @@ const NextRoundButton = ({
     onSuccessCallback(tournament);
   }
 
-  return <button class="button is-primary trans-bg mb-5" onClick={startNextRound}>
+  return <button class="button is-primary trans-bg is-block mb-5" onClick={startNextRound}>
     {children}
   </button>;
 };

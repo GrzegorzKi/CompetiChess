@@ -20,11 +20,14 @@
 import { FunctionalComponent, h } from 'preact';
 import { useState } from 'preact/hooks';
 
+import { useAppDispatch, useAppSelector } from 'hooks';
+import { close, loadNew, selectTournament } from 'reducers/tournamentReducer';
+
 import style from './style.scss';
 
 import parseTrfFile, {
   isTournamentValid,
-  ParseTrfFileResult,
+  ParsingErrors,
   ValidTrfData,
 } from '#/TrfxParser/parseTrfFile';
 
@@ -34,7 +37,10 @@ import PairsView from '@/PairsView';
 import TrfxParseSummary from '@/TrfxParseSummary';
 
 const Home: FunctionalComponent = () => {
-  const [tournament, setTournament] = useState<ParseTrfFileResult>();
+  const tournament = useAppSelector(selectTournament);
+  const dispatch = useAppDispatch();
+
+  const [parseErrors, setParseErrors] = useState<ParsingErrors>();
   const [forceRound, setForceRound] = useState(0);
 
   function fileHandler(files: FileList) {
@@ -45,8 +51,14 @@ const Home: FunctionalComponent = () => {
         const target = e.target;
         if (target && typeof target.result === 'string') {
           const result = parseTrfFile(target.result);
-          setTournament(result);
-          setForceRound(0);
+          if (isTournamentValid(result)) {
+            dispatch(loadNew(result));
+            setParseErrors(undefined);
+            setForceRound(0);
+          } else {
+            dispatch(close());
+            setParseErrors(result);
+          }
         }
       });
 
@@ -61,12 +73,14 @@ const Home: FunctionalComponent = () => {
   return (
     <div class={style.home}>
       <FileSelector fileHandler={fileHandler} />
-      <TrfxParseSummary data={tournament} />
-      {isTournamentValid(tournament)
-        ? <>
-          <NextRoundButton tournament={tournament} onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
-          <PairsView data={tournament.trfxData} forceRound={forceRound} />
-        </>
+      <TrfxParseSummary data={tournament} errors={parseErrors} />
+      {tournament
+        ? (
+          <>
+            <NextRoundButton tournament={tournament} onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
+            <PairsView data={tournament.trfxData} forceRound={forceRound} />
+          </>
+        )
         : null
       }
     </div>

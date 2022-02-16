@@ -18,6 +18,16 @@
  */
 
 import './styles/global.scss';
-import App from './components/app';
+import { h } from 'preact';
+import { Provider } from 'react-redux';
 
-export default App;
+import App from '@/app';
+import { store } from '@/store';
+
+const Main = (): JSX.Element => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
+
+export default Main;

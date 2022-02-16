@@ -38,7 +38,7 @@ function scrollIntoElement(element: Element, { top, bottom }: Offset) {
 
 type Offset = { top: number, bottom: number }
 
-export function useElementFocus<H extends HTMLElement = HTMLElement>(
+export default function useElementFocus<H extends HTMLElement = HTMLElement>(
   initialRef: H | null = null,
   offset?: Offset
 ): [RefObject<H>, FocusOnNextCallback, FocusOnPrevCallback, FocusOnFirstCallback] {

@@ -19,23 +19,38 @@
 
 import { h, FunctionalComponent } from 'preact';
 
-import { ParseTrfFileResult } from '#/TrfxParser/parseTrfFile';
+import { ParsingErrors, ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getMessageForWarnCode } from '#/types/WarnCode';
 
 interface Props {
-  data?: ParseTrfFileResult,
+  data?: ValidTrfData,
+  errors?: ParsingErrors,
 }
 
-const TrfxParseSummary: FunctionalComponent<Props> = ({ data }) => {
-  if (!data) {
+const TrfxParseSummary: FunctionalComponent<Props> = ({ data , errors }) => {
+  if (!data?.warnings.length && !errors) {
     return null;
   }
 
   return (
-    <ul>
-      {'parsingErrors' in data ? data.parsingErrors.map((value, index) => <li key={index}>{value}</li>) : null}
-      {!('parsingErrors' in data) ? data.warnings.map((value, index) => <li key={index}>{getMessageForWarnCode(value)}</li>) : null}
-    </ul>
+    <>
+      {data?.warnings.length
+        ? (
+          <ul>
+            {data.warnings.map((value, index) => <li key={index}>{getMessageForWarnCode(value)}</li>)}
+          </ul>
+        )
+        : null
+      }
+      {errors
+        ? (
+          <ul>
+            {errors.parsingErrors.map((value, index) => <li key={index}>{value}</li>)}
+          </ul>
+        )
+        : null
+      }
+    </>
   );
 };
 
