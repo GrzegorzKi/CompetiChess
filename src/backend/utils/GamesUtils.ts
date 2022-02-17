@@ -18,7 +18,7 @@
  */
 
 import { defaultTrfGame } from '#/TrfxParser/parseTrfGames';
-import Tournament, { Color, GameResult, Game, Player } from '#/types/Tournament';
+import { Color, GameResult, Game, Player } from '#/types/Tournament';
 import { numberComparator } from '#/utils/SortUtils';
 
 const colors = ['w', 'b', '-'];
@@ -121,7 +121,8 @@ function findLateRound(games: Game[], _default: number) {
 }
 
 export function assignByesAndLates(
-  { players, playedRounds }: Tournament,
+  players: Player[],
+  playedRounds: number,
   byes: Array<number>
 ): void {
   const nextRound = playedRounds + 1;
@@ -151,7 +152,7 @@ export function assignByesAndLates(
   }
 }
 
-export function evenUpMatchHistories(players: Player[], upTo: number): void {
+export function evenUpGamesHistory(players: Player[], upTo: number): void {
   players.forEach((player) => {
     for (let num = player.games.length; num < upTo; ++num) {
       player.games.push(defaultTrfGame(num));

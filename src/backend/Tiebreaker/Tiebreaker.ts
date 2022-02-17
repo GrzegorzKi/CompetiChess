@@ -17,7 +17,14 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tournament, { Color, GameResult, TiebreakersPoints, Game, Player } from '#/types/Tournament';
+import {
+  Color,
+  GameResult,
+  TiebreakersPoints,
+  Game,
+  Player,
+  Configuration,
+} from '#/types/Tournament';
 import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '#/utils/GamesUtils';
 import { numberComparator } from '#/utils/SortUtils';
 import { calculatePoints, getPoints } from '#/utils/TournamentUtils';
@@ -47,27 +54,28 @@ const enum Tiebreaker {
 }
 export default Tiebreaker;
 
-function calculateVirtualOpponentScore(tournament: Tournament,
+function calculateVirtualOpponentScore(
+  configuration: Configuration,
   game: Game,
   initialPoints: number,
   forRound: number,
-  notPlayedIsDraw = false): number {
-
+  notPlayedIsDraw = false
+): number {
   let vPoints = initialPoints;
-  vPoints += (tournament.configuration.pointsForWin - getPoints(game, tournament, notPlayedIsDraw));
+  vPoints += (configuration.pointsForWin - getPoints(game, configuration, notPlayedIsDraw));
   vPoints += 0.5 * (forRound - (game.round - 1));
   return vPoints;
 }
 
 function calcCumulativeCut(roundsCut: number): CalcFunction {
-  return (tournament: Tournament, { games, scores }: Player, forRound: number): number => {
+  return ({ games, scores }: Player, forRound, players, configuration): number => {
     const len = Math.min(games.length, forRound);
 
     let calcPts = 0.0;
     for (let r = roundsCut; r < len; ++r) {
       calcPts += scores[r].points;
       if (isUnplayedWin(games[r]) || isUnplayedDraw(games[r])) {
-        calcPts -= getPoints(games[r], tournament);
+        calcPts -= getPoints(games[r], configuration);
       }
     }
 
@@ -75,10 +83,10 @@ function calcCumulativeCut(roundsCut: number): CalcFunction {
   };
 }
 
-function calcOppositionCumulative(tournament: Tournament,
-  { games, playerId }: Player,
-  forRound: number): number {
-  const { players } = tournament;
+const calcOppositionCumulative: CalcFunction = (
+  player, forRound, players, configuration): number => {
+
+  const { games, playerId } = player;
   const round = Math.min(games.length, forRound);
 
   let calcCumul = 0.0;
@@ -89,19 +97,20 @@ function calcOppositionCumulative(tournament: Tournament,
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     const cumulValue = calculateValue(
       Tiebreaker.CUMULATIVE,
-      tournament,
       players[opponent],
-      forRound
+      forRound,
+      configuration,
+      players,
     );
 
     calcCumul += cumulValue;
   }
 
   return calcCumul;
-}
+};
 
 function calcProgressiveCut(roundsCut: number): CalcFunction {
-  return (_: Tournament, player: Player, forRound: number): number => {
+  return (player: Player, forRound): number => {
     const { games, scores } = player;
     const len = Math.min(games.length, forRound);
 
@@ -114,7 +123,9 @@ function calcProgressiveCut(roundsCut: number): CalcFunction {
   };
 }
 
-function calcRoundsWon(_: Tournament, { games }: Player, forRound: number): number {
+const calcRoundsWon: CalcFunction = (
+  { games }: Player, forRound): number => {
+
   let roundsWon = 0;
   const len = Math.min(games.length, forRound);
   for (let i = 0; i < len; ++i) {
@@ -124,9 +135,11 @@ function calcRoundsWon(_: Tournament, { games }: Player, forRound: number): numb
     }
   }
   return roundsWon;
-}
+};
 
-function calcRoundsWonBlackPieces(_: Tournament, { games }: Player, forRound: number): number {
+const calcRoundsWonBlackPieces: CalcFunction = (
+  { games }: Player, forRound): number => {
+
   let roundsWon = 0;
 
   const len = Math.min(games.length, forRound);
@@ -137,35 +150,44 @@ function calcRoundsWonBlackPieces(_: Tournament, { games }: Player, forRound: nu
     }
   }
   return roundsWon;
-}
+};
 
-function calcTimeOfLoss(_: Tournament, { games }: Player, forRound: number): number {
+const calcTimeOfLoss: CalcFunction = (
+  { games }: Player, forRound): number => {
+
   const len = Math.min(games.length, forRound);
+
   for (let round = 0; round < len; ++round) {
     const { result } = games[round];
     if (result === '0' || result === 'L' || result === '-' || result === 'Z') {
       return round + 1;
     }
   }
+
   return len + 1;
-}
+};
 
-function calcGamesWithBlack(_: Tournament, { games }: Player, forRound: number): number {
+const calcGamesWithBlack: CalcFunction = (
+  { games }: Player, forRound): number => {
+
   let roundsBlack = 0;
-
   const len = Math.min(games.length, forRound);
+
   for (let round = 0; round < len; ++round) {
     if (gameWasPlayed(games[round]) && games[round].color === Color.BLACK) {
       roundsBlack += 1;
     }
   }
+
   return roundsBlack;
-}
+};
 
-function calcKashdan(_: Tournament, { games }: Player, forRound: number): number {
+const calcKashdan: CalcFunction = (
+  { games }: Player, forRound): number => {
+
   let calcPts = 0;
-
   const len = Math.min(games.length, forRound);
+
   for (let r = 0; r < len; ++r) {
     if (gameWasPlayed(games[r])) {
       const { result } = games[r];
@@ -180,10 +202,10 @@ function calcKashdan(_: Tournament, { games }: Player, forRound: number): number
   }
 
   return calcPts;
-}
+};
 
-function calcSonnebornBerger(tournament: Tournament, { games, scores }: Player, forRound: number): number {
-  const { players } = tournament;
+const calcSonnebornBerger: CalcFunction = (
+  { games, scores }: Player, forRound, players, configuration): number => {
 
   let calcPts = 0;
   const len = Math.min(games.length, forRound);
@@ -192,12 +214,13 @@ function calcSonnebornBerger(tournament: Tournament, { games, scores }: Player, 
     const { opponent, result } = games[r];
     if (gameWasPlayed(games[r])) {
       if (result === '1' || result === 'W') {
-        calcPts += calculatePoints(forRound, players[opponent!].games, tournament, true);
+        calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
       } else if (result === '=' || result === 'D') {
-        calcPts += (calculatePoints(forRound, players[opponent!].games, tournament, true) * 0.5);
+        calcPts += (calculatePoints(forRound, players[opponent!].games, configuration, true) * 0.5);
       }
     } else {
-      calcPts += calculateVirtualOpponentScore(tournament,
+      calcPts += calculateVirtualOpponentScore(
+        configuration,
         games[r],
         scores[r].points,
         forRound);
@@ -205,21 +228,19 @@ function calcSonnebornBerger(tournament: Tournament, { games, scores }: Player, 
   }
 
   return calcPts;
-}
+};
 
-function calcModifiedMedian(tournament: Tournament,
-  { games, scores }: Player,
-  forRound: number): number {
-  const { players } = tournament;
+const calcModifiedMedian: CalcFunction = (
+  { games, scores }: Player, forRound, players, configuration): number => {
 
-  const halfMaxPoints = (tournament.configuration.pointsForWin * forRound) / 2;
+  const halfMaxPoints = (configuration.pointsForWin * forRound) / 2;
   const len = Math.min(games.length, forRound);
   const opScores: number[] = [];
 
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      opScores.push(calculatePoints(forRound, players[opponent!].games, tournament, true));
+      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration, true));
     }
     // If the player involved in the tie has any unplayed games,
     // they count as opponents with adjusted scores of 0.
@@ -245,13 +266,12 @@ function calcModifiedMedian(tournament: Tournament,
   for (let i = range.low; i < range.high; ++i) {
     calcPts += opScores[i];
   }
-  return calcPts;
-}
 
-function calcSolkoff(tournament: Tournament,
-  { games }: Player,
-  forRound: number): number {
-  const { players } = tournament;
+  return calcPts;
+};
+
+const calcSolkoff: CalcFunction = (
+  { games }: Player, forRound, players, configuration): number => {
 
   const len = Math.min(games.length, forRound);
   let calcPts = 0;
@@ -259,17 +279,17 @@ function calcSolkoff(tournament: Tournament,
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      calcPts += calculatePoints(forRound, players[opponent!].games, tournament, true);
+      calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
     }
     // If the player involved in the tie has any unplayed games,
     // they count as opponents with adjusted scores of 0.
   }
 
   return calcPts;
-}
+};
 
-function calcBuchholz(tournament: Tournament, { games, scores }: Player, forRound: number): number {
-  const { players } = tournament;
+const calcBuchholz: CalcFunction = (
+  { games, scores }: Player, forRound, players, configuration): number => {
 
   const len = Math.min(games.length, forRound);
   let calcPts = 0;
@@ -277,9 +297,10 @@ function calcBuchholz(tournament: Tournament, { games, scores }: Player, forRoun
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      calcPts += calculatePoints(forRound, players[opponent!].games, tournament, true);
+      calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
     } else {
-      calcPts += calculateVirtualOpponentScore(tournament,
+      calcPts += calculateVirtualOpponentScore(
+        configuration,
         games[r],
         scores[r].points,
         forRound);
@@ -287,10 +308,10 @@ function calcBuchholz(tournament: Tournament, { games, scores }: Player, forRoun
   }
 
   return calcPts;
-}
+};
 
-function calcMedianBuchholz(tournament: Tournament, { games, scores }: Player, forRound: number): number {
-  const { players } = tournament;
+const calcMedianBuchholz: CalcFunction = (
+  { games, scores }: Player, forRound, players, configuration): number => {
 
   const len = Math.min(games.length, forRound);
   const opScores: number[] = [];
@@ -298,9 +319,10 @@ function calcMedianBuchholz(tournament: Tournament, { games, scores }: Player, f
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      opScores.push(calculatePoints(forRound, players[opponent!].games, tournament, true));
+      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration, true));
     } else {
-      opScores.push(calculateVirtualOpponentScore(tournament,
+      opScores.push(calculateVirtualOpponentScore(
+        configuration,
         games[r],
         scores[r].points,
         forRound));
@@ -315,11 +337,10 @@ function calcMedianBuchholz(tournament: Tournament, { games, scores }: Player, f
     calcPts += opScores[i];
   }
   return calcPts;
-}
+};
 
-function calcBuchholzCutOne(tournament: Tournament, { games, scores }: Player, forRound: number): number {
-  const { players } = tournament;
-
+const calcBuchholzCutOne: CalcFunction = (
+  { games, scores }: Player, forRound, players, configuration): number => {
   const len = Math.min(games.length, forRound);
   let calcPts = 0;
   let lowestScore = Infinity;
@@ -327,13 +348,15 @@ function calcBuchholzCutOne(tournament: Tournament, { games, scores }: Player, f
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      const opPoints = calculatePoints(forRound, players[opponent!].games, tournament, true);
+      const opPoints = calculatePoints(forRound,
+        players[opponent!].games, configuration, true);
       calcPts += opPoints;
       if (opPoints < lowestScore) {
         lowestScore = opPoints;
       }
     } else {
-      const opPoints = calculateVirtualOpponentScore(tournament,
+      const opPoints = calculateVirtualOpponentScore(
+        configuration,
         games[r],
         scores[r].points,
         forRound);
@@ -345,9 +368,10 @@ function calcBuchholzCutOne(tournament: Tournament, { games, scores }: Player, f
   }
 
   return calcPts > 0 ? calcPts - lowestScore : 0;
-}
+};
 
-function calcAvgRatingOfOpposition({ players }: Tournament, { games }: Player, forRound: number): number {
+const calcAvgRatingOfOpposition: CalcFunction = (
+  { games }: Player, forRound, players): number => {
   let sumRating = 0;
   let roundsPlayed = 0;
 
@@ -361,9 +385,10 @@ function calcAvgRatingOfOpposition({ players }: Tournament, { games }: Player, f
   }
 
   return roundsPlayed !== 0 ? Math.floor(sumRating / roundsPlayed) : 0;
-}
+};
 
-function calcAvgRatingOfOpponentsCutOne({ players }: Tournament, { games }: Player, forRound: number): number {
+const calcAvgRatingOfOpponentsCutOne: CalcFunction = (
+  { games }: Player, forRound: number, players): number => {
   let sumRating = 0;
   let roundsPlayed = 0;
   let hadBye = false;
@@ -393,9 +418,10 @@ function calcAvgRatingOfOpponentsCutOne({ players }: Tournament, { games }: Play
   }
 
   return roundsPlayed > 0 ? Math.floor(sumRating / roundsPlayed) : 0;
-}
+};
 
-function calcOppositionPerformance({ players }: Tournament, { games }: Player, forRound: number): number {
+const calcOppositionPerformance: CalcFunction = (
+  { games }: Player, forRound: number, players): number => {
   let sumRating = 0;
   let roundsPlayed = 0;
 
@@ -418,11 +444,10 @@ function calcOppositionPerformance({ players }: Tournament, { games }: Player, f
   }
 
   return roundsPlayed !== 0 ? Math.floor(sumRating / roundsPlayed) : 0;
-}
+};
 
-function calcKoyaSystem(tournament: Tournament, { games }: Player, forRound: number): number {
-  const { players, configuration } = tournament;
-
+const calcKoyaSystem: CalcFunction = (
+  { games }, forRound, players, configuration): number => {
   const halfMaxPoints = (configuration.pointsForWin * forRound) / 2;
   const len = Math.min(games.length, forRound);
   let calcPts = 0;
@@ -433,13 +458,13 @@ function calcKoyaSystem(tournament: Tournament, { games }: Player, forRound: num
       const opPoints = players[opponent].scores[forRound - 1].points;
 
       if (opPoints >= halfMaxPoints) {
-        calcPts += getPoints(games[r], tournament);
+        calcPts += getPoints(games[r], configuration);
       }
     }
   }
 
   return calcPts;
-}
+};
 
 // There is no calculating function for head-to-head.
 // It must be handled on per-pair basis.
@@ -470,7 +495,7 @@ type TiebreakerInfo = {
   decimalPlaces?: number,
 };
 
-type CalcFunction = (tournament: Tournament, player: Player, forRound: number) => number;
+type CalcFunction = (player: Player, forRound: number, players: Player[], configuration: Configuration) => number;
 
 export const tiebreakers: Record<Tiebreaker, TiebreakerInfo> = {
   [Tiebreaker.DIRECT_ENCOUNTER]: {
@@ -728,22 +753,24 @@ wynik powyżej 50% wszystkich punktów.`,
 
 export function calculateValue(
   tiebreaker: Tiebreaker,
-  tournament: Tournament,
   player: Player,
-  forRound: number
+  forRound: number,
+  configuration: Configuration,
+  players: Player[]
 ): number {
-  return tiebreakers[tiebreaker].calculate(tournament, player, forRound);
+  return tiebreakers[tiebreaker].calculate(player, forRound, players, configuration);
 }
 
 export function calculateTiebreakers(
-  tournament: Tournament,
   player: Player,
-  forRound: number
+  forRound: number,
+  configuration: Configuration,
+  players: Player[],
 ): TiebreakersPoints {
   const tbValues: TiebreakersPoints = Object.create(null);
 
-  for (const tb of tournament.configuration.tiebreakers) {
-    tbValues[tb] = calculateValue(tb, tournament, player, forRound);
+  for (const tb of configuration.tiebreakers) {
+    tbValues[tb] = calculateValue(tb, player, forRound, configuration, players);
   }
 
   return tbValues;

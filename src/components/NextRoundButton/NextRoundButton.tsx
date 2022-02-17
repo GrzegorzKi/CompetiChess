@@ -27,10 +27,11 @@ import { createNextRound, selectTournament } from '../../reducers/tournamentRedu
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
-import { ParsingErrors, ValidTrfData } from '#/TrfxParser/parseTrfFile';
+import { ParsingErrors } from '#/TrfxParser/parseTrfFile';
+import Tournament from '#/types/Tournament';
 
 interface Props {
-  onSuccess: (data: ValidTrfData) => void;
+  onSuccess: (tournament: Tournament) => void;
   onFailure?: (errors: ParsingErrors) => void;
   children: ComponentChildren;
 }
@@ -63,12 +64,10 @@ const NextRoundButton = ({
       return;
     }
 
-    const data = tournament.trfxData;
-
     const {
       pairs: pairsArray,
       playedRounds
-    } = data;
+    } = tournament;
     const allFilled = checkPairingsFilled(pairsArray[playedRounds - 1], playedRounds);
     if (!allFilled) {
       onFailureCallback('Cannot start new round. Please fill in all pairs\' results before proceeding.');
@@ -76,8 +75,8 @@ const NextRoundButton = ({
     }
 
     const trfOutput = exportToTrf(
-      data,
-      { exportForPairing: true, forRound: data.playedRounds + 1 }
+      tournament,
+      { exportForPairing: true }
     );
 
     const bbpInstance = await BbpPairings.getInstance();

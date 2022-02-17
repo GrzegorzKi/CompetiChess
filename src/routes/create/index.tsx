@@ -24,6 +24,8 @@ import { useAppDispatch, useAppSelector } from 'hooks';
 import { close, loadNew, selectTournament } from 'reducers/tournamentReducer';
 
 import parseTrfFile, { isTournamentValid } from '#/TrfxParser/parseTrfFile';
+import WarnCode from '#/types/WarnCode';
+
 import FileSelector from '@/FileSelector';
 import TrfxParseSummary from '@/TrfxParseSummary';
 
@@ -32,6 +34,7 @@ const CreateTournament = () => {
   const dispatch = useAppDispatch();
 
   const [parseErrors, setParseErrors] = useState<string[]>();
+  const [warnings, setWarnings] = useState<WarnCode[]>();
 
   function fileHandler(files: FileList) {
     if (files.length > 0) {
@@ -42,10 +45,12 @@ const CreateTournament = () => {
         if (target && typeof target.result === 'string') {
           const result = parseTrfFile(target.result);
           if (isTournamentValid(result)) {
-            dispatch(loadNew(result));
+            dispatch(loadNew(result.tournament));
+            setWarnings(result.warnings);
             setParseErrors(undefined);
           } else {
             dispatch(close());
+            setWarnings(undefined);
             setParseErrors(result.parsingErrors);
           }
         }
@@ -58,7 +63,7 @@ const CreateTournament = () => {
   return (
     <>
       <FileSelector fileHandler={fileHandler} />
-      <TrfxParseSummary data={tournament} parsingErrors={parseErrors} />
+      <TrfxParseSummary tournament={tournament} warnings={warnings} parsingErrors={parseErrors} />
     </>
   );
 };

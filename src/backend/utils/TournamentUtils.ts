@@ -26,7 +26,7 @@ import Tournament, {
   Player
 } from '../types/Tournament';
 
-import { readPairs } from '#/Pairings/Pairings';
+import { Pair, readPairs } from '#/Pairings/Pairings';
 import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
 // import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
@@ -37,6 +37,7 @@ export function createDefaultConfiguration(): Configuration {
   return {
     matchByRank: false,
     initialColor: Color.NONE,
+    expectedRounds: 0,
     pointsForWin: 1.0,
     pointsForDraw: 0.5,
     pointsForLoss: 0.0,
@@ -48,7 +49,7 @@ export function createDefaultConfiguration(): Configuration {
 }
 
 export function createTournamentData(overrides?: Partial<Tournament>): Tournament {
-  const data = {
+  const data: Tournament = {
     tournamentName: '',
     city: '',
     federation: '',
@@ -70,7 +71,6 @@ export function createTournamentData(overrides?: Partial<Tournament>): Tournamen
     otherFields: {},
     forbiddenPairs: [],
     playedRounds: 0,
-    expectedRounds: 0
   };
 
   return Object.assign(
@@ -153,7 +153,7 @@ export const deletePairings = ({ pairs, players, playedRounds }: Tournament, fro
   return true;
 };
 
-export const getPoints = (game: Game, { configuration }: Tournament, notPlayedIsDraw = false): number => {
+export const getPoints = (game: Game, configuration: Configuration, notPlayedIsDraw = false): number => {
   if (notPlayedIsDraw && !gameWasPlayed(game)) {
     return configuration.pointsForDraw;
   }
@@ -187,30 +187,33 @@ export const getPoints = (game: Game, { configuration }: Tournament, notPlayedIs
 export const calculatePoints = (
   forRound: number,
   games: Game[],
-  tournament: Tournament,
+  configuration: Configuration,
   notPlayedIsDraw = false
 ): number => {
   let calcPts = 0.0;
   const maxLen = Math.min(games.length, forRound);
   for (let r = 0; r < maxLen; ++r) {
-    calcPts += getPoints(games[r], tournament, notPlayedIsDraw);
+    calcPts += getPoints(games[r], configuration, notPlayedIsDraw);
   }
   return calcPts;
 };
 
-export function assignPairs(tournamentData: Tournament): void {
-  for (let i = 0; i < tournamentData.playedRounds; ++i) {
+export function generatePairs(players: Player[], toRound: number): Array<Pair[]> {
+  const roundsPairs: Array<Pair[]> = [];
+  for (let i = 0; i < toRound; ++i) {
     const pairs = readPairs({
-      players: tournamentData.players,
+      players,
       fromRound: i + 1,
     });
-    tournamentData.pairs[i] = pairs.pairs;
+    roundsPairs[i] = pairs.pairs;
   }
+
+  return roundsPairs;
 }
 
 export const recalculateScores = (
   player: Player,
-  tournament: Tournament,
+  configuration: Configuration,
   fromRound = 1,
   toRound = Infinity
 ): void => {
@@ -221,23 +224,24 @@ export const recalculateScores = (
 
   const maxLen = Math.min(games.length, toRound);
   for (let r = fromRound - 1; r < maxLen; ++r) {
-    calcPts += getPoints(games[r], tournament);
+    calcPts += getPoints(games[r], configuration);
     scores[r] = { round: r + 1, points: calcPts, tiebreakers: {} };
   }
 };
 
 export const recalculateTiebreakers = (
   player: Player,
-  tournament: Tournament,
+  players: Player[],
+  configuration: Configuration,
   fromRound = 1,
   toRound = Infinity
 ): void => {
   const { games, scores } = player;
-  fromRound = Math.max(fromRound, 1);
 
+  fromRound = Math.max(fromRound, 1);
   const maxLen = Math.min(games.length, toRound);
-  for (let r = fromRound - 1; r < maxLen; ++r) {
-    scores[r].tiebreakers = calculateTiebreakers(tournament, player, r + 1);
+  for (let round = fromRound; round <= maxLen; ++round) {
+    scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, players);
   }
 };
 
@@ -247,25 +251,36 @@ export const recalculateTiebreakers = (
 ///
 /// @param {number} fromRound - Round number (one-offset) from which to recalculate
 /// @param {number} toRound   - Round number (one-offset) to which recalculate (exclusive)
-export const recalculatePlayerScores = (tournament: Tournament, fromRound?: number, toRound?: number): void => {
-  for (const player of tournament.playersByPosition) {
-    recalculateScores(player, tournament, fromRound, toRound);
-  }
-  for (const player of tournament.playersByPosition) {
-    recalculateTiebreakers(player, tournament, fromRound, toRound);
-  }
+export const recalculatePlayerScores = (
+  players: Player[],
+  configuration: Configuration,
+  fromRound?: number,
+  toRound?: number
+): void => {
+  players.forEach(player => {
+    recalculateScores(player, configuration, fromRound, toRound);
+  });
+  players.forEach(player => {
+    recalculateTiebreakers(player, players, configuration, fromRound, toRound);
+  });
 };
 
-export const inferInitialColor = (tournament: Tournament): Color => {
-  const playersToIter = (tournament.configuration.matchByRank
-    ? tournament.playersByPosition
-    : tournament.players);
+export const getPlayers = (players: Player[], byPosition: number[], matchByRank: boolean) => {
+  if (matchByRank) {
+    return byPosition.map(i => players[i]);
+  }
+  return players;
+};
 
+export const inferInitialColor = (
+  players: Player[],
+  playedRounds = calculatePlayedRounds(players)
+): Color => {
   let invert = false;
 
-  for (let r = 0; r < tournament.playedRounds; ++r) {
-    for (let i = 0, pLen = playersToIter.length; i < pLen; ++i) {
-      const trfGame = playersToIter[i]?.games[r];
+  for (let r = 0; r < playedRounds; ++r) {
+    for (let i = 0, pLen = players.length; i < pLen; ++i) {
+      const trfGame = players[i]?.games[r];
 
       if (trfGame !== undefined && participatedInPairing(trfGame)) {
         if (trfGame.color !== Color.NONE) {
@@ -313,15 +328,19 @@ export const computeRanks = (tournament: Tournament, forRound: number): {
   };
 };
 
-export const reorderAndAssignPositionalRanks = (tournament: Tournament): void => {
-  if (!tournament.configuration.matchByRank) {
-    tournament.playersByPosition = [];
-    tournament.players.forEach((player) => {
-      tournament.playersByPosition.push(player);
+export const reorderAndAssignPositionalRanks = (
+  players: Player[],
+  playersByPosition: number[],
+  matchByRank: boolean
+): void => {
+  if (!matchByRank) {
+    playersByPosition.length = 0;
+    players.forEach((player) => {
+      playersByPosition.push(player.playerId);
     });
   }
 
-  tournament.playersByPosition.forEach((player, index) => {
-    player.rank = index;
+  playersByPosition.forEach((id, index) => {
+    players[id].rank = index;
   });
 };

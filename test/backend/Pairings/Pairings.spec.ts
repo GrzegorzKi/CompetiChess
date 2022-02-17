@@ -37,7 +37,7 @@ test('reading from TrfPlayer array', async () => {
   }
 
   const pairs = readPairs({
-    players: tournament.trfxData.players,
+    players: tournament.tournament.players,
     fromRound: 2
   });
 

@@ -36,20 +36,23 @@ test('Parse sample file', async () => {
   const forRound = 3;
 
   const data = await readFile(dirPath, 'utf8');
-  const tournament = parseTrfFile(data);
+  const parseResult = parseTrfFile(data);
 
-  if ('parsingErrors' in tournament) {
-    console.error(tournament.parsingErrors);
+  if ('parsingErrors' in parseResult) {
+    console.error(parseResult.parsingErrors);
     throw new Error('Unable to parse TRF file');
   }
 
-  deletePairings(tournament.trfxData, forRound + 1);
+  const { tournament } = parseResult;
+
+  deletePairings(tournament, forRound + 1);
 
   const trfOutput = exportToTrf(
-    tournament.trfxData,
+    tournament,
     { exportForPairing: true, forRound }
   );
-  const comparison = exportComparison(tournament.trfxData, forRound);
+  const comparison = exportComparison(tournament, forRound);
+
   expect(trfOutput).not.toBeNull();
   expect(comparison).not.toBeNull();
 
@@ -65,13 +68,13 @@ test('Parse sample file', async () => {
   }
 
   const pairs = readPairs({
-    players: tournament.trfxData.players,
+    players: tournament.players,
     pairsRaw: bbpResult.data
   });
-  const result = pairs.apply(tournament.trfxData);
+  const result = pairs.apply(tournament);
   if (isError(result)) {
     throw new Error(getDetails(result));
   }
 
-  return tournament.trfxData;
+  return tournament;
 });

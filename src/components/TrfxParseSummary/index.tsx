@@ -19,23 +19,24 @@
 
 import { h, FunctionalComponent } from 'preact';
 
-import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
-import { getMessageForWarnCode } from '#/types/WarnCode';
+import Tournament from '#/types/Tournament';
+import WarnCode, { getMessageForWarnCode } from '#/types/WarnCode';
 
 interface Props {
-  data?: ValidTrfData,
+  tournament?: Tournament,
+  warnings?: WarnCode[],
   parsingErrors?: string[],
 }
 
-const TrfxParseSummary: FunctionalComponent<Props> = ({ data , parsingErrors }) => {
-  if (!data && !parsingErrors) {
+const TrfxParseSummary: FunctionalComponent<Props> = ({ tournament , warnings, parsingErrors }) => {
+  if (!tournament && !warnings && !parsingErrors) {
     return null;
   }
 
-  const warnings = data?.warnings.length
+  const _warnings = warnings?.length
     ? (
       <ul>
-        {data.warnings.map((value, index) => <li key={index}>{getMessageForWarnCode(value)}</li>)}
+        {warnings.map((value, index) => <li key={index}>{getMessageForWarnCode(value)}</li>)}
       </ul>
     )
     : null;
@@ -50,8 +51,8 @@ const TrfxParseSummary: FunctionalComponent<Props> = ({ data , parsingErrors }) 
 
   return (
     <>
-      {data ? <p>Currently tournament: <strong>{data.trfxData.tournamentName}</strong></p> : null}
-      {warnings}
+      {tournament ? <p>Currently tournament: <strong>{tournament.tournamentName}</strong></p> : null}
+      {_warnings}
       {errors}
     </>
   );

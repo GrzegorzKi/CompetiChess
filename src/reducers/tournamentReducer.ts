@@ -22,35 +22,34 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { BbpResult } from '#/BbpPairings/bbpPairings';
 import { readPairs } from '#/Pairings/Pairings';
-import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
-import { evenUpMatchHistories } from '#/utils/GamesUtils';
+import Tournament from '#/types/Tournament';
+import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 import { RootState } from '@/store';
 
 export interface TournamentState {
-  value?: ValidTrfData;
+  tournament?: Tournament;
+
   error?: string;
 }
 
-const initialState: TournamentState = {
-  value: undefined,
-};
+const initialState: TournamentState = {};
 
 export const tournamentSlice = createSlice({
   name: 'tournament',
   initialState,
   reducers: {
-    loadNew: (state, action: PayloadAction<ValidTrfData>) => {
-      state.value = action.payload;
+    loadNew: (state, action: PayloadAction<Tournament>) => {
+      state.tournament = action.payload;
     },
     createNextRound: (state, action: PayloadAction<BbpResult>) => {
-      if (!state.value) {
+      if (!state.tournament) {
         return state;
       }
 
-      const tournament = state.value.trfxData;
+      const tournament = state.tournament;
       const payloadData = action.payload.data;
 
       const pairs = readPairs({
@@ -65,24 +64,25 @@ export const tournamentSlice = createSlice({
         };
       }
 
-      evenUpMatchHistories(tournament.players, tournament.playedRounds);
-      recalculatePlayerScores(tournament, tournament.playedRounds);
+      evenUpGamesHistory(tournament.players, tournament.playedRounds);
+      recalculatePlayerScores(
+        tournament.players,
+        tournament.configuration,
+        tournament.playedRounds);
 
       tournament.playedRounds += 1;
 
-      return {
-        ...state,
-        error: undefined
-      };
+      // Reset error and return modified values
+      state.error = undefined;
     },
     close: (state) => {
-      state.value = undefined;
+      state.tournament = undefined;
     }
   }
 });
 
 export const { loadNew, createNextRound, close } = tournamentSlice.actions;
 
-export const selectTournament = (state: RootState) => state.tournament.value;
+export const selectTournament = (state: RootState) => state.tournament.tournament;
 
 export default tournamentSlice.reducer;

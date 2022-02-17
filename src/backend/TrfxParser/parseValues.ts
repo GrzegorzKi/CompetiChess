@@ -21,103 +21,107 @@ import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseTrfPlayer from './parseTrfPlayer';
 
 import { ErrorCode, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Field } from '#/types/Tournament';
+import Tournament, { Color, Configuration, Field, Player } from '#/types/Tournament';
 import { parseNumber, tokenize, tokenizeToNumbers } from '#/utils/ParseUtils';
 
-export type ParseFunc = (tournament: Tournament, value: string, additionalData: AdditionalData) => ParseError | void;
+export type ParseFunc = (data: ParseData, value: string) => ParseError | void;
 
-export interface AdditionalData {
-  accelerations: Array<Acceleration>;
-  forbiddenPairs: Array<number[]>;
-  byes: Array<number>;
+export interface ParseData {
+  tournament: Tournament,
+  players: Player[],
+  playersByPosition: number[],
+  configuration: Configuration,
+  accelerations: Acceleration[],
+  forbiddenPairs: Array<number[]>,
+  byes: Array<number>,
 }
 
 export const fieldParser: Record<Field, ParseFunc> = {
-  [Field.TOURNAMENT_NAME]: (t, value) => { t.tournamentName = value; },
-  [Field.CITY]: (t, value) => { t.city = value; },
-  [Field.FEDERATION]: (t, value) => { t.federation = value; },
-  [Field.START_DATE]: (t, value) => { t.dateOfStart = value; },
-  [Field.END_DATE]: (t, value) => { t.dateOfEnd = value; },
-  [Field.NUM_PLAYERS]: (t, value) => {
+  [Field.TOURNAMENT_NAME]: ({ tournament: t }, value) => { t.tournamentName = value; },
+  [Field.CITY]: ({ tournament: t }, value) => { t.city = value; },
+  [Field.FEDERATION]: ({ tournament: t }, value) => { t.federation = value; },
+  [Field.START_DATE]: ({ tournament: t }, value) => { t.dateOfStart = value; },
+  [Field.END_DATE]: ({ tournament: t }, value) => { t.dateOfEnd = value; },
+  [Field.NUM_PLAYERS]: ({ tournament: t }, value) => {
     const tryNumPlayers = parseNumber(value);
     if (isError(tryNumPlayers)) {
       return tryNumPlayers;
     }
     t.numberOfPlayers = tryNumPlayers;
   },
-  [Field.NUM_RATED_PLAYERS]: (t, value) => {
+  [Field.NUM_RATED_PLAYERS]: ({ tournament: t }, value) => {
     const tryNumRatedPlayers = parseNumber(value);
     if (isError(tryNumRatedPlayers)) {
       return tryNumRatedPlayers;
     }
     t.numberOfRatedPlayers = tryNumRatedPlayers;
   },
-  [Field.NUM_TEAMS]: (t, value) => {
+  [Field.NUM_TEAMS]: ({ tournament: t }, value) => {
     const tryNumTeams = parseNumber(value);
     if (isError(tryNumTeams)) {
       return tryNumTeams;
     }
     t.numberOfTeams = tryNumTeams;
   },
-  [Field.TYPE]: (t, value) => { t.tournamentType = value; },
-  [Field.CHIEF_ARBITER]: (t, value) => { t.chiefArbiter = value; },
-  [Field.DEPUTY_ARBITER]: (t, value) => { t.deputyArbiters.push(value); },
-  [Field.RATE_OF_PLAY]: (t, value) => { t.rateOfPlay = value; },
+  [Field.TYPE]: ({ tournament: t }, value) => { t.tournamentType = value; },
+  [Field.CHIEF_ARBITER]: ({ tournament: t }, value) => { t.chiefArbiter = value; },
+  [Field.DEPUTY_ARBITER]: ({ tournament: t }, value) => { t.deputyArbiters.push(value); },
+  [Field.RATE_OF_PLAY]: ({ tournament: t }, value) => { t.rateOfPlay = value; },
   [Field.ROUND_DATES]: () => { /* TODO Pass - no idea how to parse it with current specification */ },
-  [Field.PLAYER_ENTRY]: (t, value) => {
+  [Field.PLAYER_ENTRY]: ({ players, playersByPosition }, value) => {
     const tryTrfPlayer = parseTrfPlayer(value);
     if (isError(tryTrfPlayer)) {
       return tryTrfPlayer;
-    } else if (t.players[tryTrfPlayer.playerId] !== undefined) {
+    } else if (players[tryTrfPlayer.playerId] !== undefined) {
       return { error: ErrorCode.PLAYER_DUPLICATE, playerId: tryTrfPlayer.playerId };
     }
-    t.players[tryTrfPlayer.playerId] = tryTrfPlayer;
-    t.playersByPosition.push(tryTrfPlayer);
+    players[tryTrfPlayer.playerId] = tryTrfPlayer;
+    playersByPosition.push(tryTrfPlayer.playerId);
   },
   [Field.TEAM_ENTRY]: () => { /* TODO Implement in the future */ },
 
-  [Field.ACCELERATION]: (t, value, data) => {
+  [Field.ACCELERATION]: ({ accelerations }, value) => {
     const result = parseAcceleration(value);
     if (isError(result)) {
       return result;
     }
-    data.accelerations.push(result);
+    accelerations.push(result);
   },
-  [Field.FORBIDDEN_PAIRS]: (t, value, data) => {
+  [Field.FORBIDDEN_PAIRS]: ({ forbiddenPairs }, value) => {
     const result = tokenizeToNumbers(value);
     if (isError(result)) {
       return result;
     }
     if (result.length !== 0) {
-      data.forbiddenPairs.push(result);
+      forbiddenPairs.push(result);
     }
   },
-  [Field.NUM_ROUNDS]: (t, value) => {
+  [Field.NUM_ROUNDS]: ({ configuration }, value) => {
     const tryNumRounds = parseNumber(value);
     if (isError(tryNumRounds)) {
       return tryNumRounds;
     }
-    t.expectedRounds = tryNumRounds;
+    configuration.expectedRounds = tryNumRounds;
   },
-  [Field.CONFIG]: (t, value) => {
+  [Field.CONFIG]: ({ configuration }, value) => {
     const strings = tokenize(value);
     for (const string of strings) {
       if (string === 'rank') {
-        t.configuration.matchByRank = true;
+        configuration.matchByRank = true;
       } else if (string === 'white1') {
-        t.configuration.initialColor = Color.WHITE;
+        configuration.initialColor = Color.WHITE;
       } else if (string === 'black1') {
-        t.configuration.initialColor = Color.BLACK;
+        configuration.initialColor = Color.BLACK;
       }
     }
   },
-  [Field.BYES]: (t, value, data) => {
+  [Field.BYES]: ({ byes }, value) => {
     const result = tokenizeToNumbers(value);
     if (isError(result)) {
       return result;
     }
     if (result.length !== 0) {
-      result.forEach((playerId) => data.byes.push(playerId - 1));
+      result.forEach((playerId) => byes.push(playerId - 1));
     }
   },
   [Field.POINTS_MODIFIER]: () => { /* TODO XX# points modifier parsing */ }

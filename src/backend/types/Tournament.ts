@@ -60,8 +60,6 @@ interface Tournament {
   otherFields: Record<string, string>;
   forbiddenPairs: ForbiddenPairs[];
   playedRounds: number;
-  // Number of rounds to be played. Value is required for pairings.
-  expectedRounds: number;
 }
 
 export default Tournament;
@@ -81,6 +79,9 @@ export interface Configuration {
   //
   // When set to NONE, program can offer to pick based on hash of tournament data.
   initialColor: Color;
+
+  // Number of rounds to be played. Value is required for pairings.
+  expectedRounds: number;
 
   // Amount of points for win, forfeit win and full-point bye.
   //

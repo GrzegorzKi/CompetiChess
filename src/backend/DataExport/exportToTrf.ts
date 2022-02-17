@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tournament, { Color, GameResult, Player } from '#/types/Tournament';
+import Tournament, { Color, Game, GameResult, Player } from '#/types/Tournament';
 import { isAbsentFromRound } from '#/utils/GamesUtils';
 import { computeRanks } from '#/utils/TournamentUtils';
 
@@ -36,6 +36,12 @@ const nextRoundByes = [
   GameResult.DRAW,
 ];
 
+function isGameABye(game: Game): boolean {
+  return game !== undefined
+    && game.opponent === undefined
+    && nextRoundByes.includes(game.result);
+}
+
 function stringifyGames(player: Player,
   toRound: number,
   includeNextRoundBye: boolean): string {
@@ -53,9 +59,7 @@ function stringifyGames(player: Player,
   }
 
   if (includeNextRoundBye) {
-    if (games[toRound] !== undefined
-      && games[toRound].opponent === undefined
-      && nextRoundByes.includes(games[toRound].result)) {
+    if (isGameABye(games[toRound])) {
       string += `       - ${games[toRound].result}`;
     } else if (isAbsentFromRound(player, toRound + 1)) {
       string += '       - Z';
@@ -115,12 +119,8 @@ function exportColorRankConfig({ configuration }: Tournament) {
 }
 
 function getPoints({ scores, games }: Player, exportForPairing: boolean, round: number) {
-  if (exportForPairing) {
-    if (games[round] !== undefined
-      && games[round].opponent === undefined
-      && nextRoundByes.includes(games[round].result)) {
-      return scores[round].points;
-    }
+  if (exportForPairing && isGameABye(games[round])) {
+    return scores[round].points;
   }
 
   if (round <= 0) {
@@ -137,7 +137,6 @@ export default function exportToTrf(tournament: Tournament, {
 
   const {
     playedRounds,
-    expectedRounds,
     players,
     playersByPosition,
     configuration
@@ -151,8 +150,8 @@ export default function exportToTrf(tournament: Tournament, {
   if (!exportForPairing) {
     resultString += exportTournamentInfo(tournament);
   }
-  if (forRound < expectedRounds || exportForPairing) {
-    resultString += `XXR ${expectedRounds}\n`;
+  if (forRound < configuration.expectedRounds || exportForPairing) {
+    resultString += `XXR ${configuration.expectedRounds}\n`;
   }
   if (exportForPairing) {
     resultString += exportColorRankConfig(tournament);

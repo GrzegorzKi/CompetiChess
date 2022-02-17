@@ -24,8 +24,7 @@ import { Link } from 'wouter-preact';
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
-import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
-
+import Tournament from '#/types/Tournament';
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
 
@@ -34,8 +33,8 @@ const Pairs: FunctionalComponent = () => {
 
   const [forceRound, setForceRound] = useState(0);
 
-  async function processNextRound(data: ValidTrfData) {
-    setForceRound(data.trfxData.playedRounds - 1);
+  async function processNextRound(data: Tournament) {
+    setForceRound(data.playedRounds - 1);
   }
 
   return (
@@ -44,7 +43,7 @@ const Pairs: FunctionalComponent = () => {
         ? (
           <>
             <NextRoundButton onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
-            <PairsView data={tournament.trfxData} forceRound={forceRound} />
+            <PairsView data={tournament} forceRound={forceRound} />
           </>
         )
         :

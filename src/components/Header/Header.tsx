@@ -37,7 +37,7 @@ const Header: FunctionalComponent = () => {
       <nav>
         {tournament ?
           <Link href="/">
-            Tournament: <strong>{tournament.trfxData.tournamentName}</strong>
+            Tournament: <strong>{tournament.tournamentName}</strong>
           </Link>
           : null}
         <Link class={location === '/create' ? style.active : ''} href="/create">Create a tournament</Link>
