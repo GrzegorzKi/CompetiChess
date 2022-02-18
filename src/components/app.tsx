@@ -26,6 +26,7 @@ import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
 
 import Header from '@/Header';
+import ToastHandler from '@/ToastHandler';
 
 const App: FunctionalComponent = () => {
   return (
@@ -37,6 +38,7 @@ const App: FunctionalComponent = () => {
         <Route path="/" component={Home} />
         <Route component={NotFound} />
       </Switch>
+      <ToastHandler />
     </div>
   );
 };

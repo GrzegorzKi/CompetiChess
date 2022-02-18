@@ -1,5 +1,5 @@
-/*!
- * Copyright (c) 2022-2022  Grzegorz Kita
+/*
+ * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,8 +17,24 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.home {
-	padding: 66px 20px;
-	min-height: 100%;
-	width: 100%;
-}
+import { h } from 'preact';
+import { ToastContainer } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.min.css';
+
+const ToastHandler = () => (
+  <ToastContainer
+    position="top-right"
+    autoClose={5000}
+    hideProgressBar={false}
+    newestOnTop={false}
+    closeOnClick
+    rtl={false}
+    pauseOnFocusLoss
+    draggable
+    pauseOnHover
+    className="is-unselectable"
+  />
+);
+
+export default ToastHandler;

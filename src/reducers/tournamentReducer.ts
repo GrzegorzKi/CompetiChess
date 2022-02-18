@@ -18,6 +18,7 @@
  */
 
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
 
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
@@ -30,6 +31,26 @@ import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { getPlayers, recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 import { RootState } from '@/store';
+
+const verifyNextRoundConditions = (
+  { playedRounds }: Tournament, pairs: Array<Pair[]>, { expectedRounds }: Configuration
+): string | undefined => {
+  const allFilled = checkPairingsFilled(pairs[playedRounds - 1], playedRounds);
+  if (!allFilled) {
+    return 'Cannot start new round. Please fill in all pairs\' results before proceeding.';
+  }
+
+  if (playedRounds >= expectedRounds) {
+    return 'This is the last round in tournament. Cannot start new round.';
+  }
+};
+
+const errorHandlerAction = (payload: string): PayloadAction<string> => (
+  {
+    payload,
+    type: 'tournament/errorHandler'
+  }
+);
 
 export interface TournamentState {
   tournament?: Tournament,
@@ -60,17 +81,17 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
   'tournament/createNextRound',
   async (_, thunkAPI) => {
     const { tournament, configuration, pairs, players } = thunkAPI.getState().tournament;
-    
+
     if (!tournament || !players || !pairs || !configuration) {
       return thunkAPI.rejectWithValue('There is no tournament active. Cannot start new round.');
     }
 
-    const { playedRounds } = tournament;
-    const allFilled = checkPairingsFilled(pairs[playedRounds - 1], playedRounds);
-    if (!allFilled) {
-      return thunkAPI.rejectWithValue('Cannot start new round. Please fill in all pairs\' results before proceeding.');
+    const verifyError = verifyNextRoundConditions(tournament, pairs, configuration);
+
+    if (verifyError) {
+      return thunkAPI.rejectWithValue(verifyError);
     }
-    
+
     const playersToIter = getPlayers(players.byId,
       players.allIdsByPosition, configuration.matchByRank);
 
@@ -81,16 +102,20 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
       exportForPairing: true
     });
 
+    if (trfOutput === undefined) {
+      return thunkAPI.rejectWithValue('Unable to generate output for BbpPairings engine.');
+    }
+
     try {
       const bbpInstance = await BbpPairings.getInstance();
-      const bbpOutput = bbpInstance.invoke(trfOutput!);
+      const bbpOutput = bbpInstance.invoke(trfOutput);
       if (bbpOutput.statusCode !== 0) {
         return thunkAPI.rejectWithValue(bbpOutput.errorOutput.join('\n'));
       }
       return bbpOutput.data;
     } catch {
-      return thunkAPI.rejectWithValue('Application encountered an error while initializing BbpPairings engine.');
-    } 
+      return thunkAPI.rejectWithValue('Application encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.');
+    }
   }
 );
 
@@ -129,6 +154,10 @@ export const tournamentSlice = createSlice({
         view.selectedRound = payload;
       }
     },
+    errorHandler: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+      toast.error(state.error);
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(createNextRound.fulfilled, (state, action) => {
@@ -144,7 +173,8 @@ export const tournamentSlice = createSlice({
       });
       const result = pairsParser.apply(pairs);
       if (isError(result)) {
-        state.error = getDetails(result);
+        tournamentSlice.caseReducers.errorHandler(state,
+          errorHandlerAction(getDetails(result)));
         return;
       }
 
@@ -158,18 +188,20 @@ export const tournamentSlice = createSlice({
       view.selectedRound = tournament.playedRounds - 1;
 
       // Reset error and return modified values
+      toast('Next round pairings are ready!', {
+        type: toast.TYPE.SUCCESS,
+      });
       state.error = undefined;
     }
-    ).addCase(createNextRound.rejected, (state, action) => {
-      return {
-        ...state,
-        error: action.payload
-      };
+    );
+    builder.addCase(createNextRound.rejected, (state, action) => {
+      tournamentSlice.caseReducers.errorHandler(state,
+        errorHandlerAction(action.payload ?? 'Unknown error occurred'));
     });
   },
 });
 
-export const { loadNew, close, selectNextRound, selectPrevRound, selectRound } = tournamentSlice.actions;
+export const { loadNew, close, selectNextRound, selectPrevRound, selectRound, errorHandler } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

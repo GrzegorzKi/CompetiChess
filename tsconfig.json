@@ -10,6 +10,9 @@
     "paths": {
       "@/*": ["components/*"],
       "#/*": ["backend/*"],
+      "routes/*": ["routes/*"],
+      "hooks/*": ["hooks/*"],
+      "reducers/*": ["reducers/*"]
     },
 
     "allowJs": true,

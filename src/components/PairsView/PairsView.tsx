@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { h, FunctionalComponent, Fragment, JSX } from 'preact';
+import { h, FunctionalComponent, JSX } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import { useAppDispatch, useAppSelector } from 'hooks';

@@ -46,6 +46,7 @@ function includePurgeCss(config, env, helpers) {
       './src/**/*.tsx',
       './src/**/*.js',
       './src/**/*.jsx',
+      'node_modules/react-toastify/dist/ReactToastify.min.css'
     ],
 
     defaultExtractor: (content = '') => content.match(/[\w-/:]+(?<!:)/g) || []
@@ -81,6 +82,9 @@ export default (config, env, helpers) => {
   config.resolve.alias = {
     '@': path.resolve(__dirname, 'src/components'),
     '#': path.resolve(__dirname, 'src/backend'),
+    routes: path.resolve(__dirname, 'src/routes'),
+    hooks: path.resolve(__dirname, 'src/hooks'),
+    reducers: path.resolve(__dirname, 'src/reducers'),
     ...config.resolve.alias
   };
 
