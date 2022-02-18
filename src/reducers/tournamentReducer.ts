@@ -106,13 +106,29 @@ export const tournamentSlice = createSlice({
         allIdsByPosition: action.payload.playersByPosition,
       };
       state.pairs = action.payload.pairs;
+      state.view.selectedRound = 0;
     },
     close: (state) => {
       state.tournament = undefined;
       state.configuration = undefined;
       state.players = undefined;
       state.pairs = undefined;
-    }
+    },
+    selectNextRound: ({ view, tournament }) => {
+      if (tournament && view.selectedRound < tournament.playedRounds - 1) {
+        view.selectedRound += 1;
+      }
+    },
+    selectPrevRound: ({ view, tournament }) => {
+      if (tournament && view.selectedRound > 0) {
+        view.selectedRound -= 1;
+      }
+    },
+    selectRound: ({ view, tournament }, { payload }: PayloadAction<number>) => {
+      if (tournament && payload >= 0 && payload < tournament.playedRounds) {
+        view.selectedRound = payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createNextRound.fulfilled, (state, action) => {
@@ -153,7 +169,7 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, close } = tournamentSlice.actions;
+export const { loadNew, close, selectNextRound, selectPrevRound, selectRound } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

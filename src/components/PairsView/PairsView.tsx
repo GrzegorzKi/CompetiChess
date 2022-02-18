@@ -20,10 +20,10 @@
 import { h, FunctionalComponent, Fragment, JSX } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import { useAppSelector } from 'hooks';
+import { useAppDispatch, useAppSelector } from 'hooks';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import useElementFocus from 'hooks/useElementFocus';
-import { selectViewOptions } from 'reducers/tournamentReducer';
+import { selectNextRound, selectPrevRound, selectRound, selectViewOptions } from 'reducers/tournamentReducer';
 
 import { Pair } from '#/Pairings/Pairings';
 import Tournament, { Player } from '#/types/Tournament';
@@ -47,17 +47,19 @@ function getResult(pair: Pair, round: number) {
 }
 
 const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound }) => {
-  const { selectedRound } = useAppSelector(selectViewOptions);
+  const { selectedRound: round } = useAppSelector(selectViewOptions);
+  const dispatch = useAppDispatch();
   
   const [idx, setIdx] = useState(0);
-  const [round, setRound] = useState(forceRound ?? selectedRound);
   const [ref, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>();
 
   const pairs: Pair[] = roundPairs[round];
 
   useEffect(() => {
-    setRound(forceRound ?? selectedRound);
-  }, [selectedRound, forceRound]);
+    if (forceRound) {
+      dispatch(selectRound(forceRound));
+    }
+  }, [dispatch, forceRound]);
   useEffect(() => {
     setIdx(1);
     if (ref.current === document.activeElement) {
@@ -68,23 +70,19 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound })
   const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
     switch (event.code) {
     case 'ArrowLeft':
-      setRound(r => (r > 0) ? r - 1 : r);
+      dispatch(selectPrevRound());
       break;
     case 'ArrowRight':
-      setRound(r => (r < data.playedRounds - 1) ? r + 1 : r);
+      dispatch(selectNextRound());
       break;
     case 'ArrowUp':
-      if (focusOnPrev()) {
-        event.preventDefault();
-      }
+      focusOnPrev() && event.preventDefault();
       break;
     case 'ArrowDown':
-      if (focusOnNext()) {
-        event.preventDefault();
-      }
+      focusOnNext() && event.preventDefault();
       break;
     }
-  }, [data.playedRounds, focusOnPrev, focusOnNext]);
+  }, [dispatch, focusOnPrev, focusOnNext]);
 
   // Register keys handler
   useEffect(() => {
@@ -133,7 +131,7 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound })
     <>
       <PaginateRound pageCount={data.playedRounds}
                      page={round}
-                     onPageChange={({ selected }) => setRound(selected)} />
+                     onPageChange={({ selected }) => dispatch(selectRound(selected))} />
       <div class='table-container'>
         <table class='table is-striped is-hoverable'>
           <caption>Data for round {round + 1}</caption>
