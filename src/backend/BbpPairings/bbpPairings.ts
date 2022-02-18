@@ -17,8 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import createBbpModule from './bbpPairingsWasm.js';
-
 interface BbpPairingsEmscriptenModule extends EmscriptenModule {
     FS: typeof FS;
     callMain: (args: Array<string>) => number;
@@ -55,10 +53,12 @@ export default class BbpPairings {
   static async getInstance(): Promise<BbpPairings> {
     if (!privateInstance) {
       const wrapper = new BbpPairings();
-      privateInstance = await createBbpModule(wrapper.Module).then((instance: BbpPairingsEmscriptenModule) => {
-        wrapper.bbpInstance = instance;
-        return wrapper;
-      });
+      privateInstance = await import('./bbpPairingsWasm.js')
+        .then((createBbpModule) => createBbpModule.default(wrapper.Module))
+        .then((instance: BbpPairingsEmscriptenModule) => {
+          wrapper.bbpInstance = instance;
+          return wrapper;
+        });
     }
 
     return privateInstance;
