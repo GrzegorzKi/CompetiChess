@@ -18,32 +18,25 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useState } from 'preact/hooks';
 import { Link } from 'wouter-preact';
 
 import { useAppSelector } from 'hooks';
-import { selectTournament } from 'reducers/tournamentReducer';
+import { selectPairs, selectTournament } from 'reducers/tournamentReducer';
 
-import Tournament from '#/types/Tournament';
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
 
 const Pairs: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
-
-  const [forceRound, setForceRound] = useState(0);
-
-  async function processNextRound(data: Tournament) {
-    setForceRound(data.playedRounds - 1);
-  }
+  const pairs = useAppSelector(selectPairs);
 
   return (
     <div>
-      {tournament
+      {tournament && pairs
         ? (
           <>
-            <NextRoundButton onSuccess={processNextRound}><strong>Start next round</strong></NextRoundButton>
-            <PairsView data={tournament} forceRound={forceRound} />
+            <NextRoundButton><strong>Start next round</strong></NextRoundButton>
+            <PairsView data={tournament} roundPairs={pairs} />
           </>
         )
         :

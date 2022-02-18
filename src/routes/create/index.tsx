@@ -20,8 +20,8 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 
-import { useAppDispatch, useAppSelector } from 'hooks';
-import { close, loadNew, selectTournament } from 'reducers/tournamentReducer';
+import { useAppDispatch } from 'hooks';
+import { close, loadNew } from 'reducers/tournamentReducer';
 
 import parseTrfFile, { isTournamentValid } from '#/TrfxParser/parseTrfFile';
 import WarnCode from '#/types/WarnCode';
@@ -29,8 +29,7 @@ import WarnCode from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
 import TrfxParseSummary from '@/TrfxParseSummary';
 
-const CreateTournament = () => {
-  const tournament = useAppSelector(selectTournament);
+const CreateTournament = (): JSX.Element => {
   const dispatch = useAppDispatch();
 
   const [parseErrors, setParseErrors] = useState<string[]>();
@@ -45,7 +44,7 @@ const CreateTournament = () => {
         if (target && typeof target.result === 'string') {
           const result = parseTrfFile(target.result);
           if (isTournamentValid(result)) {
-            dispatch(loadNew(result.tournament));
+            dispatch(loadNew(result));
             setWarnings(result.warnings);
             setParseErrors(undefined);
           } else {
@@ -63,7 +62,7 @@ const CreateTournament = () => {
   return (
     <>
       <FileSelector fileHandler={fileHandler} />
-      <TrfxParseSummary tournament={tournament} warnings={warnings} parsingErrors={parseErrors} />
+      <TrfxParseSummary warnings={warnings} parsingErrors={parseErrors} />
     </>
   );
 };

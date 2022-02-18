@@ -19,8 +19,9 @@
 
 import { ParseData, fieldParser } from './parseValues';
 
+import { Pair } from '#/Pairings/Pairings';
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Field } from '#/types/Tournament';
+import Tournament, { Color, Configuration, Field, Player } from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
 import {
   assignByesAndLates,
@@ -32,15 +33,20 @@ import {
   checkAndAssignAccelerations,
   createDefaultConfiguration,
   createTournamentData,
+  getPlayers,
   inferInitialColor,
   recalculatePlayerScores,
   reorderAndAssignPositionalRanks,
-  validatePairConsistency, getPlayers,
+  validatePairConsistency,
 } from '#/utils/TournamentUtils';
 
 export type ValidTrfData = {
   tournament: Tournament,
-  warnings: WarnCode[]
+  configuration: Configuration,
+  players: Player[],
+  playersByPosition: number[],
+  pairs: Array<Pair[]>,
+  warnings: WarnCode[],
 };
 export type ParsingErrors = { parsingErrors: string[] };
 
@@ -108,13 +114,12 @@ function postProcessData({
   evenUpGamesHistory(players, playedRounds);
   recalculatePlayerScores(players, configuration);
 
-  tournament.configuration = configuration;
-  tournament.pairs = pairs;
-  tournament.players = players;
-  tournament.playersByPosition = playersByPosition.map(i => players[i]);
-
   return {
     tournament,
+    configuration,
+    players,
+    playersByPosition,
+    pairs,
     warnings,
   };
 }

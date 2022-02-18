@@ -18,7 +18,7 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
-import Tournament, { Color, GameResult, Game, Player } from '#/types/Tournament';
+import { Color, GameResult, Game, Player } from '#/types/Tournament';
 import {
   addByeToPlayer,
   byeResults,
@@ -311,7 +311,7 @@ export function readPairs(params: ReadPairsParams) {
     return rounds;
   }
 
-  function apply(tournament: Tournament): ParseResult<void> {
+  function apply(targetPairs: Array<Pair[]>): ParseResult<void> {
     const rounds = validateAndGenerateRounds();
     if (isError(rounds)) {
       return rounds;
@@ -334,7 +334,7 @@ export function readPairs(params: ReadPairsParams) {
     }
 
     // Assign pairs to tournament data
-    tournament.pairs[round - 1] = pairs;
+    targetPairs[round - 1] = pairs;
   }
 
   if ('pairsRaw' in params) {

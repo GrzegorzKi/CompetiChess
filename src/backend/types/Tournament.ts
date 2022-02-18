@@ -35,7 +35,6 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
-import { Pair } from '#/Pairings/Pairings';
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
 interface Tournament {
@@ -52,11 +51,7 @@ interface Tournament {
   deputyArbiters: string[];
   rateOfPlay: string;
   roundDates: string[];
-  players: Player[];
-  playersByPosition: Player[];
   teams: Team[];
-  pairs: Array<Pair[]>;
-  configuration: Configuration;
   otherFields: Record<string, string>;
   forbiddenPairs: ForbiddenPairs[];
   playedRounds: number;

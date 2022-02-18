@@ -18,7 +18,7 @@
  */
 
 import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
-import Tournament, { Player } from '#/types/Tournament';
+import { Player } from '#/types/Tournament';
 import { computeRanks } from '#/utils/TournamentUtils';
 
 function stringifyTiebreakers(tbList: Tiebreaker[],
@@ -46,8 +46,11 @@ function createHeader(tbList: Tiebreaker[]) {
   return string;
 }
 
-export default function exportComparison(tournament: Tournament,
-  forRound: number = tournament.playedRounds): string {
+export default function exportComparison(
+  players: Player[],
+  tbList: Tiebreaker[],
+  forRound: number
+): string {
   function getPoints({ scores }: Player) {
     if (forRound <= 0) {
       return 0;
@@ -55,16 +58,10 @@ export default function exportComparison(tournament: Tournament,
     return scores[forRound - 1].points;
   }
 
-  if (forRound < 0 || forRound > tournament.playedRounds) {
-    // eslint-disable-next-line no-param-reassign
-    forRound = tournament.playedRounds;
-  }
-
-  const { configuration } = tournament;
-  const { playersByRank, sortedPlayers } = computeRanks(tournament, forRound);
+  const { playersByRank, sortedPlayers } = computeRanks(players, tbList, forRound);
 
   let resultString = '';
-  resultString += createHeader(configuration.tiebreakers);
+  resultString += createHeader(tbList);
 
   for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
     if (sortedPlayers[i] !== undefined) {
@@ -76,7 +73,7 @@ export default function exportComparison(tournament: Tournament,
         return '';
       }
       resultString += `${(playerId + 1).toString().padStart(4)} ${points.toFixed(1).padStart(4)} ${playersByRank[playerId].toString().padStart(4)} |`;
-      resultString += stringifyTiebreakers(configuration.tiebreakers,
+      resultString += stringifyTiebreakers(tbList,
         sortedPlayers[i],
         forRound);
       resultString += '\n';

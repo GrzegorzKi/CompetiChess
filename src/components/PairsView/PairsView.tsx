@@ -20,8 +20,10 @@
 import { h, FunctionalComponent, Fragment, JSX } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
+import { useAppSelector } from 'hooks';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import useElementFocus from 'hooks/useElementFocus';
+import { selectViewOptions } from 'reducers/tournamentReducer';
 
 import { Pair } from '#/Pairings/Pairings';
 import Tournament, { Player } from '#/types/Tournament';
@@ -30,6 +32,7 @@ import PaginateRound from '@/PaginateRound';
 
 interface Props {
   data: Tournament,
+  roundPairs: Array<Pair[]>,
   forceRound?: number
 }
 
@@ -43,16 +46,18 @@ function getResult(pair: Pair, round: number) {
   return `${pair.white.games[round].result} : ${pair.black.games[round].result}`;
 }
 
-const PairsView: FunctionalComponent<Props> = ({ data , forceRound }) => {
+const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound }) => {
+  const { selectedRound } = useAppSelector(selectViewOptions);
+  
   const [idx, setIdx] = useState(0);
-  const [round, setRound] = useState(forceRound || 0);
+  const [round, setRound] = useState(forceRound ?? selectedRound);
   const [ref, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>();
 
-  const pairs: Pair[] = data.pairs[round];
+  const pairs: Pair[] = roundPairs[round];
 
   useEffect(() => {
-    if (forceRound !== undefined) setRound(forceRound);
-  }, [data, forceRound]);
+    setRound(forceRound ?? selectedRound);
+  }, [selectedRound, forceRound]);
   useEffect(() => {
     setIdx(1);
     if (ref.current === document.activeElement) {

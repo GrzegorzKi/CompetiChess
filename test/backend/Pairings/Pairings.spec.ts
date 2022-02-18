@@ -37,7 +37,7 @@ test('reading from TrfPlayer array', async () => {
   }
 
   const pairs = readPairs({
-    players: tournament.tournament.players,
+    players: tournament.players,
     fromRound: 2
   });
 

@@ -27,7 +27,7 @@ import Tournament, {
 } from '../types/Tournament';
 
 import { Pair, readPairs } from '#/Pairings/Pairings';
-import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker, { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
 // import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
 import { gameWasPlayed, invertColor, participatedInPairing } from '#/utils/GamesUtils';
@@ -63,11 +63,7 @@ export function createTournamentData(overrides?: Partial<Tournament>): Tournamen
     deputyArbiters: [],
     rateOfPlay: '',
     roundDates: [],
-    players: [],
-    playersByPosition: [],
     teams: [],
-    pairs: [],
-    configuration: createDefaultConfiguration(),
     otherFields: {},
     forbiddenPairs: [],
     playedRounds: 0,
@@ -138,19 +134,13 @@ export function validatePairConsistency(players: Player[]): ParseResult<void> {
   }
 }
 
-export const deletePairings = ({ pairs, players, playedRounds }: Tournament, fromRound: number): boolean => {
-  if (playedRounds < fromRound) {
-    return false;
-  }
-
+export const deletePairings = (pairs: Array<Pair[]>, players: Player[], fromRound: number): void => {
   players.forEach((player) => {
     player.games.splice(fromRound - 1);
     player.scores.splice(fromRound - 1);
   });
 
   pairs.splice(fromRound - 1);
-
-  return true;
 };
 
 export const getPoints = (game: Game, configuration: Configuration, notPlayedIsDraw = false): number => {
@@ -265,7 +255,7 @@ export const recalculatePlayerScores = (
   });
 };
 
-export const getPlayers = (players: Player[], byPosition: number[], matchByRank: boolean) => {
+export const getPlayers = (players: Player[], byPosition: number[], matchByRank: boolean): Player[] => {
   if (matchByRank) {
     return byPosition.map(i => players[i]);
   }
@@ -296,10 +286,10 @@ export const inferInitialColor = (
   return Color.NONE;
 };
 
-export const sortByRank = (tournament: Tournament, forRound: number): Player[] => {
-  const playersSorted = [...tournament.players];
+export const sortByRank = (players: Player[], tbList: Tiebreaker[], forRound: number): Player[] => {
+  const playersSorted = [...players];
 
-  const tbComparators = tournament.configuration.tiebreakers.map(
+  const tbComparators = tbList.map(
     (tb) => sortByTiebreaker(forRound, tb),
   );
   playersSorted.sort(createComparator([
@@ -309,11 +299,11 @@ export const sortByRank = (tournament: Tournament, forRound: number): Player[] =
   return playersSorted;
 };
 
-export const computeRanks = (tournament: Tournament, forRound: number): {
+export const computeRanks = (players: Player[], tbList: Tiebreaker[], forRound: number): {
   playersByRank: Record<number, number>,
   sortedPlayers: Player[]
 } => {
-  const sortedPlayers = sortByRank(tournament, forRound);
+  const sortedPlayers = sortByRank(players, tbList, forRound);
 
   let rankIndex = 1;
   const playersByRank: Record<number, number> = Object.create(null);

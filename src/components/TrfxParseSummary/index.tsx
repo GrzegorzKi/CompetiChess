@@ -19,16 +19,19 @@
 
 import { h, FunctionalComponent } from 'preact';
 
-import Tournament from '#/types/Tournament';
+import { useAppSelector } from 'hooks';
+import { selectTournament } from 'reducers/tournamentReducer';
+
 import WarnCode, { getMessageForWarnCode } from '#/types/WarnCode';
 
 interface Props {
-  tournament?: Tournament,
   warnings?: WarnCode[],
   parsingErrors?: string[],
 }
 
-const TrfxParseSummary: FunctionalComponent<Props> = ({ tournament , warnings, parsingErrors }) => {
+const TrfxParseSummary: FunctionalComponent<Props> = ({ warnings, parsingErrors }) => {
+  const tournament = useAppSelector(selectTournament);
+
   if (!tournament && !warnings && !parsingErrors) {
     return null;
   }

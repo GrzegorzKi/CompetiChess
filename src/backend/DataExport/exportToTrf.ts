@@ -17,14 +17,18 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tournament, { Color, Game, GameResult, Player } from '#/types/Tournament';
+import Tournament, { Color, Configuration, Game, GameResult, Player } from '#/types/Tournament';
 import { isAbsentFromRound } from '#/utils/GamesUtils';
 import { computeRanks } from '#/utils/TournamentUtils';
 
+type PointsModFormat = 'JaVaFo' | 'bbpPairings';
 export type ExportConfig = {
+  tournament: Tournament,
+  players: Player[],
+  configuration: Configuration,
   forRound?: number;
   exportForPairing?: boolean;
-  pointsModFormat?: 'JaVaFo' | 'bbpPairings';
+  pointsModFormat?: PointsModFormat;
 }
 
 const nextRoundByes = [
@@ -104,7 +108,7 @@ function exportTournamentInfo(tournament: Tournament): string {
   return string;
 }
 
-function exportColorRankConfig({ configuration }: Tournament) {
+function exportColorRankConfig(configuration: Configuration) {
   let string = '';
   if (configuration.matchByRank) {
     string += ' rank';
@@ -129,74 +133,8 @@ function getPoints({ scores, games }: Player, exportForPairing: boolean, round: 
   return scores[round - 1].points;
 }
 
-export default function exportToTrf(tournament: Tournament, {
-  forRound = tournament.playedRounds,
-  exportForPairing = true,
-  pointsModFormat = 'JaVaFo'
-}: ExportConfig): string | undefined {
-
-  const {
-    playedRounds,
-    players,
-    playersByPosition,
-    configuration
-  } = tournament;
-  let resultString = '';
-
-  if (forRound < 0 || forRound > playedRounds) {
-    forRound = playedRounds;
-  }
-
-  if (!exportForPairing) {
-    resultString += exportTournamentInfo(tournament);
-  }
-  if (forRound < configuration.expectedRounds || exportForPairing) {
-    resultString += `XXR ${configuration.expectedRounds}\n`;
-  }
-  if (exportForPairing) {
-    resultString += exportColorRankConfig(tournament);
-  }
-
-  const { playersByRank } = computeRanks(tournament, forRound);
-
-  const playersToIter = configuration.matchByRank
-    ? playersByPosition
-    : players;
-
-  for (let i = 0, len = playersToIter.length; i < len; ++i) {
-    if (playersToIter[i] !== undefined) {
-      const {
-        playerId,
-        sex,
-        title,
-        name,
-        rating,
-        federation,
-        id,
-        birthDate,
-      } = playersToIter[i];
-      const points = getPoints(playersToIter[i], exportForPairing, forRound);
-
-      if (playerId > 9999 || rating > 9999 || points > 99.9) {
-        // FIXME Return error code instead
-        return undefined;
-      }
-      resultString += `001 ${(playerId + 1).toString().padStart(4)} ${sex}${title.padStart(3)}`
-        + ` ${name.padEnd(33)} ${rating.toString().padStart(4)} ${federation.padStart(3)}`
-        + ` ${id.padStart(11)} ${birthDate.padEnd(10)} ${points.toFixed(1).padStart(4)}`
-        + ` ${playersByRank[playerId].toString().padStart(4)}`;
-      resultString += `${stringifyGames(playersToIter[i], forRound, exportForPairing)}\n`;
-    }
-  }
-
-  for (let i = 0, len = players.length; i < len; ++i) {
-    if (players[i] !== undefined
-      && players[i].accelerations.length !== 0) {
-      const { playerId, accelerations } = players[i];
-      const acc = stringifyAccelerations(accelerations);
-      resultString += `XXA ${(playerId + 1).toString().padStart(4)}${acc}\n`;
-    }
-  }
+function getConfigurationsString(configuration: Configuration, pointsModFormat: PointsModFormat) {
+  let confStr = '';
 
   if (configuration.pointsForWin !== 1.0
     || configuration.pointsForDraw !== 0.5
@@ -220,9 +158,9 @@ export default function exportToTrf(tournament: Tournament, {
       || configuration.pointsForZeroPointBye !== 0.0
       || configuration.pointsForForfeitLoss !== 0.0) {
       if (pointsModFormat === 'bbpPairings') {
-        resultString += `BBW ${configuration.pointsForWin.toFixed(1)
+        confStr += `BBW ${configuration.pointsForWin.toFixed(1)
           .padStart(4)}\n`;
-        resultString += `BBD ${configuration.pointsForDraw.toFixed(1)
+        confStr += `BBD ${configuration.pointsForDraw.toFixed(1)
           .padStart(4)}\n`;
       } else {
         jvfStr += ` W=${configuration.pointsForWin}`;
@@ -233,11 +171,11 @@ export default function exportToTrf(tournament: Tournament, {
       || configuration.pointsForZeroPointBye !== 0.0
       || configuration.pointsForForfeitLoss !== 0.0) {
       if (pointsModFormat === 'bbpPairings') {
-        resultString += `BBL ${configuration.pointsForLoss.toFixed(1)
+        confStr += `BBL ${configuration.pointsForLoss.toFixed(1)
           .padStart(4)}\n`;
-        resultString += `BBZ ${configuration.pointsForZeroPointBye.toFixed(1)
+        confStr += `BBZ ${configuration.pointsForZeroPointBye.toFixed(1)
           .padStart(4)}\n`;
-        resultString += `BBF ${configuration.pointsForForfeitLoss.toFixed(1)
+        confStr += `BBF ${configuration.pointsForForfeitLoss.toFixed(1)
           .padStart(4)}\n`;
       } else {
         jvfStr += ` WL=${configuration.pointsForLoss}`;
@@ -248,7 +186,7 @@ export default function exportToTrf(tournament: Tournament, {
     }
     if (configuration.pointsForPairingAllocatedBye !== 1.0) {
       if (pointsModFormat === 'bbpPairings') {
-        resultString += `BBU ${configuration.pointsForPairingAllocatedBye.toFixed(1)
+        confStr += `BBU ${configuration.pointsForPairingAllocatedBye.toFixed(1)
           .padStart(4)}\n`;
       } else {
         jvfStr += ` PAB=${configuration.pointsForForfeitLoss}`;
@@ -256,9 +194,78 @@ export default function exportToTrf(tournament: Tournament, {
     }
 
     if (jvfStr !== '') {
-      resultString += `XXS ${jvfStr}\n`;
+      confStr += `XXS${jvfStr}\n`;
     }
   }
+
+  return confStr;
+}
+
+export default function exportToTrf({
+  tournament,
+  players,
+  configuration,
+  forRound = tournament.playedRounds,
+  exportForPairing = true,
+  pointsModFormat = 'JaVaFo'
+}: ExportConfig): string | undefined {
+
+  const { playedRounds } = tournament;
+  let resultString = '';
+
+  if (forRound < 0 || forRound > playedRounds) {
+    forRound = playedRounds;
+  }
+
+  if (!exportForPairing) {
+    resultString += exportTournamentInfo(tournament);
+  }
+  if (forRound < configuration.expectedRounds || exportForPairing) {
+    resultString += `XXR ${configuration.expectedRounds}\n`;
+  }
+  if (exportForPairing) {
+    resultString += exportColorRankConfig(configuration);
+  }
+
+  const { playersByRank } = computeRanks(players,
+    configuration.tiebreakers, forRound);
+
+  for (let i = 0, len = players.length; i < len; ++i) {
+    if (players[i] !== undefined) {
+      const {
+        playerId,
+        sex,
+        title,
+        name,
+        rating,
+        federation,
+        id,
+        birthDate,
+      } = players[i];
+      const points = getPoints(players[i], exportForPairing, forRound);
+
+      if (playerId > 9999 || rating > 9999 || points > 99.9) {
+        // FIXME Return error code instead
+        return undefined;
+      }
+      resultString += `001 ${(playerId + 1).toString().padStart(4)} ${sex}${title.padStart(3)}`
+        + ` ${name.padEnd(33)} ${rating.toString().padStart(4)} ${federation.padStart(3)}`
+        + ` ${id.padStart(11)} ${birthDate.padEnd(10)} ${points.toFixed(1).padStart(4)}`
+        + ` ${playersByRank[playerId].toString().padStart(4)}`;
+      resultString += `${stringifyGames(players[i], forRound, exportForPairing)}\n`;
+    }
+  }
+
+  for (let i = 0, len = players.length; i < len; ++i) {
+    if (players[i] !== undefined
+      && players[i].accelerations.length !== 0) {
+      const { playerId, accelerations } = players[i];
+      const acc = stringifyAccelerations(accelerations);
+      resultString += `XXA ${(playerId + 1).toString().padStart(4)}${acc}\n`;
+    }
+  }
+
+  resultString += getConfigurationsString(configuration, pointsModFormat);
 
   return resultString;
 }
