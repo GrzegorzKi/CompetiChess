@@ -25,7 +25,7 @@ $hover: #00ab97;
 $primary: $green;
 
 @import 'bulma/bulma';
-
+@import 'normalize.css';
 
 // Bulma monkey-patches for 0.9.3
 .pagination-previous,
