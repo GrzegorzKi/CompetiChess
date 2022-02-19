@@ -31,21 +31,18 @@ const Pairs: FunctionalComponent = () => {
   const pairs = useAppSelector(selectPairs);
 
   return (
-    <div>
-      {tournament && pairs
-        ? (
-          <>
-            <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-            <PairsView data={tournament} roundPairs={pairs} />
-          </>
-        )
-        :
-        <p>There is no tournament open right now.
-          {' '}
-          <Link class="has-text-link" href="/create">Do you want to create one?</Link>
-        </p>
-      }
-    </div>
+    tournament && pairs
+      ? (
+        <>
+          <NextRoundButton><strong>Start next round</strong></NextRoundButton>
+          <PairsView data={tournament} roundPairs={pairs} />
+        </>
+      )
+      :
+      <p>There is no tournament open right now.
+        {' '}
+        <Link class="has-text-link" href="/create">Do you want to create one?</Link>
+      </p>
   );
 };
 
