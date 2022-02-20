@@ -83,11 +83,11 @@ a {
   height: calc(100vh - #{$paddingH});
 }
 
-.route-wrapper > div {
+.route-wrapper > * {
   position: absolute;
   padding: $innerPaddingH $innerPaddingW;
   width: 100%;
   height: 100%;
-  overflow: hidden auto;
+  overflow: auto;
   will-change: transform;
 }

@@ -49,9 +49,9 @@ function getResult(pair: Pair, round: number) {
 const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound }) => {
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
-  
+
   const [idx, setIdx] = useState(0);
-  const [ref, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>();
+  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>({});
 
   const pairs: Pair[] = roundPairs[round];
 
@@ -152,7 +152,7 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound })
                   onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
                   onContextMenu={handleContextMenu}
                   class={idx === pair.no ? 'is-selected' : ''}
-                  ref={idx === pair.no ? ref : undefined}
+                  ref={idx === pair.no ? setRef : undefined}
                   tabIndex={0}
               >
                 <td>{pair.no}</td>
