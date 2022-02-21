@@ -32,6 +32,18 @@ export function parseNumber(value: string): ParseResult<number> {
   return num;
 }
 
+export function parseFloatNumber(value: string): ParseResult<number> {
+  if (value === '') {
+    return 0;
+  }
+
+  const num = Number.parseFloat(value);
+  if (Number.isNaN(num)) {
+    return { error: ErrorCode.INVALID_VALUE, value };
+  }
+  return num;
+}
+
 export function parsePlayerId(value: string): ParseResult<number> {
   if (value === '') {
     return { error: ErrorCode.INVALID_VALUE, value, what: 'player ID' };
@@ -81,12 +93,12 @@ export function hasTrailingChars(line: string, position: number): boolean {
   return line.substring(position, line.length).trimRight() !== '';
 }
 
-export function tokenize(value: string): string[] {
-  return value.split(/[ \t]/);
+export function tokenize(value: string, splitter: RegExp | string = /[ \t]/): string[] {
+  return value.split(splitter);
 }
 
-export function tokenizeToNumbers(value: string): ParseResult<number[]> {
-  const tokens = value.split(/[ \t]/);
+export function tokenizeToNumbers(value: string, splitter: RegExp | string = /[ \t]/): ParseResult<number[]> {
+  const tokens = value.split(splitter);
   const numbers: number[] = [];
   for (const token of tokens) {
     const id = parseNumber(token);

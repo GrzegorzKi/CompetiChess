@@ -143,12 +143,8 @@ export const deletePairings = (pairs: Array<Pair[]>, players: Player[], fromRoun
   pairs.splice(fromRound - 1);
 };
 
-export const getPoints = (game: Game, configuration: Configuration, notPlayedIsDraw = false): number => {
-  if (notPlayedIsDraw && !gameWasPlayed(game)) {
-    return configuration.pointsForDraw;
-  }
-
-  switch (game.result) {
+export const getPointsForResult = (result: GameResult, configuration: Configuration) => {
+  switch (result) {
   case GameResult.FORFEIT_LOSS:
     return configuration.pointsForForfeitLoss;
   case GameResult.LOSS:
@@ -172,6 +168,13 @@ export const getPoints = (game: Game, configuration: Configuration, notPlayedIsD
     // Should never happen
     return 0.0;
   }
+};
+
+export const getPoints = (game: Game, configuration: Configuration, notPlayedIsDraw = false): number => {
+  if (notPlayedIsDraw && !gameWasPlayed(game)) {
+    return configuration.pointsForDraw;
+  }
+  return getPointsForResult(game.result, configuration);
 };
 
 export const calculatePoints = (
