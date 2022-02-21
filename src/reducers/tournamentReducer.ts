@@ -74,7 +74,10 @@ const initialState: TournamentState = {
 
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
-  rejectValue: string,
+  rejectValue: {
+    reason: string
+    isValidationError?: boolean
+  },
 }
 
 const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
@@ -83,13 +86,13 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
     const { tournament, configuration, pairs, players } = thunkAPI.getState().tournament;
 
     if (!tournament || !players || !pairs || !configuration) {
-      return thunkAPI.rejectWithValue('There is no tournament active. Cannot start new round.');
+      return thunkAPI.rejectWithValue({ reason: 'There is no tournament active. Cannot start new round.' });
     }
 
     const verifyError = verifyNextRoundConditions(tournament, pairs, configuration);
 
     if (verifyError) {
-      return thunkAPI.rejectWithValue(verifyError);
+      return thunkAPI.rejectWithValue({ reason: verifyError, isValidationError: true });
     }
 
     const playersToIter = getPlayers(players.byId,
@@ -103,18 +106,18 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
     });
 
     if (trfOutput === undefined) {
-      return thunkAPI.rejectWithValue('Unable to generate output for BbpPairings engine.');
+      return thunkAPI.rejectWithValue({ reason: 'Unable to generate output for BbpPairings engine.' });
     }
 
     try {
       const bbpInstance = await BbpPairings.getInstance();
       const bbpOutput = bbpInstance.invoke(trfOutput);
       if (bbpOutput.statusCode !== 0) {
-        return thunkAPI.rejectWithValue(bbpOutput.errorOutput.join('\n'));
+        return thunkAPI.rejectWithValue({ reason: bbpOutput.errorOutput.join('\n') });
       }
       return bbpOutput.data;
     } catch {
-      return thunkAPI.rejectWithValue('Application encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.');
+      return thunkAPI.rejectWithValue({ reason: 'Application encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.' });
     }
   }
 );
@@ -195,8 +198,13 @@ export const tournamentSlice = createSlice({
     }
     );
     builder.addCase(createNextRound.rejected, (state, action) => {
-      tournamentSlice.caseReducers.errorHandler(state,
-        errorHandlerAction(action.payload ?? 'Unknown error occurred'));
+      const reason = action.payload?.reason ?? 'Unknown error occurred';
+      if (action.payload?.isValidationError) {
+        state.error = reason;
+        toast.warning(state.error);
+      } else {
+        tournamentSlice.caseReducers.errorHandler(state, errorHandlerAction(reason));
+      }
     });
   },
 });
