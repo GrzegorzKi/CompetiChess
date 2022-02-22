@@ -45,6 +45,11 @@ function ensureSpring(styles: Style = {}): Style {
   return obj;
 }
 
+function addPointerEventsProp(styles: Style): Style {
+  styles['pointer-events'] = 1;
+  return styles;
+}
+
 type HTMLProps =
   | (JSXInternal.HTMLAttributes &
   JSXInternal.SVGAttributes &
@@ -59,7 +64,8 @@ interface ITransitionProps {
   atLeave: Style,
   didLeave?: ((styleThatLeft: TransitionStyle) => void),
   mapStyles?: (style: PlainStyle) => HTMLProps,
-  runOnMount: boolean
+  runOnMount: boolean,
+  noPointerEventsOnLeave?: boolean,
   wrapperComponent?: string | false,
 }
 
@@ -72,6 +78,7 @@ function Transition({
   didLeave,
   mapStyles,
   runOnMount = false,
+  noPointerEventsOnLeave = true,
   wrapperComponent = 'div'
 }: ITransitionProps) {
   const defaultStyles =
@@ -103,14 +110,19 @@ function Transition({
       defaultStyles={defaultStyles}
       styles={styles}
       willEnter={() => atEnter}
-      willLeave={() => ensureSpring(atLeave)}
+      willLeave={() => addPointerEventsProp(ensureSpring(atLeave))}
       didLeave={didLeave}
     >
       {(interpolatedStyles) => (
         <div className={className}>
           {interpolatedStyles.map((config) => {
+            const style = mapStyles?.(config.style) ?? config.style;
+            if (noPointerEventsOnLeave && config.style['pointer-events'] !== undefined) {
+              style['pointer-events'] = 'none';
+            }
+
             const props = {
-              style: mapStyles?.(config.style) ?? config.style,
+              style,
               key: config.key
             };
 
