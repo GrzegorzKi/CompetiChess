@@ -28,7 +28,13 @@ import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
 import Tournament, { Configuration, Pair, Player } from '#/types/Tournament';
 import { evenUpGamesHistory } from '#/utils/GamesUtils';
-import { getPlayers, recalculatePlayerScores } from '#/utils/TournamentUtils';
+import { computeResult, ResultType } from '#/utils/ResultUtils';
+import {
+  getPlayers,
+  recalculatePlayerScores,
+  recalculateScores,
+  recalculateTiebreakers,
+} from '#/utils/TournamentUtils';
 
 import { RootState } from '@/store';
 
@@ -71,6 +77,8 @@ const initialState: TournamentState = {
     selectedRound: 0,
   },
 };
+
+type SetResultType = { round: number, pairNo: string, type: ResultType };
 
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
@@ -160,6 +168,39 @@ export const tournamentSlice = createSlice({
     errorHandler: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
       toast.error(state.error);
+    },
+    setResult: ({ pairs, players, configuration }, action: PayloadAction<SetResultType>) => {
+      if (!pairs || !players || !configuration) {
+        return;
+      }
+
+      const { round, pairNo, type } = action.payload;
+      if (round >= pairs.length) {
+        return;
+      }
+
+      const no = Number.parseInt(pairNo, 10) - 1;
+      const pairElement = pairs[round][no];
+      if (!pairElement) {
+        return;
+      }
+
+      const white = players.byId[pairElement.white];
+      const black = players.byId[pairElement.black];
+      // Action should not change result of a pair without an opponent
+      if (!black) {
+        return;
+      }
+
+      const results = computeResult(type);
+      white.games[round].result = results.w;
+      black.games[round].result = results.b;
+
+      recalculateScores(white, configuration, round);
+      recalculateScores(black, configuration, round);
+      players.byId.forEach(player => {
+        recalculateTiebreakers(player, players.byId, configuration, round);
+      });
     }
   },
   extraReducers: (builder) => {
@@ -209,7 +250,7 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, close, selectNextRound, selectPrevRound, selectRound, errorHandler } = tournamentSlice.actions;
+export const { loadNew, close, selectNextRound, selectPrevRound, selectRound, errorHandler, setResult } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

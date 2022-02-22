@@ -28,6 +28,7 @@ import {
   selectPrevRound,
   selectRound,
   selectViewOptions,
+  setResult,
 } from 'reducers/tournamentReducer';
 
 import Tournament, { Pair, Player } from '#/types/Tournament';
@@ -54,7 +55,7 @@ function getResult(pair: Pair, players: Player[], round: number) {
 }
 
 function displayPlayer(player: Player) {
-  return `${player.name} (${player.playerId})`;
+  return `${player.name} (${player.playerId + 1})`;
 }
 
 const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forceRound }) => {
@@ -79,6 +80,8 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forc
   }, [round, ref, focusOnFirst]);
 
   const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
+    const pairNo: string | undefined = ref.current?.dataset['index'];
+
     switch (event.code) {
     case 'ArrowLeft':
       dispatch(selectPrevRound());
@@ -92,8 +95,29 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forc
     case 'ArrowDown':
       focusOnNext() && event.preventDefault();
       break;
+    default:
+      switch (event.key) {
+      case 'w':
+      case 'W':
+      case '1':
+        pairNo && dispatch(setResult({ round, pairNo, type: 'WHITE_WIN' }));
+        event.shiftKey ? focusOnPrev() : focusOnNext();
+        break;
+      case 'l':
+      case 'L':
+      case '0':
+        pairNo && dispatch(setResult({ round, pairNo, type: 'BLACK_WIN' }));
+        event.shiftKey ? focusOnPrev() : focusOnNext();
+        break;
+      case 'd':
+      case 'D':
+      case '5':
+        pairNo && dispatch(setResult({ round, pairNo, type: 'DRAW' }));
+        event.shiftKey ? focusOnPrev() : focusOnNext();
+        break;
+      }
     }
-  }, [dispatch, focusOnPrev, focusOnNext]);
+  }, [dispatch, focusOnPrev, focusOnNext, ref, round]);
 
   // Register keys handler
   useEffect(() => {
