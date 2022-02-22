@@ -23,10 +23,11 @@ import Tournament, {
   Configuration,
   GameResult,
   Game,
-  Player
+  Pair,
+  Player,
 } from '../types/Tournament';
 
-import { Pair, readPairs } from '#/Pairings/Pairings';
+import { readPairs } from '#/Pairings/Pairings';
 import Tiebreaker, { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
 // import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';

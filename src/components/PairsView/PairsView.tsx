@@ -23,16 +23,21 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import useElementFocus from 'hooks/useElementFocus';
-import { selectNextRound, selectPrevRound, selectRound, selectViewOptions } from 'reducers/tournamentReducer';
+import {
+  selectNextRound,
+  selectPrevRound,
+  selectRound,
+  selectViewOptions,
+} from 'reducers/tournamentReducer';
 
-import { Pair } from '#/Pairings/Pairings';
-import Tournament, { Player } from '#/types/Tournament';
+import Tournament, { Pair, Player } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 
 interface Props {
   data: Tournament,
   roundPairs: Array<Pair[]>,
+  players: Player[],
   forceRound?: number
 }
 
@@ -42,11 +47,17 @@ function prevRoundPoints(player: Player, round: number): number {
     : player.scores[round - 1].points;
 }
 
-function getResult(pair: Pair, round: number) {
-  return `${pair.white.games[round].result} : ${pair.black.games[round].result}`;
+function getResult(pair: Pair, players: Player[], round: number) {
+  const white = players[pair.white];
+  const black = players[pair.black];
+  return `${white.games[round].result} : ${black.games[round].result}`;
 }
 
-const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound }) => {
+function displayPlayer(player: Player) {
+  return `${player.name} (${player.playerId})`;
+}
+
+const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forceRound }) => {
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
 
@@ -156,12 +167,12 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, forceRound })
                   tabIndex={0}
               >
                 <td>{pair.no}</td>
-                <td>{prevRoundPoints(pair.white, round)
+                <td>{prevRoundPoints(players[pair.white], round)
                   .toFixed(1)}</td>
-                <td>{pair.white.name} ({pair.white.playerId})</td>
-                <td>{getResult(pair, round)}</td>
-                <td>{pair.black.name} ({pair.black.playerId})</td>
-                <td>{prevRoundPoints(pair.black, round)
+                <td>{displayPlayer(players[pair.white])}</td>
+                <td>{getResult(pair, players, round)}</td>
+                <td>{displayPlayer(players[pair.black])}</td>
+                <td>{prevRoundPoints(players[pair.black], round)
                   .toFixed(1)}</td>
               </tr>
             )}

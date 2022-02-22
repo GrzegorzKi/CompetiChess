@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { Link } from 'wouter-preact';
 
 import { useAppSelector } from 'hooks';
-import { selectPairs, selectTournament } from 'reducers/tournamentReducer';
+import { selectPairs, selectPlayers, selectTournament } from 'reducers/tournamentReducer';
 
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
@@ -29,13 +29,14 @@ import PairsView from '@/PairsView';
 const Pairs: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
   const pairs = useAppSelector(selectPairs);
+  const players = useAppSelector(selectPlayers);
 
   return (
-    tournament && pairs
+    tournament && pairs && players
       ? (
         <>
           <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-          <PairsView data={tournament} roundPairs={pairs} />
+          <PairsView data={tournament} roundPairs={pairs} players={players.byId} />
         </>
       )
       :

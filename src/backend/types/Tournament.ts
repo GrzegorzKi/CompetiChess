@@ -199,6 +199,13 @@ export interface Score {
   tiebreakers: TiebreakersPoints;
 }
 
+export type Pair = {
+  round: number,
+  no: number,
+  white: number,
+  black: number,
+}
+
 export const enum Sex {
   MALE = 'm',
   FEMALE = 'f',

@@ -19,9 +19,8 @@
 
 import { ParseData, fieldParser } from './parseValues';
 
-import { Pair } from '#/Pairings/Pairings';
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Configuration, Field, Player } from '#/types/Tournament';
+import Tournament, { Color, Configuration, Field, Pair, Player } from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
 import {
   assignByesAndLates,

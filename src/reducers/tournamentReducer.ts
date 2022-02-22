@@ -23,19 +23,19 @@ import { toast } from 'react-toastify';
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
-import { Pair, readPairs } from '#/Pairings/Pairings';
+import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
-import Tournament, { Configuration, Player } from '#/types/Tournament';
+import Tournament, { Configuration, Pair, Player } from '#/types/Tournament';
 import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { getPlayers, recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 import { RootState } from '@/store';
 
 const verifyNextRoundConditions = (
-  { playedRounds }: Tournament, pairs: Array<Pair[]>, { expectedRounds }: Configuration
+  { playedRounds }: Tournament, players: Player[], { expectedRounds }: Configuration
 ): string | undefined => {
-  const allFilled = checkPairingsFilled(pairs[playedRounds - 1], playedRounds);
+  const allFilled = checkPairingsFilled(players, playedRounds);
   if (!allFilled) {
     return 'Cannot start new round. Please fill in all pairs\' results before proceeding.';
   }
@@ -89,7 +89,7 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
       return thunkAPI.rejectWithValue({ reason: 'There is no tournament active. Cannot start new round.' });
     }
 
-    const verifyError = verifyNextRoundConditions(tournament, pairs, configuration);
+    const verifyError = verifyNextRoundConditions(tournament, players.byId, configuration);
 
     if (verifyError) {
       return thunkAPI.rejectWithValue({ reason: verifyError, isValidationError: true });
