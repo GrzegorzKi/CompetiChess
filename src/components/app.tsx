@@ -18,6 +18,8 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useEffect } from 'preact/hooks';
+import { toast } from 'react-toastify';
 import { Route } from 'wouter-preact';
 
 import CreateTournament from 'routes/create';
@@ -44,7 +46,43 @@ const pageTransitions = {
   }
 };
 
+function listenToSwUpdates() {
+  if ('serviceWorker' in navigator) {
+    let refreshing = false;
+
+    // This fires when the service worker controlling this page
+    // changes, eg a new worker has skipped waiting and become
+    // the new active worker.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        window.location.reload();
+        refreshing = true;
+      }
+    });
+
+    navigator.serviceWorker.ready.then(registration => {
+      registration.addEventListener('updatefound', () => {
+        registration.installing!.addEventListener('statechange', () => {
+          const waitingWorker = registration.waiting;
+          if (waitingWorker !== null) {
+            toast.info(<p><strong>Application update is ready!</strong><br /> Ready to reload the app?</p>, {
+              autoClose: false,
+              closeOnClick: false,
+              draggable: false,
+              onClick: () => {
+                waitingWorker.postMessage('SKIP_WAITING');
+              },
+            });
+          }
+        });
+      });
+    });
+  }
+}
+
 const App: FunctionalComponent = () => {
+  useEffect(() => listenToSwUpdates(), []);
+
   return (
     <div id="root">
       <Header />

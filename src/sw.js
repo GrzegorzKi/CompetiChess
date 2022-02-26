@@ -24,3 +24,9 @@ setupRouting();
 const urlsToCache = getFiles();
 urlsToCache.push({ url: '/bbpPairingsWasm.wasm', revision: '2' });
 setupPrecaching(urlsToCache);
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
