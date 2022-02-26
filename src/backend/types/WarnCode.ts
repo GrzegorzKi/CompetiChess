@@ -30,7 +30,7 @@ export function getMessageForWarnCode(code: WarnCode): string {
   case WarnCode.INITIAL_COLOR:
     return 'Initial color is not defined and it couldn\'t be inferred from loaded data';
   case WarnCode.HOLES_IN_IDS:
-    return 'Read file has holes in players\' IDs';
+    return 'Provided file data has holes in players\' IDs. You may want to re-order them before the tournament starts.';
   }
 }
 

@@ -332,3 +332,11 @@ export const recalculatePositionalRanks = (players: Player[]): void => {
     player.rank = index;
   });
 };
+
+export const detectHolesInIds = (players: PlayersRecord): boolean => {
+  const entries = Object.entries(players);
+  const length = entries.length;
+  const highestId = entries.reduce((id, [, player]) => player.id > id ? player.id : id, 0);
+
+  return length !== highestId;
+};

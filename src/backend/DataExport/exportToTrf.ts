@@ -19,7 +19,7 @@
 
 import Tournament, { Color, Configuration, Game, GameResult, Player } from '#/types/Tournament';
 import { isAbsentFromRound } from '#/utils/GamesUtils';
-import { computeRanks } from '#/utils/TournamentUtils';
+import { computeRanks, detectHolesInIds } from '#/utils/TournamentUtils';
 
 type PointsModFormat = 'JaVaFo' | 'bbpPairings';
 export type ExportConfig = {
@@ -108,13 +108,13 @@ function exportTournamentInfo(tournament: Tournament): string {
   return string;
 }
 
-function exportColorRankConfig(configuration: Configuration) {
+function exportColorRankConfig(matchByRank: boolean, initialColor: Color) {
   let string = '';
-  if (configuration.matchByRank) {
+  if (matchByRank) {
     string += ' rank';
   }
-  if (configuration.initialColor !== Color.NONE) {
-    string += configuration.initialColor === Color.WHITE
+  if (initialColor !== Color.NONE) {
+    string += initialColor === Color.WHITE
       ? ' white1'
       : ' black1';
   }
@@ -224,7 +224,8 @@ export default function exportToTrf({
     resultString += `XXR ${configuration.expectedRounds}\n`;
   }
   if (exportForPairing) {
-    resultString += exportColorRankConfig(configuration);
+    resultString += exportColorRankConfig(configuration.matchByRank || detectHolesInIds(players),
+      configuration.initialColor);
   }
 
   const { playersByRank } = computeRanks(players,

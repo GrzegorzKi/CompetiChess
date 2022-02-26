@@ -17,27 +17,19 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ParseData, fieldParser } from './parseValues';
+import { fieldParser, ParseData } from './parseValues';
 
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import Tournament, {
-  Color,
-  Configuration,
-  Field,
-  Pair,
-  PlayersRecord,
-} from '#/types/Tournament';
+import Tournament, { Color, Configuration, Field, Pair, PlayersRecord } from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
+import { assignByesAndLates, evenUpGamesHistory } from '#/utils/GamesUtils';
 import {
-  assignByesAndLates,
-  evenUpGamesHistory,
-} from '#/utils/GamesUtils';
-import {
-  generatePairs,
   calculatePlayedRounds,
   checkAndAssignAccelerations,
   createDefaultConfiguration,
   createTournamentData,
+  detectHolesInIds,
+  generatePairs,
   getPlayers,
   inferInitialColor,
   recalculatePlayerScores,
@@ -70,7 +62,7 @@ function postProcessData({
   byes
 }: ParseData): ParseTrfFileResult {
   const warnings: WarnCode[] = [];
-  const playersById = Object.entries(players).map(([, player]) => player.id).sort((a, b) => b - a);
+  const playersById = Object.entries(players).map(([, player]) => player.id).sort((a, b) => a - b);
 
   const resultAcc = checkAndAssignAccelerations(players,
     accelerations, configuration.expectedRounds);
@@ -114,7 +106,9 @@ function postProcessData({
   }
 
   recalculatePositionalRanks(playersArray);
-  // TODO Detect holes in player ids - add warning then
+  if (detectHolesInIds(players)) {
+    warnings.push(WarnCode.HOLES_IN_IDS);
+  }
 
   assignByesAndLates(players, playedRounds, byes);
   const pairs = generatePairs(players, playedRounds);
