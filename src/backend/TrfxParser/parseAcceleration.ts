@@ -21,7 +21,7 @@ import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
 import { parseFloat, parsePlayerId } from '#/utils/ParseUtils';
 
 export type Acceleration = {
-  playerId: number,
+  id: number,
   values: number[],
 };
 
@@ -37,9 +37,9 @@ export default function parseAcceleration(value: string): ParseResult<Accelerati
 
   const { startingRank, acc } = match.groups;
 
-  const playerId = parsePlayerId(startingRank.trimLeft());
-  if (isError(playerId)) {
-    return playerId;
+  const id = parsePlayerId(startingRank.trimLeft());
+  if (isError(id)) {
+    return id;
   }
 
   let i = 0;
@@ -52,7 +52,7 @@ export default function parseAcceleration(value: string): ParseResult<Accelerati
   }
 
   return {
-    playerId,
+    id,
     values
   };
 }

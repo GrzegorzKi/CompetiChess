@@ -62,11 +62,11 @@ export type InvalidValue = {
 }
 export type PointsMismatch = {
   error: ErrorCode.POINTS_MISMATCH,
-  playerId: number,
+  id: number,
 }
 export type PlayerDuplicate = {
   error: ErrorCode.PLAYER_DUPLICATE,
-  playerId: number,
+  id: number,
 }
 export type PairingContradiction = {
   error: ErrorCode.PAIRING_CONTRADICTION,
@@ -76,11 +76,11 @@ export type PairingContradiction = {
 }
 export type AccMissingEntry = {
   error: ErrorCode.ACC_MISSING_ENTRY,
-  playerId: number,
+  id: number,
 }
 export type TooManyAccelerations = {
   error: ErrorCode.TOO_MANY_ACCELERATIONS,
-  playerId: number,
+  id: number,
 }
 export type InvalidPair = {
   error: ErrorCode.INVALID_PAIR,
@@ -89,7 +89,7 @@ export type InvalidPair = {
 export type PairingError = {
   error: ErrorCode.PAIRING_ERROR,
   hasPairing: boolean,
-  playerId: number,
+  id: number,
 }
 export type InternalError = {
   error: ErrorCode.INTERNAL_ERROR,
@@ -110,22 +110,22 @@ export function getDetails(error: ParseError): string {
     }
     return `Provided value is invalid: ${error.value}`;
   case ErrorCode.POINTS_MISMATCH:
-    return `Number of points for player ${error.playerId + 1} doesn't match calculated points`;
+    return `Number of points for player ${error.id} doesn't match calculated points`;
   case ErrorCode.PLAYER_DUPLICATE:
-    return `Player entry duplicated: ${error.playerId + 1}`;
+    return `Player entry duplicated: ${error.id}`;
   case ErrorCode.PAIRING_CONTRADICTION:
-    return `Match contradicts the entry for the opponent. Round ${error.round}, players: ${error.firstPlayer + 1}, ${error.secondPlayer + 1}`;
+    return `Match contradicts the entry for the opponent. Round ${error.round}, players: ${error.firstPlayer}, ${error.secondPlayer}`;
   case ErrorCode.ACC_MISSING_ENTRY:
-    return `Acceleration entry refers to player ${error.playerId + 1}, but is not present on the list`;
+    return `Acceleration entry refers to player ${error.id}, but is not present on the list`;
   case ErrorCode.TOO_MANY_ACCELERATIONS:
-    return `Player ${error.playerId + 1} has more acceleration entries than total number of rounds`;
+    return `Player ${error.id} has more acceleration entries than total number of rounds`;
   case ErrorCode.INVALID_PAIR:
     return `Pair ${error.number} has players which were already processed`;
   case ErrorCode.PAIRING_ERROR:
     if (error.hasPairing) {
-      return `Player ${error.playerId + 1} is already paired`;
+      return `Player ${error.id} is already paired`;
     }
-    return `Player ${error.playerId + 1} is not paired against any opponent and doesn't have assigned status`;
+    return `Player ${error.id} is not paired against any opponent and doesn't have assigned status`;
   case ErrorCode.INTERNAL_ERROR:
     if (error.what !== undefined) {
       return `Internal error has occurred: ${error.what}`;

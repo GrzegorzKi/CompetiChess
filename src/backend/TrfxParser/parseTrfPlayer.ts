@@ -25,13 +25,13 @@ import { parseFloat, parseNumber, parsePlayerId, parseSex } from '#/utils/ParseU
 
 export function createDefaultTrfPlayer(): Player {
   return {
-    playerId: 0,
+    id: 0,
     name: '',
     sex: Sex.UNSPECIFIED,
     title: '',
     rating: 0,
     federation: '',
-    id: '',
+    fideNumber: '',
     birthDate: '',
     rank: 0,
     games: [],
@@ -49,7 +49,7 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
   }
 
   // Rank is omitted - should be recalculated based on selected tie-breaks etc.
-  const regexp = /^(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<id>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d) [ \d]{4}(?<games>([ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
+  const regexp = /^(?<startRank>[ \d]{4}) (?<sex>[\w ])(?<title>.{3}) (?<name>.{33}) (?<rating>[ \d]{4}) (?<fed>[\w ]{3}) (?<fideNum>[ \d]{11}) (?<birthDate>.{10}) (?<points>[ \d]\d[.,]\d) [ \d]{4}(?<games>([ ]{2}[ \d]{4} [bwBW\- ] [-+wdlWDL1=0hfuzHFUZ ]| {10})*)\s*$/;
   const match = regexp.exec(value);
 
   if (match === null || match.groups === undefined) {
@@ -63,7 +63,7 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
     name,
     rating,
     fed,
-    id,
+    fideNum,
     birthDate,
     points,
     games,
@@ -79,9 +79,9 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
     return parsedRating;
   }
 
-  const parsedId = parseNumber(id.trimLeft());
-  if (isError(parsedId)) {
-    return parsedId;
+  const parsedFideNum = parseNumber(fideNum.trimLeft());
+  if (isError(parsedFideNum)) {
+    return parsedFideNum;
   }
 
   const parsedPoints = parseFloat(points.trimLeft());
@@ -95,13 +95,13 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
   }
 
   return {
-    playerId: parsedPlayerId,
+    id: parsedPlayerId,
     name: name.trim(),
     sex: parseSex(sex),
     title: title.trim(),
     rating: parsedRating,
     federation: fed.trim(),
-    id: id.trimLeft(),
+    fideNumber: fideNum.trimLeft(),
     birthDate: birthDate.trim(),
     rank: 0,
     games: parsedTrfGames,

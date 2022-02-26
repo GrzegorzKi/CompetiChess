@@ -20,7 +20,13 @@
 import { ParseData, fieldParser } from './parseValues';
 
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Configuration, Field, Pair, Player } from '#/types/Tournament';
+import Tournament, {
+  Color,
+  Configuration,
+  Field,
+  Pair,
+  PlayersRecord,
+} from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
 import {
   assignByesAndLates,
@@ -35,14 +41,15 @@ import {
   getPlayers,
   inferInitialColor,
   recalculatePlayerScores,
-  reorderAndAssignPositionalRanks,
+  recalculatePositionalRanks,
   validatePairConsistency,
 } from '#/utils/TournamentUtils';
 
 export type ValidTrfData = {
   tournament: Tournament,
   configuration: Configuration,
-  players: Player[],
+  players: PlayersRecord,
+  playersById: number[],
   playersByPosition: number[],
   pairs: Array<Pair[]>,
   warnings: WarnCode[],
@@ -62,8 +69,8 @@ function postProcessData({
   forbiddenPairs,
   byes
 }: ParseData): ParseTrfFileResult {
-
   const warnings: WarnCode[] = [];
+  const playersById = Object.entries(players).map(([, player]) => player.id).sort((a, b) => b - a);
 
   const resultAcc = checkAndAssignAccelerations(players,
     accelerations, configuration.expectedRounds);
@@ -86,10 +93,12 @@ function postProcessData({
     pairs: forbiddenPairs,
   });
 
+  const playersArray = getPlayers(players, playersById, playersByPosition, configuration.matchByRank);
+
   // Infer initial color if not set
   if (configuration.initialColor === Color.NONE) {
     const color = inferInitialColor(
-      getPlayers(players, playersByPosition, configuration.matchByRank),
+      playersArray,
       playedRounds
     );
     if (color === Color.NONE) {
@@ -104,19 +113,19 @@ function postProcessData({
     return { parsingErrors: [getDetails(pairResult)] };
   }
 
-  reorderAndAssignPositionalRanks(players,
-    playersByPosition, configuration.matchByRank);
+  recalculatePositionalRanks(playersArray);
   // TODO Detect holes in player ids - add warning then
 
   assignByesAndLates(players, playedRounds, byes);
   const pairs = generatePairs(players, playedRounds);
   evenUpGamesHistory(players, playedRounds);
-  recalculatePlayerScores(players, configuration);
+  recalculatePlayerScores(playersArray, configuration);
 
   return {
     tournament,
     configuration,
     players,
+    playersById,
     playersByPosition,
     pairs,
     warnings,
@@ -126,7 +135,7 @@ function postProcessData({
 export default function parseTrfFile(content: string): ParseTrfFileResult {
   const data: ParseData = {
     tournament: createTournamentData(),
-    players: [],
+    players: {},
     playersByPosition: [],
     configuration: createDefaultConfiguration(),
     accelerations: [],

@@ -25,6 +25,7 @@ import Tournament, {
   Game,
   Pair,
   Player,
+  PlayersRecord,
 } from '../types/Tournament';
 
 import { readPairs } from '#/Pairings/Pairings';
@@ -76,9 +77,9 @@ export function createTournamentData(overrides?: Partial<Tournament>): Tournamen
   );
 }
 
-export function calculatePlayedRounds(players: Player[]): number {
+export function calculatePlayedRounds(players: PlayersRecord): number {
   let playedRounds = 0;
-  players.forEach((player) => {
+  for (const [, player] of Object.entries(players)) {
     for (let num = player.games.length - 1; num >= 0; --num) {
       const game = player.games[num];
       if (participatedInPairing(game)) {
@@ -88,47 +89,45 @@ export function calculatePlayedRounds(players: Player[]): number {
         break;
       }
     }
-  });
+  }
   return playedRounds;
 }
 
-export function checkAndAssignAccelerations(players: Player[], accelerations: Acceleration[], expectedRounds = Infinity): ParseResult<void> {
+export function checkAndAssignAccelerations(players: PlayersRecord, accelerations: Acceleration[], expectedRounds = Infinity): ParseResult<void> {
   for (let i = 0, len = accelerations.length; i < len; ++i) {
-    const { playerId, values } = accelerations[i];
-    if (players[playerId] === undefined) {
+    const { id, values } = accelerations[i];
+    if (players[id] === undefined) {
       return {
         error: ErrorCode.ACC_MISSING_ENTRY,
-        playerId
+        id
       };
     }
     if (values.length > expectedRounds) {
       return {
         error: ErrorCode.TOO_MANY_ACCELERATIONS,
-        playerId
+        id
       };
     }
-    players[playerId].accelerations = values;
+    players[id].accelerations = values;
   }
 }
 
-export function validatePairConsistency(players: Player[]): ParseResult<void> {
-  for (let i = 0, len = players.length; i < len; ++i) {
-    if (players[i] !== undefined) {
-      const { games, playerId } = players[i];
-      for (let r = 0, rLen = games.length; r < rLen; ++r) {
-        if (gameWasPlayed(games[r])) {
-          const opponent = players[games[r].opponent!];
-          if (opponent === undefined
-            || !gameWasPlayed(opponent.games[r])
-            || opponent.games[r].color === games[r].color
-            || opponent.games[r].opponent !== playerId) {
-            return {
-              error: ErrorCode.PAIRING_CONTRADICTION,
-              firstPlayer: playerId,
-              secondPlayer: opponent.playerId,
-              round: r
-            };
-          }
+export function validatePairConsistency(players: PlayersRecord): ParseResult<void> {
+  for (const [, player] of Object.entries(players)) {
+    const { games, id } = player;
+    for (let r = 0, rLen = games.length; r < rLen; ++r) {
+      if (gameWasPlayed(games[r])) {
+        const opponent = players[games[r].opponent!];
+        if (opponent === undefined
+          || !gameWasPlayed(opponent.games[r])
+          || opponent.games[r].color === games[r].color
+          || opponent.games[r].opponent !== id) {
+          return {
+            error: ErrorCode.PAIRING_CONTRADICTION,
+            firstPlayer: id,
+            secondPlayer: opponent.id,
+            round: r
+          };
         }
       }
     }
@@ -192,7 +191,7 @@ export const calculatePoints = (
   return calcPts;
 };
 
-export function generatePairs(players: Player[], toRound: number): Array<Pair[]> {
+export function generatePairs(players: PlayersRecord, toRound: number): Array<Pair[]> {
   const roundsPairs: Array<Pair[]> = [];
   for (let i = 0; i < toRound; ++i) {
     const pairs = readPairs({
@@ -223,9 +222,16 @@ export const recalculateScores = (
   }
 };
 
+function normalizeToArray<T>(arrayOrRecord: T[] | Record<any, T>): T[] {
+  if (Array.isArray(arrayOrRecord)) {
+    return arrayOrRecord;
+  }
+  return Object.entries(arrayOrRecord).map(([, player]) => player);
+}
+
 export const recalculateTiebreakers = (
   player: Player,
-  players: Player[],
+  players: Player[] | PlayersRecord,
   configuration: Configuration,
   fromRound = 1,
   toRound = Infinity
@@ -235,7 +241,7 @@ export const recalculateTiebreakers = (
   fromRound = Math.max(fromRound, 1);
   const maxLen = Math.min(games.length, toRound);
   for (let round = fromRound; round <= maxLen; ++round) {
-    scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, players);
+    scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, normalizeToArray(players));
   }
 };
 
@@ -246,24 +252,23 @@ export const recalculateTiebreakers = (
 /// @param {number} fromRound - Round number (one-offset) from which to recalculate
 /// @param {number} toRound   - Round number (one-offset) to which recalculate (exclusive)
 export const recalculatePlayerScores = (
-  players: Player[],
+  players: Player[] | PlayersRecord,
   configuration: Configuration,
   fromRound?: number,
   toRound?: number
 ): void => {
-  players.forEach(player => {
+  const playersArr = normalizeToArray(players);
+
+  playersArr.forEach(player => {
     recalculateScores(player, configuration, fromRound, toRound);
   });
-  players.forEach(player => {
+  playersArr.forEach(player => {
     recalculateTiebreakers(player, players, configuration, fromRound, toRound);
   });
 };
 
-export const getPlayers = (players: Player[], byPosition: number[], matchByRank: boolean): Player[] => {
-  if (matchByRank) {
-    return byPosition.map(i => players[i]);
-  }
-  return players;
+export const getPlayers = (players: PlayersRecord, byId: number[], byPosition: number[], matchByRank: boolean): Player[] => {
+  return (matchByRank ? byPosition : byId).map(i => players[i]);
 };
 
 export const inferInitialColor = (
@@ -273,8 +278,8 @@ export const inferInitialColor = (
   let invert = false;
 
   for (let r = 0; r < playedRounds; ++r) {
-    for (let i = 0, pLen = players.length; i < pLen; ++i) {
-      const trfGame = players[i]?.games[r];
+    for (const player of players) {
+      const trfGame = player.games[r];
 
       if (trfGame !== undefined && participatedInPairing(trfGame)) {
         if (trfGame.color !== Color.NONE) {
@@ -312,7 +317,7 @@ export const computeRanks = (players: Player[], tbList: Tiebreaker[], forRound: 
   let rankIndex = 1;
   const playersByRank: Record<number, number> = Object.create(null);
   for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
-    playersByRank[sortedPlayers[i].playerId] = rankIndex;
+    playersByRank[sortedPlayers[i].id] = rankIndex;
     rankIndex += 1;
   }
 
@@ -322,19 +327,8 @@ export const computeRanks = (players: Player[], tbList: Tiebreaker[], forRound: 
   };
 };
 
-export const reorderAndAssignPositionalRanks = (
-  players: Player[],
-  playersByPosition: number[],
-  matchByRank: boolean
-): void => {
-  if (!matchByRank) {
-    playersByPosition.length = 0;
-    players.forEach((player) => {
-      playersByPosition.push(player.playerId);
-    });
-  }
-
-  playersByPosition.forEach((id, index) => {
-    players[id].rank = index;
+export const recalculatePositionalRanks = (players: Player[]): void => {
+  players.forEach((player, index) => {
+    player.rank = index;
   });
 };

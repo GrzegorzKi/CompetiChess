@@ -46,20 +46,23 @@ test('Parse sample file', async () => {
     tournament,
     configuration,
     players,
+    playersById,
     playersByPosition,
     pairs
   } = parseResult;
 
-  deletePairings(pairs, players, forRound + 1);
+  deletePairings(pairs, playersById.map(i => players[i]), forRound + 1);
+
+  const playersArray = getPlayers(players, playersById, playersByPosition, configuration.matchByRank);
 
   const trfOutput = exportToTrf({
     tournament,
-    players: getPlayers(players, playersByPosition, configuration.matchByRank),
+    players: playersArray,
     configuration,
     forRound,
     exportForPairing: true,
   });
-  const comparison = exportComparison(players, configuration.tiebreakers, forRound);
+  const comparison = exportComparison(playersArray, configuration.tiebreakers, forRound);
 
   expect(trfOutput).not.toBeNull();
   expect(comparison).not.toBeNull();

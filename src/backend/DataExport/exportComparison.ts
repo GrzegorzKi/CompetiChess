@@ -27,9 +27,9 @@ function stringifyTiebreakers(tbList: Tiebreaker[],
   let string = '';
 
   const round = Math.max(Math.min(games.length, forRound) - 1, 0);
-  for (let i = 0; i < tbList.length; ++i) {
-    const value = scores[round].tiebreakers[tbList[i]] ?? 0;
-    const tbInfo = tiebreakers[tbList[i]];
+  for (const tb of tbList) {
+    const value = scores[round].tiebreakers[tb] ?? 0;
+    const tbInfo = tiebreakers[tb];
     string += ' ';
     string += value.toFixed(tbInfo.decimalPlaces ?? 1).padStart(tbInfo.abbr.length);
   }
@@ -38,9 +38,9 @@ function stringifyTiebreakers(tbList: Tiebreaker[],
 
 function createHeader(tbList: Tiebreaker[]) {
   let string = '  Id  Pts Rank |';
-  for (let i = 0; i < tbList.length; ++i) {
+  for (const tb of tbList) {
     string += ' ';
-    string += tiebreakers[tbList[i]].abbr;
+    string += tiebreakers[tb].abbr;
   }
   string += `\n${'-'.repeat(string.length + 1)}\n`;
   return string;
@@ -65,14 +65,14 @@ export default function exportComparison(
 
   for (let i = 0, len = sortedPlayers.length; i < len; ++i) {
     if (sortedPlayers[i] !== undefined) {
-      const { playerId } = sortedPlayers[i];
+      const { id } = sortedPlayers[i];
       const points = getPoints(sortedPlayers[i]);
 
-      if (playerId > 9999 || points > 99.9) {
+      if (id > 9999 || points > 99.9) {
         // FIXME Return error code instead
         return '';
       }
-      resultString += `${(playerId + 1).toString().padStart(4)} ${points.toFixed(1).padStart(4)} ${playersByRank[playerId].toString().padStart(4)} |`;
+      resultString += `${id.toString().padStart(4)} ${points.toFixed(1).padStart(4)} ${playersByRank[id].toString().padStart(4)} |`;
       resultString += stringifyTiebreakers(tbList,
         sortedPlayers[i],
         forRound);

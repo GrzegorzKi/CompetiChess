@@ -86,12 +86,12 @@ function calcCumulativeCut(roundsCut: number): CalcFunction {
 const calcOppositionCumulative: CalcFunction = (
   player, forRound, players, configuration): number => {
 
-  const { games, playerId } = player;
+  const { games, id } = player;
   const round = Math.min(games.length, forRound);
 
   let calcCumul = 0.0;
   for (let r = 0; r < round; ++r) {
-    const opponent = games[r].opponent ?? playerId;
+    const opponent = games[r].opponent ?? id;
 
     // Always calculate cumulative tiebreaker first
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -469,7 +469,7 @@ const calcKoyaSystem: CalcFunction = (
 // There is no calculating function for head-to-head.
 // It must be handled on per-pair basis.
 export function compareHeadToHead(first: Player, second: Player): number {
-  const index = first.games.findIndex((game) => game.opponent === second.playerId);
+  const index = first.games.findIndex((game) => game.opponent === second.id);
   if (index === -1) {
     return 0;
   }

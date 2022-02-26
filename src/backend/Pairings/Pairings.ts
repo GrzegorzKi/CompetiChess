@@ -18,7 +18,7 @@
  */
 
 import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
-import { Color, Game, GameResult, Pair, Player } from '#/types/Tournament';
+import { Color, Game, GameResult, Pair, PlayersRecord } from '#/types/Tournament';
 import {
   addByeToPlayer,
   byeResults,
@@ -43,7 +43,7 @@ function removeItem<T>(arr: Array<T>, value: T): Array<T> {
   return arr;
 }
 
-function internalReadPairsFromArray(players: Player[], pairsRaw: string[], round: number): {
+function internalReadPairsFromArray(players: PlayersRecord, pairsRaw: string[], round: number): {
   pairs: Pair[],
   unpaired: UnpairedMap,
 } {
@@ -63,12 +63,12 @@ function internalReadPairsFromArray(players: Player[], pairsRaw: string[], round
       return { pairs: [], unpaired: new Map() };
     }
 
-    const white = (indices[0] - 1);
+    const white = indices[0];
 
     if (indices[1] === 0) {
       unpaired.set(white, GameResult.PAIRING_ALLOCATED_BYE);
     } else {
-      const black = (indices[1] - 1);
+      const black = indices[1];
 
       pairs.push({
         round,
@@ -82,26 +82,25 @@ function internalReadPairsFromArray(players: Player[], pairsRaw: string[], round
   return { pairs, unpaired };
 }
 
-function internalReadPairsFromGames(players: Player[], round: number): Pair[] {
+function internalReadPairsFromGames(players: PlayersRecord, round: number): Pair[] {
   const pairs: Pair[] = [];
   const usedIds: boolean[] = [];
   let pairNo = 0;
 
-  for (const player of players) {
-    if (player !== undefined
-      && player.games[round - 1] !== undefined
-      && usedIds[player.playerId] === undefined) {
+  for (const [, player] of Object.entries(players)) {
+    if (player.games[round - 1] !== undefined
+      && usedIds[player.id] === undefined) {
       const { color, opponent } = player.games[round - 1];
 
       if (opponent !== undefined) {
-        usedIds[player.playerId] = true;
+        usedIds[player.id] = true;
         usedIds[opponent] = true;
         pairNo += 1;
         if (color === Color.BLACK) {
           pairs.push({
             round,
             no: pairNo,
-            white: player.playerId,
+            white: player.id,
             black: opponent
           });
         } else {
@@ -109,7 +108,7 @@ function internalReadPairsFromGames(players: Player[], round: number): Pair[] {
             round,
             no: pairNo,
             white: opponent,
-            black: player.playerId
+            black: player.id
           });
         }
       }
@@ -120,9 +119,9 @@ function internalReadPairsFromGames(players: Player[], round: number): Pair[] {
 }
 
 type ReadPairsParams =
-  | { players: Player[], pairsRaw: string[] }
-  | { players: Player[], fromRound: number }
-  | { players: Player[], pairs: Pair[] }
+  | { players: PlayersRecord, pairsRaw: string[] }
+  | { players: PlayersRecord, fromRound: number }
+  | { players: PlayersRecord, pairs: Pair[] }
 
 export function readPairs(params: ReadPairsParams) {
   let pairs: Pair[];
@@ -229,22 +228,21 @@ export function readPairs(params: ReadPairsParams) {
       }
     }
 
-    for (const player of players) {
-      if (player !== undefined
-          && paired[player.playerId] === undefined
+    for (const [, player] of Object.entries(players)) {
+      if (paired[player.id] === undefined
           && !isWithdrawnOrLate(player, round)) {
         if (readUnpairedFromResults) {
           const { result } = player.games[round - 1];
           if (isResultABye(result)) {
-            unpaired.set(player.playerId, result);
+            unpaired.set(player.id, result);
           } else {
-            unpaired.set(player.playerId, GameResult.UNASSIGNED);
+            unpaired.set(player.id, GameResult.UNASSIGNED);
           }
         } else {
           const type = isAbsentFromRound(player, round)
             ? getTypeOfBye(player)
             : GameResult.UNASSIGNED;
-          unpaired.set(player.playerId, type);
+          unpaired.set(player.id, type);
         }
       }
     }
@@ -276,31 +274,29 @@ export function readPairs(params: ReadPairsParams) {
     }
 
     // Validate pairs and their consistencies
-    for (const player of players) {
-      if (player !== undefined) {
-        const { playerId, games } = player;
+    for (const [, player] of Object.entries(players)) {
+      const { id, games } = player;
 
-        if (rounds[playerId] !== undefined && games[round - 1] !== undefined) {
-          return { error: ErrorCode.PAIRING_ERROR, hasPairing: true, playerId };
-        }
+      if (rounds[id] !== undefined && games[round - 1] !== undefined) {
+        return { error: ErrorCode.PAIRING_ERROR, hasPairing: true, id };
+      }
 
-        if (rounds[playerId] === undefined) {
-          if (games[round - 1] === undefined) {
-            const result = unpaired.get(player.playerId);
-            if (result !== undefined && result !== GameResult.UNASSIGNED) {
-              rounds[playerId] = {
-                round,
-                color: Color.NONE,
-                result
-              };
-            } else if (isWithdrawnOrLate(player, round)) {
-              rounds[playerId] = createByeRound(player, round);
-            } else {
-              return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, playerId };
-            }
+      if (rounds[id] === undefined) {
+        if (games[round - 1] === undefined) {
+          const result = unpaired.get(player.id);
+          if (result !== undefined && result !== GameResult.UNASSIGNED) {
+            rounds[id] = {
+              round,
+              color: Color.NONE,
+              result
+            };
+          } else if (isWithdrawnOrLate(player, round)) {
+            rounds[id] = createByeRound(player, round);
           } else {
-            rounds[playerId] = games[round - 1];
+            return { error: ErrorCode.PAIRING_ERROR, hasPairing: false, id };
           }
+        } else {
+          rounds[id] = games[round - 1];
         }
       }
     }
@@ -316,17 +312,15 @@ export function readPairs(params: ReadPairsParams) {
 
     // Assign created rounds to players
     // and an entry to notPlayed list for a player
-    for (const player of players) {
-      if (player !== undefined) {
-        const { playerId, games } = player;
-        games[round - 1] = rounds[playerId];
+    for (const [, player] of Object.entries(players)) {
+      const { id, games } = player;
+      games[round - 1] = rounds[id];
 
-        const { result } = games[round - 1];
-        if (isResultABye(result) && result !== GameResult.PAIRING_ALLOCATED_BYE) {
-          addByeToPlayer(player, round);
-        } else {
-          removeItem(player.notPlayed, round);
-        }
+      const { result } = games[round - 1];
+      if (isResultABye(result) && result !== GameResult.PAIRING_ALLOCATED_BYE) {
+        addByeToPlayer(player, round);
+      } else {
+        removeItem(player.notPlayed, round);
       }
     }
 

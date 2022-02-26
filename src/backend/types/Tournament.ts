@@ -157,13 +157,13 @@ Line format:
   [No] W R  [No] W R  ...
  */
 export interface Player {
-  playerId: number;
+  id: number;
   name: string;
   sex: Sex;
   title: string;
   rating: number;
   federation: string;
-  id: string;
+  fideNumber: string;
   birthDate: string;
   rank: number;
   games: Game[];
@@ -175,6 +175,8 @@ export interface Player {
   late?: number,
   notPlayed: number[],
 }
+
+export type PlayersRecord = Record<number, Player>;
 
 /* <pre>
 Line format:

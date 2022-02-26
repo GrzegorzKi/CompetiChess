@@ -57,7 +57,7 @@ function stringifyGames(player: Player,
     const { opponent } = games[i];
     string += '  ';
     string += (opponent !== undefined)
-      ? (opponent + 1).toString().padStart(4)
+      ? (opponent).toString().padStart(4)
       : '    ';
     string += ` ${games[i].color} ${games[i].result}`;
   }
@@ -82,7 +82,7 @@ function stringifyAccelerations(accelerations: number[]): string {
   let string = '';
 
   for (const acc of accelerations) {
-    string += ` ${  acc.toFixed(1).padStart(4)}`;
+    string += ` ${acc.toFixed(1).padStart(4)}`;
   }
 
   return string;
@@ -230,38 +230,35 @@ export default function exportToTrf({
   const { playersByRank } = computeRanks(players,
     configuration.tiebreakers, forRound);
 
-  for (let i = 0, len = players.length; i < len; ++i) {
-    if (players[i] !== undefined) {
-      const {
-        playerId,
-        sex,
-        title,
-        name,
-        rating,
-        federation,
-        id,
-        birthDate,
-      } = players[i];
-      const points = getPoints(players[i], exportForPairing, forRound);
+  for (const player of players) {
+    const {
+      id,
+      sex,
+      title,
+      name,
+      rating,
+      federation,
+      fideNumber,
+      birthDate,
+    } = player;
+    const points = getPoints(player, exportForPairing, forRound);
 
-      if (playerId > 9999 || rating > 9999 || points > 99.9) {
-        // FIXME Return error code instead
-        return undefined;
-      }
-      resultString += `001 ${(playerId + 1).toString().padStart(4)} ${sex}${title.padStart(3)}`
-        + ` ${name.padEnd(33)} ${rating.toString().padStart(4)} ${federation.padStart(3)}`
-        + ` ${id.padStart(11)} ${birthDate.padEnd(10)} ${points.toFixed(1).padStart(4)}`
-        + ` ${playersByRank[playerId].toString().padStart(4)}`;
-      resultString += `${stringifyGames(players[i], forRound, exportForPairing)}\n`;
+    if (id > 9999 || rating > 9999 || points > 99.9) {
+      // FIXME Return error code instead
+      return undefined;
     }
+    resultString += `001 ${id.toString().padStart(4)} ${sex}${title.padStart(3)}`
+      + ` ${name.padEnd(33)} ${rating.toString().padStart(4)} ${federation.padStart(3)}`
+      + ` ${fideNumber.padStart(11)} ${birthDate.padEnd(10)} ${points.toFixed(1).padStart(4)}`
+      + ` ${playersByRank[id].toString().padStart(4)}`;
+    resultString += `${stringifyGames(player, forRound, exportForPairing)}\n`;
   }
 
-  for (let i = 0, len = players.length; i < len; ++i) {
-    if (players[i] !== undefined
-      && players[i].accelerations.length !== 0) {
-      const { playerId, accelerations } = players[i];
+  for (const player of players) {
+    if (player.accelerations.length !== 0) {
+      const { id, accelerations } = player;
       const acc = stringifyAccelerations(accelerations);
-      resultString += `XXA ${(playerId + 1).toString().padStart(4)}${acc}\n`;
+      resultString += `XXA ${id.toString().padStart(4)}${acc}\n`;
     }
   }
 

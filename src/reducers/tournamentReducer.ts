@@ -26,7 +26,7 @@ import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
 import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
-import Tournament, { Configuration, Pair, Player } from '#/types/Tournament';
+import Tournament, { Configuration, Pair, Player, PlayersRecord } from '#/types/Tournament';
 import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { computeResult, ResultType } from '#/utils/ResultUtils';
 import {
@@ -39,7 +39,7 @@ import {
 import { RootState } from '@/store';
 
 const verifyNextRoundConditions = (
-  { playedRounds }: Tournament, players: Player[], { expectedRounds }: Configuration
+  { playedRounds }: Tournament, { expectedRounds }: Configuration, players: PlayersRecord,
 ): string | undefined => {
   const allFilled = checkPairingsFilled(players, playedRounds);
   if (!allFilled) {
@@ -58,17 +58,22 @@ const errorHandlerAction = (payload: string): PayloadAction<string> => (
   }
 );
 
+export interface PlayersState {
+  index: Record<number, Player>,
+  orderById: number[],
+  orderByPosition: number[],
+}
+
+export interface ViewState {
+  selectedRound: number,
+}
+
 export interface TournamentState {
   tournament?: Tournament,
   configuration?: Configuration,
-  players?: {
-    byId: Player[],
-    allIdsByPosition: number[]
-  },
+  players?: PlayersState,
   pairs?: Array<Pair[]>,
-  view: {
-    selectedRound: number,
-  },
+  view: ViewState,
   error?: string,
 }
 
@@ -97,14 +102,14 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
       return thunkAPI.rejectWithValue({ reason: 'There is no tournament active. Cannot start new round.' });
     }
 
-    const verifyError = verifyNextRoundConditions(tournament, players.byId, configuration);
+    const verifyError = verifyNextRoundConditions(tournament, configuration, players.index);
 
     if (verifyError) {
       return thunkAPI.rejectWithValue({ reason: verifyError, isValidationError: true });
     }
 
-    const playersToIter = getPlayers(players.byId,
-      players.allIdsByPosition, configuration.matchByRank);
+    const playersToIter = getPlayers(players.index,
+      players.orderById, players.orderByPosition, configuration.matchByRank);
 
     const trfOutput = exportToTrf({
       tournament,
@@ -134,15 +139,18 @@ export const tournamentSlice = createSlice({
   name: 'tournament',
   initialState,
   reducers: {
-    loadNew: (state, action: PayloadAction<ValidTrfData>) => {
-      state.tournament = action.payload.tournament;
-      state.configuration = action.payload.configuration;
+    loadNew: (state, { payload }: PayloadAction<ValidTrfData>) => {
+      state.tournament = payload.tournament;
+      state.configuration = payload.configuration;
       state.players = {
-        byId: action.payload.players,
-        allIdsByPosition: action.payload.playersByPosition,
+        index: payload.players,
+        orderById: payload.playersById,
+        orderByPosition: payload.playersByPosition,
       };
-      state.pairs = action.payload.pairs;
-      state.view.selectedRound = 0;
+      state.pairs = payload.pairs;
+      state.view = {
+        selectedRound: 0,
+      };
     },
     close: (state) => {
       state.tournament = undefined;
@@ -185,8 +193,8 @@ export const tournamentSlice = createSlice({
         return;
       }
 
-      const white = players.byId[pairElement.white];
-      const black = players.byId[pairElement.black];
+      const white = players.index[pairElement.white];
+      const black = players.index[pairElement.black];
       // Action should not change result of a pair without an opponent
       if (!black) {
         return;
@@ -198,8 +206,10 @@ export const tournamentSlice = createSlice({
 
       recalculateScores(white, configuration, round);
       recalculateScores(black, configuration, round);
-      players.byId.forEach(player => {
-        recalculateTiebreakers(player, players.byId, configuration, round);
+
+      const playerArray = players.orderById.map(i => players.index[i]);
+      playerArray.forEach(player => {
+        recalculateTiebreakers(player, playerArray, configuration, round);
       });
     }
   },
@@ -211,8 +221,10 @@ export const tournamentSlice = createSlice({
         return;
       }
 
+      const playersArray = players.orderById.map(i => players.index[i]);
+
       const pairsParser = readPairs({
-        players: players.byId,
+        players: players.index,
         pairsRaw: action.payload
       });
       const result = pairsParser.apply(pairs);
@@ -222,9 +234,9 @@ export const tournamentSlice = createSlice({
         return;
       }
 
-      evenUpGamesHistory(players.byId, tournament.playedRounds);
+      evenUpGamesHistory(players.index, tournament.playedRounds);
       recalculatePlayerScores(
-        players.byId,
+        playersArray,
         configuration,
         tournament.playedRounds);
 

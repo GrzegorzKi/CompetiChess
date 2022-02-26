@@ -54,7 +54,7 @@ export function parsePlayerId(value: string): ParseResult<number> {
     return { error: ErrorCode.INVALID_VALUE, value, what: 'player ID' };
   }
 
-  return num - 1;
+  return num;
 }
 
 export function parseFloat(value: string): ParseResult<number> {

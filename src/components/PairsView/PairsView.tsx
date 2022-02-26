@@ -31,14 +31,14 @@ import {
   setResult,
 } from 'reducers/tournamentReducer';
 
-import Tournament, { Pair, Player } from '#/types/Tournament';
+import Tournament, { Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 
 interface Props {
   data: Tournament,
   roundPairs: Array<Pair[]>,
-  players: Player[],
+  players: PlayersRecord,
   forceRound?: number
 }
 
@@ -48,14 +48,14 @@ function prevRoundPoints(player: Player, round: number): number {
     : player.scores[round - 1].points;
 }
 
-function getResult(pair: Pair, players: Player[], round: number) {
+function getResult(pair: Pair, players: PlayersRecord, round: number) {
   const white = players[pair.white];
   const black = players[pair.black];
   return `${white.games[round].result} : ${black.games[round].result}`;
 }
 
 function displayPlayer(player: Player) {
-  return `${player.name} (${player.playerId + 1})`;
+  return `${player.name} (${player.id})`;
 }
 
 const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forceRound }) => {

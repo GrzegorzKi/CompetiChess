@@ -36,7 +36,7 @@ const Pairs: FunctionalComponent = () => {
       ? (
         <>
           <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-          <PairsView data={tournament} roundPairs={pairs} players={players.byId} />
+          <PairsView data={tournament} roundPairs={pairs} players={players.index} />
         </>
       )
       :

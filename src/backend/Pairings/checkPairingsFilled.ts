@@ -36,11 +36,11 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { GameResult, Player } from '#/types/Tournament';
+import { GameResult, PlayersRecord } from '#/types/Tournament';
 
-export default function checkPairingsFilled(players: Player[], round: number): boolean {
-  for (const player of players) {
-    if (player !== undefined && player.games[round - 1].result === GameResult.UNASSIGNED) {
+export default function checkPairingsFilled(players: PlayersRecord, round: number): boolean {
+  for (const [, player] of Object.entries(players)) {
+    if (player.games[round - 1].result === GameResult.UNASSIGNED) {
       return false;
     }
   }

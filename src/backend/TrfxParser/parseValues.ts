@@ -21,14 +21,14 @@ import parseAcceleration, { Acceleration } from './parseAcceleration';
 import parseTrfPlayer from './parseTrfPlayer';
 
 import { ErrorCode, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Configuration, Field, Player } from '#/types/Tournament';
+import Tournament, { Color, Configuration, Field, PlayersRecord } from '#/types/Tournament';
 import { parseNumber, tokenize, tokenizeToNumbers } from '#/utils/ParseUtils';
 
 export type ParseFunc = (data: ParseData, value: string) => ParseError | void;
 
 export interface ParseData {
   tournament: Tournament,
-  players: Player[],
+  players: PlayersRecord,
   playersByPosition: number[],
   configuration: Configuration,
   accelerations: Acceleration[],
@@ -72,11 +72,11 @@ export const fieldParser: Record<Field, ParseFunc> = {
     const tryTrfPlayer = parseTrfPlayer(value);
     if (isError(tryTrfPlayer)) {
       return tryTrfPlayer;
-    } else if (players[tryTrfPlayer.playerId] !== undefined) {
-      return { error: ErrorCode.PLAYER_DUPLICATE, playerId: tryTrfPlayer.playerId };
+    } else if (players[tryTrfPlayer.id] !== undefined) {
+      return { error: ErrorCode.PLAYER_DUPLICATE, id: tryTrfPlayer.id };
     }
-    players[tryTrfPlayer.playerId] = tryTrfPlayer;
-    playersByPosition.push(tryTrfPlayer.playerId);
+    players[tryTrfPlayer.id] = tryTrfPlayer;
+    playersByPosition.push(tryTrfPlayer.id);
   },
   [Field.TEAM_ENTRY]: () => { /* TODO Implement in the future */ },
 
