@@ -20,13 +20,19 @@
 import './styles/global.scss';
 import { h } from 'preact';
 import { Provider } from 'react-redux';
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 
 import App from '@/app';
 import { store } from '@/store';
 
+const persistor = persistStore(store);
+
 const Main = (): JSX.Element => (
   <Provider store={store}>
-    <App />
+    <PersistGate loading={null} persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>
 );
 
