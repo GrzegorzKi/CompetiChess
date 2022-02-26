@@ -1,5 +1,5 @@
-/*!
- * Copyright (c) 2022  Grzegorz Kita
+/*
+ * Copyright (c) 2021-2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,20 +17,15 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import '/styles/variables';
-@import 'bulma/sass/helpers/visibility';
+// Bulma's global variables
+$primary: #8ebf42;
+$navbar-background-color: #673AB7;
+$navbar-box-shadow-color: hsl(0, 0%, 6%);
 
-.inputFile {
-  @extend .is-sr-only;
-
-  & + label {
-    border: 3px dashed rgba(0, 0, 0, 0);
-    font-weight: bold;
-
-    transition: all 0.5s;
-  }
-
-  &.dropActive + label {
-    border-color: mix(black, $hover, 30%);
-  }
-}
+// App's global variables
+$hover: #00ab97;
+$paddingH: 56px;
+$paddingW: 0;
+$innerPaddingH: 1rem;
+$innerPaddingW: 1rem;
+$scrollbarSize: 8px;

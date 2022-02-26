@@ -17,13 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$radius: 0.75rem;
-$width: 1px;
-
-@import 'bulma/bulma';
-
 .customOrdering {
-	//@extend %unselectable;
 	display: flex;
 
 	li {
