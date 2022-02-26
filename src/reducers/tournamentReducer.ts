@@ -37,6 +37,7 @@ import {
 } from '#/utils/TournamentUtils';
 
 import { RootState } from '@/store';
+import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
 
 const verifyNextRoundConditions = (
   { playedRounds }: Tournament, { expectedRounds }: Configuration, players: PlayersRecord,
@@ -88,12 +89,18 @@ type SetResultType = { round: number, pairNo: string, type: ResultType };
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
   rejectValue: {
-    reason: string
-    isValidationError?: boolean
+    reason: string,
+    toastId?: React.ReactText | DelayedToastData,
+    isValidationError?: boolean,
   },
 }
 
-const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
+type CreateNextRoundReturned = {
+  data: string[],
+  toastId: React.ReactText | DelayedToastData,
+}
+
+const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThunkConfig>(
   'tournament/createNextRound',
   async (_, thunkAPI) => {
     const { tournament, configuration, pairs, players } = thunkAPI.getState().tournament;
@@ -122,15 +129,20 @@ const createNextRound = createAsyncThunk<string[], void, AsyncThunkConfig>(
       return thunkAPI.rejectWithValue({ reason: 'Unable to generate output for BbpPairings engine.' });
     }
 
+
+    const toastId = showDelayedToast(() => toast.loading('Generating new round'), 500);
     try {
       const bbpInstance = await BbpPairings.getInstance();
       const bbpOutput = bbpInstance.invoke(trfOutput);
       if (bbpOutput.statusCode !== 0) {
-        return thunkAPI.rejectWithValue({ reason: bbpOutput.errorOutput.join('\n') });
+        return thunkAPI.rejectWithValue({ reason: bbpOutput.errorOutput.join('\n'), toastId });
       }
-      return bbpOutput.data;
+      return {
+        data: bbpOutput.data,
+        toastId
+      };
     } catch {
-      return thunkAPI.rejectWithValue({ reason: 'Application encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.' });
+      return thunkAPI.rejectWithValue({ reason: 'Application has encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.', toastId });
     }
   }
 );
@@ -214,7 +226,7 @@ export const tournamentSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(createNextRound.fulfilled, (state, action) => {
+    builder.addCase(createNextRound.fulfilled, (state, { payload }) => {
       const { tournament, configuration, pairs, players, view } = state;
 
       if (!tournament || !players || !pairs || !configuration) {
@@ -225,9 +237,12 @@ export const tournamentSlice = createSlice({
 
       const pairsParser = readPairs({
         players: players.index,
-        pairsRaw: action.payload
+        pairsRaw: payload.data
       });
       const result = pairsParser.apply(pairs);
+
+      dismissDelayedToast(payload.toastId);
+
       if (isError(result)) {
         tournamentSlice.caseReducers.errorHandler(state,
           errorHandlerAction(getDetails(result)));
@@ -251,7 +266,10 @@ export const tournamentSlice = createSlice({
     }
     );
     builder.addCase(createNextRound.rejected, (state, action) => {
+      action.payload?.toastId && dismissDelayedToast(action.payload.toastId);
+
       const reason = action.payload?.reason ?? 'Unknown error occurred';
+
       if (action.payload?.isValidationError) {
         state.error = reason;
         toast.warning(state.error);

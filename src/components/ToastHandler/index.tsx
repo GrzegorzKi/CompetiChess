@@ -18,11 +18,39 @@
  */
 
 import { h } from 'preact';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.min.css';
 
-const ToastHandler = () => (
+export type DelayedToastData = {
+  delayId?: ReturnType<typeof setTimeout>,
+  toastId?: React.ReactText,
+}
+
+export const showDelayedToast = (toastFn: () => React.ReactText, delay: number): DelayedToastData => {
+  const data: DelayedToastData = {};
+  data.delayId = setTimeout(() => {
+    data.toastId = toastFn();
+    data.delayId = undefined;
+  }, delay);
+  return data;
+};
+
+export const dismissDelayedToast = (data: DelayedToastData | React.ReactText): void => {
+  if (typeof data !== 'object') {
+    toast.dismiss(data);
+  }
+  else if (data.delayId) {
+    clearTimeout(data.delayId);
+    data.delayId = undefined;
+  }
+  else if (data.toastId) {
+    toast.dismiss(data.toastId);
+    data.toastId = undefined;
+  }
+};
+
+const ToastHandler = (): JSX.Element => (
   <ToastContainer
     position="top-right"
     autoClose={5000}
