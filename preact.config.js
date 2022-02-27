@@ -93,6 +93,10 @@ export default (config, env, helpers) => {
   config.node.path = 'empty';
   config.node.crypto = 'empty';
 
+  if (config.performance) {
+    config.performance.assetFilter = (asset) => !asset.match('bbpPairingsWasm.wasm');
+  }
+
   disableSourceMapsOnProd(config, env);
 
   configSizePlugin(config, helpers);
