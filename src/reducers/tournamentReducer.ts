@@ -84,7 +84,7 @@ const initialState: TournamentState = {
   },
 };
 
-type SetResultType = { round: number, pairNo: string, type: ResultType };
+type SetResultType = { round?: number, pairNo: string, type: ResultType };
 
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
@@ -189,12 +189,15 @@ export const tournamentSlice = createSlice({
       state.error = action.payload;
       toast.error(state.error);
     },
-    setResult: ({ pairs, players, configuration }, action: PayloadAction<SetResultType>) => {
+    setResult: ({ pairs, players, configuration, view }, action: PayloadAction<SetResultType>) => {
       if (!pairs || !players || !configuration) {
         return;
       }
 
-      const { round, pairNo, type } = action.payload;
+      const { pairNo, type } = action.payload;
+      let { round } = action.payload;
+      round ??= view.selectedRound;
+
       if (round >= pairs.length) {
         return;
       }

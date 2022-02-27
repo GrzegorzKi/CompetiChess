@@ -251,12 +251,12 @@ export function readPairs(params: ReadPairsParams) {
   function validateAndGenerateRounds(): ParseResult<Game[]> {
     const rounds: Game[] = [];
 
-    for (let i = 0; i < pairs.length; ++i) {
-      const whiteId = pairs[i].white;
-      const blackId = pairs[i].black;
+    for (const pair of pairs) {
+      const whiteId = pair.white;
+      const blackId = pair.black;
 
       if (rounds[whiteId] !== undefined || rounds[blackId] !== undefined) {
-        return { error: ErrorCode.INVALID_PAIR, number: i + 1 };
+        return { error: ErrorCode.INVALID_PAIR, number: pair.no };
       }
 
       rounds[whiteId] = {

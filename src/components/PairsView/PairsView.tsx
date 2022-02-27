@@ -18,7 +18,7 @@
  */
 
 import { h, FunctionalComponent, JSX } from 'preact';
-import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
@@ -79,51 +79,51 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forc
     }
   }, [round, ref, focusOnFirst]);
 
-  const arrowHandling = useCallback((event: JSX.TargetedKeyboardEvent<any>) => {
-    const pairNo: string | undefined = ref.current?.dataset['index'];
-
-    switch (event.code) {
-    case 'ArrowLeft':
-      dispatch(selectPrevRound());
-      break;
-    case 'ArrowRight':
-      dispatch(selectNextRound());
-      break;
-    case 'ArrowUp':
-      focusOnPrev() && event.preventDefault();
-      break;
-    case 'ArrowDown':
-      focusOnNext() && event.preventDefault();
-      break;
-    default:
-      switch (event.key) {
-      case 'w':
-      case 'W':
-      case '1':
-        pairNo && dispatch(setResult({ round, pairNo, type: 'WHITE_WIN' }));
-        event.shiftKey ? focusOnPrev() : focusOnNext();
-        break;
-      case 'l':
-      case 'L':
-      case '0':
-        pairNo && dispatch(setResult({ round, pairNo, type: 'BLACK_WIN' }));
-        event.shiftKey ? focusOnPrev() : focusOnNext();
-        break;
-      case 'd':
-      case 'D':
-      case '5':
-        pairNo && dispatch(setResult({ round, pairNo, type: 'DRAW' }));
-        event.shiftKey ? focusOnPrev() : focusOnNext();
-        break;
-      }
-    }
-  }, [dispatch, focusOnPrev, focusOnNext, ref, round]);
-
   // Register keys handler
   useEffect(() => {
+    const arrowHandling = (event: JSX.TargetedKeyboardEvent<any>) => {
+      const pairNo: string | undefined = ref.current?.dataset['index'];
+
+      switch (event.code) {
+      case 'ArrowLeft':
+        dispatch(selectPrevRound());
+        break;
+      case 'ArrowRight':
+        dispatch(selectNextRound());
+        break;
+      case 'ArrowUp':
+        focusOnPrev() && event.preventDefault();
+        break;
+      case 'ArrowDown':
+        focusOnNext() && event.preventDefault();
+        break;
+      default:
+        switch (event.key) {
+        case 'w':
+        case 'W':
+        case '1':
+          pairNo && dispatch(setResult({ pairNo, type: 'WHITE_WIN' }));
+          event.shiftKey ? focusOnPrev() : focusOnNext();
+          break;
+        case 'l':
+        case 'L':
+        case '0':
+          pairNo && dispatch(setResult({ pairNo, type: 'BLACK_WIN' }));
+          event.shiftKey ? focusOnPrev() : focusOnNext();
+          break;
+        case 'd':
+        case 'D':
+        case '5':
+          pairNo && dispatch(setResult({ pairNo, type: 'DRAW' }));
+          event.shiftKey ? focusOnPrev() : focusOnNext();
+          break;
+        }
+      }
+    };
+
     document.addEventListener('keydown', arrowHandling);
     return () => document.removeEventListener('keydown', arrowHandling);
-  }, [arrowHandling]);
+  }, [dispatch, focusOnNext, focusOnPrev, ref]);
 
   const selectRow = (event: JSX.TargetedEvent<HTMLElement>) => {
     const attribute = event.currentTarget.dataset['index'];
