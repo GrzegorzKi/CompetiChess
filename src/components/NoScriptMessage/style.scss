@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,20 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import './styles/global.scss';
-import { h } from 'preact';
-import { Provider } from 'react-redux';
-import { persistStore } from 'redux-persist';
+@import 'styles/variables';
 
-import App from '@/app';
-import { store } from '@/store';
-
-persistStore(store);
-
-const Main = (): JSX.Element => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
-
-export default Main;
+.ns {
+  padding: $innerPaddingH $innerPaddingW 0;
+}

@@ -42,8 +42,8 @@ const Header: FunctionalComponent = () => {
             Tournament: <strong>{tournament.tournamentName}</strong>
           </Link>
           : null}
-        <Link class={location === routes.create.path ? style.active : ''} href={routes.create.path}>Create a tournament</Link>
-        <Link class={location === routes.pairs.path ? style.active : ''} href={routes.pairs.path}>Pairs</Link>
+        <Link class={location === routes.create.path ? style.active : undefined} href={routes.create.path}>Create a tournament</Link>
+        <Link class={location === routes.pairs.path ? style.active : undefined} href={routes.pairs.path}>Pairs</Link>
       </nav>
     </header>
   );

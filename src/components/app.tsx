@@ -31,6 +31,7 @@ import constants, { routes, RoutesData } from '../constants';
 
 import { AnimatedSwitch, slide } from '@/Animation';
 import Header from '@/Header';
+import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
 
 const pageTransitions = {
@@ -104,6 +105,7 @@ const App: FunctionalComponent = () => {
   return (
     <div id="root">
       <Header />
+      <NoScriptMessage />
       <AnimatedSwitch
         {...pageTransitions}
         runOnMount={true}

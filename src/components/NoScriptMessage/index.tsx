@@ -17,20 +17,18 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import './styles/global.scss';
 import { h } from 'preact';
-import { Provider } from 'react-redux';
-import { persistStore } from 'redux-persist';
 
-import App from '@/app';
-import { store } from '@/store';
+import style from './style.scss';
 
-persistStore(store);
+const NoScriptMessage = (): JSX.Element => {
+  return (
+    <noscript>
+      <main class={style.ns}>
+        <strong>CompetiChess</strong> requires JavaScript enabled to work. Please enable it and reload the page to use this application.
+      </main>
+    </noscript>
+  );
+};
 
-const Main = (): JSX.Element => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
-
-export default Main;
+export default NoScriptMessage;
