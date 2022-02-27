@@ -19,7 +19,8 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { Link, useLocation } from 'wouter-preact';
+import { useLocation } from 'react-router';
+import { Link, NavLink } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
@@ -37,7 +38,7 @@ const Burger = ({ onClick, isActive }: { onClick: () => void, isActive: boolean 
 
 const Header: FunctionalComponent = () => {
   const [active, setActive] = useState(false);
-  const [location] = useLocation();
+  const { pathname } = useLocation();
   const tournament = useAppSelector(selectTournament);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const Header: FunctionalComponent = () => {
       document.removeEventListener('click', hideNavOnOutsideClick);
     };
   }, []);
-  useEffect(() => setActive(false), [location]);
+  useEffect(() => setActive(false), [pathname]);
 
   const tournamentInfo = tournament
     ? <span class="navbar-item"><b>{tournament.tournamentName}</b></span>
@@ -61,8 +62,8 @@ const Header: FunctionalComponent = () => {
   return (
     <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <Link href={routes[''].path}>
-          <a class="navbar-item"><strong>CompetiChess</strong></a>
+        <Link className="navbar-item" to={routes[''].path}>
+          <strong>CompetiChess</strong>
         </Link>
 
         <Burger isActive={active} onClick={() => setActive(!active)} />
@@ -71,8 +72,8 @@ const Header: FunctionalComponent = () => {
       <div class={`navbar-menu${active ? ' is-active' : ''}`} >
         <div class="navbar-end">
           {tournamentInfo}
-          <Link class={`navbar-item${location === routes.create.path ? ' is-active' : ''}`} href={routes.create.path}>Create a tournament</Link>
-          <Link class={`navbar-item${location === routes.pairs.path ? ' is-active' : ''}`} href={routes.pairs.path}>Pairs</Link>
+          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.create.path}>Create a tournament</NavLink>
+          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.pairs.path}>Pairs</NavLink>
         </div>
       </div>
     </nav>

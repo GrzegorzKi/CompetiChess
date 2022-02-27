@@ -19,8 +19,8 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useEffect } from 'preact/hooks';
+import { Route, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
-import { Route, useLocation } from 'wouter-preact';
 
 import CreateTournament from 'routes/create';
 import Home from 'routes/home';
@@ -29,7 +29,7 @@ import Pairs from 'routes/pairs';
 
 import constants, { routes, RoutesData } from '../constants';
 
-import { AnimatedSwitch, slide } from '@/Animation';
+import { AnimatedRoutes, slide } from '@/Animation';
 import Header from '@/Header';
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
@@ -97,16 +97,16 @@ function getTitle(location: string): string {
 const App: FunctionalComponent = () => {
   useEffect(() => listenToSwUpdates(), []);
 
-  const [location] = useLocation();
+  const { pathname } = useLocation();
   useEffect(() => {
-    document.title = getTitle(location);
-  }, [location]);
+    document.title = getTitle(pathname);
+  }, [pathname]);
 
   return (
     <div id="root">
       <Header />
       <NoScriptMessage />
-      <AnimatedSwitch
+      <AnimatedRoutes
         {...pageTransitions}
         runOnMount={true}
         mapStyles={(styles) => ({
@@ -115,11 +115,11 @@ const App: FunctionalComponent = () => {
         })}
         className="route-wrapper"
       >
-        <Route path={routes.create.path} component={CreateTournament} />
-        <Route path={routes.pairs.path} component={Pairs} />
-        <Route path={routes[''].path} component={Home} />
-        <Route component={NotFound} />
-      </AnimatedSwitch>
+        <Route path={routes.create.path} element={<CreateTournament />} />
+        <Route path={routes.pairs.path} element={<Pairs />} />
+        <Route path={routes[''].path} element={<Home />} />
+        <Route path="*" element={<NotFound />} />
+      </AnimatedRoutes>
       <ToastHandler />
     </div>
   );

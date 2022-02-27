@@ -20,6 +20,8 @@
 import './styles/global.scss';
 import { h } from 'preact';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import { StaticRouter } from 'react-router-dom/server';
 import { persistStore } from 'redux-persist';
 
 import App from '@/app';
@@ -27,10 +29,22 @@ import { store } from '@/store';
 
 persistStore(store);
 
-const Main = (): JSX.Element => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
+const Main = (props: { url: string }): JSX.Element => {
+  return typeof window === 'undefined'
+    ? (
+      <StaticRouter location={props.url}>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </StaticRouter>
+    )
+    : (
+      <BrowserRouter>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </BrowserRouter>
+    );
+};
 
 export default Main;

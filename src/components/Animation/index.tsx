@@ -28,7 +28,7 @@ import {
   TransitionPlainStyle,
   TransitionStyle
 } from 'react-motion';
-import { useRoute, Route, useLocation, Switch } from 'wouter-preact';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
 function ensureSpring(styles: Style = {}): Style {
   const obj: Style = {};
@@ -159,41 +159,40 @@ export function slide(val: number): OpaqueConfig {
 
 export interface AnimatedRouteProps extends Omit<ITransitionProps, 'children'> {
   path: string,
-  component: React.ComponentProps<typeof Route>['component'],
+  element?: React.ReactNode | null;
 }
 
 export function AnimatedRoute({
-  component,
+  element,
   path,
   ...routeTransitionProps
 }: AnimatedRouteProps) {
-  const [match] = useRoute(path);
   return (
     <Transition {...routeTransitionProps}>
       <Route
-        key={match ? 'match' : 'no-match'}
+        key={path}
         path={path}
-        component={component}
+        element={element}
       />
     </Transition>
   );
 }
 
 export interface AnimatedSwitchProps extends Omit<ITransitionProps, 'children'> {
-  children: React.ComponentProps<typeof Switch>['children'],
+  children: React.ComponentProps<typeof Routes>['children'],
 }
 
-export function AnimatedSwitch({
+export function AnimatedRoutes({
   children,
   ...routeTransitionProps
 }: AnimatedSwitchProps) {
-  const [location = ''] = useLocation();
+  const location = useLocation();
 
   return (
     <Transition {...routeTransitionProps}>
-      <Switch key={location} location={location}>
+      <Routes key={location.pathname} location={location}>
         {children}
-      </Switch>
+      </Routes>
     </Transition>
   );
 }

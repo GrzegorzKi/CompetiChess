@@ -17,20 +17,19 @@
   ],
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",
-    "core-js": "^3.18.1",
     "normalize.css": "^8.0.1",
     "preact": "^10.6.5",
     "preact-render-to-string": "^5.1.4",
     "react-motion": "^0.5.2",
     "react-paginate": "^8.1.0",
     "react-redux": "^7.2.6",
+    "react-router": "^6.2.1",
+    "react-router-dom": "^6.2.1",
     "react-toastify": "^8.2.0",
     "redux": "^4.1.2",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.1",
-    "sass": "^1.42.1",
-    "sharp": "^0.29.1",
-    "wouter-preact": "^2.8.0-alpha.2"
+    "sass": "^1.42.1"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^4.1.3",

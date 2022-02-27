@@ -18,7 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { Link } from 'wouter-preact';
+import { Link } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
 import { selectPairs, selectPlayers, selectTournament } from 'reducers/tournamentReducer';
@@ -42,7 +42,7 @@ const Pairs: FunctionalComponent = () => {
       :
       <p>There is no tournament open right now.
         {' '}
-        <Link class="has-text-link" href="/create">Do you want to create one?</Link>
+        <Link className="has-text-link" to="/create">Do you want to create one?</Link>
       </p>
   );
 };
