@@ -23,6 +23,8 @@ import { Link, useLocation } from 'wouter-preact';
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
+import { routes } from '../../constants';
+
 import style from './style.scss';
 
 const Header: FunctionalComponent = () => {
@@ -31,17 +33,17 @@ const Header: FunctionalComponent = () => {
 
   return (
     <header class={style.header}>
-      <Link href="/">
+      <Link href={routes[''].path}>
         <a><h1>Preact App</h1></a>
       </Link>
       <nav>
         {tournament ?
-          <Link href="/">
+          <Link href={routes[''].path}>
             Tournament: <strong>{tournament.tournamentName}</strong>
           </Link>
           : null}
-        <Link class={location === '/create' ? style.active : ''} href="/create">Create a tournament</Link>
-        <Link class={location === '/pairs' ? style.active : ''} href="/pairs">Pairs</Link>
+        <Link class={location === routes.create.path ? style.active : ''} href={routes.create.path}>Create a tournament</Link>
+        <Link class={location === routes.pairs.path ? style.active : ''} href={routes.pairs.path}>Pairs</Link>
       </nav>
     </header>
   );

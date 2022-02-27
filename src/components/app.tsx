@@ -20,12 +20,14 @@
 import { FunctionalComponent, h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { toast } from 'react-toastify';
-import { Route } from 'wouter-preact';
+import { Route, useLocation } from 'wouter-preact';
 
 import CreateTournament from 'routes/create';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
+
+import constants, { routes, RoutesData } from '../constants';
 
 import { AnimatedSwitch, slide } from '@/Animation';
 import Header from '@/Header';
@@ -80,8 +82,24 @@ function listenToSwUpdates() {
   }
 }
 
+// We have to change page title in the main component instead of
+// route components, since using animated route might not work well
+// with two components existing simultaneously (i.e. when switching
+// them back and forth)
+function getTitle(location: string): string {
+  const route = (routes as RoutesData)[location.substring(1)];
+  return route && route.title
+    ? `${route.title} | ${constants.APP_NAME}`
+    : constants.APP_NAME;
+}
+
 const App: FunctionalComponent = () => {
   useEffect(() => listenToSwUpdates(), []);
+
+  const [location] = useLocation();
+  useEffect(() => {
+    document.title = getTitle(location);
+  }, [location]);
 
   return (
     <div id="root">
@@ -95,9 +113,9 @@ const App: FunctionalComponent = () => {
         })}
         className="route-wrapper"
       >
-        <Route path="/create" component={CreateTournament} />
-        <Route path="/pairs" component={Pairs} />
-        <Route path="/" component={Home} />
+        <Route path={routes.create.path} component={CreateTournament} />
+        <Route path={routes.pairs.path} component={Pairs} />
+        <Route path={routes[''].path} component={Home} />
         <Route component={NotFound} />
       </AnimatedSwitch>
       <ToastHandler />

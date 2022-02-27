@@ -18,10 +18,17 @@
  */
 
 import { h } from 'preact';
+import { useEffect } from 'preact/hooks';
+
+import constants from '../../constants';
 
 import style from './style.scss';
 
-export default function NotFound() {
+export default function NotFound(): JSX.Element {
+  useEffect(() => {
+    document.title = `404 Not Found | ${constants.APP_NAME}`;
+  }, []);
+
   // Preact's pre-render works in Node environment,
   // so we check if window object is defined
   const currentPage = typeof window !== 'undefined'
