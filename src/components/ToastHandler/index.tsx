@@ -61,6 +61,7 @@ const ToastHandler = (): JSX.Element => (
     pauseOnFocusLoss
     draggable
     pauseOnHover
+    draggablePercent={35}
     className="is-unselectable"
   />
 );

@@ -36,6 +36,10 @@
   }
 }
 
+// Prevent color override on hovering
+a.navbar-burger:hover {
+  color: $navbar-item-hover-color;
+}
 
 * {
   box-sizing: border-box;
@@ -45,17 +49,19 @@ html {
   overflow-y: hidden !important;
 }
 
+body {
+  padding-top: $navbar-height;
+}
+
 html, body {
   height: 100%;
   width: 100%;
-  padding: 0;
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 #root {
-  padding: $paddingH $paddingW 0;
+  //padding: $paddingH $paddingW 0;
   height: 100%;
   width: 100%;
 }
@@ -72,8 +78,8 @@ a {
 // Route animations classes
 .route-wrapper {
   position: relative;
-  width: calc(100vw - #{$paddingW});
-  height: calc(100vh - #{$paddingH});
+  width: 100vw;
+  height: calc(100vh - #{$navbar-height});
 }
 
 .route-wrapper > * {

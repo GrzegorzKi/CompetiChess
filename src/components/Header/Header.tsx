@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 import { Link, useLocation } from 'wouter-preact';
 
 import { useAppSelector } from 'hooks';
@@ -25,27 +26,56 @@ import { selectTournament } from 'reducers/tournamentReducer';
 
 import { routes } from '../../constants';
 
-import style from './style.scss';
+const Burger = ({ onClick, isActive }: { onClick: () => void, isActive: boolean }) => (
+  <a role="button" class={`navbar-burger${isActive ? ' is-active' : ''}`} aria-label="menu" aria-expanded={isActive}
+     data-target="navbar" onClick={onClick}>
+    <span aria-hidden="true" />
+    <span aria-hidden="true" />
+    <span aria-hidden="true" />
+  </a>
+);
 
 const Header: FunctionalComponent = () => {
+  const [active, setActive] = useState(false);
   const [location] = useLocation();
   const tournament = useAppSelector(selectTournament);
 
+  useEffect(() => {
+    const hideNavOnOutsideClick = (e: MouseEvent) => {
+      if (e.target instanceof Element && e.target.closest('.navbar') === null) {
+        setActive(false);
+      }
+    };
+
+    document.addEventListener('click', hideNavOnOutsideClick);
+    return () => {
+      document.removeEventListener('click', hideNavOnOutsideClick);
+    };
+  }, []);
+  useEffect(() => setActive(false), [location]);
+
+  const tournamentInfo = tournament
+    ? <span class="navbar-item"><b>{tournament.tournamentName}</b></span>
+    : null;
+
   return (
-    <header class={style.header}>
-      <Link href={routes[''].path}>
-        <a><h1>Preact App</h1></a>
-      </Link>
-      <nav>
-        {tournament ?
-          <Link href={routes[''].path}>
-            Tournament: <strong>{tournament.tournamentName}</strong>
-          </Link>
-          : null}
-        <Link class={location === routes.create.path ? style.active : undefined} href={routes.create.path}>Create a tournament</Link>
-        <Link class={location === routes.pairs.path ? style.active : undefined} href={routes.pairs.path}>Pairs</Link>
-      </nav>
-    </header>
+    <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <Link href={routes[''].path}>
+          <a class="navbar-item"><strong>CompetiChess</strong></a>
+        </Link>
+
+        <Burger isActive={active} onClick={() => setActive(!active)} />
+      </div>
+
+      <div class={`navbar-menu${active ? ' is-active' : ''}`} >
+        <div class="navbar-end">
+          {tournamentInfo}
+          <Link class={`navbar-item${location === routes.create.path ? ' is-active' : ''}`} href={routes.create.path}>Create a tournament</Link>
+          <Link class={`navbar-item${location === routes.pairs.path ? ' is-active' : ''}`} href={routes.pairs.path}>Pairs</Link>
+        </div>
+      </div>
+    </nav>
   );
 };
 
