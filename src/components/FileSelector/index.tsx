@@ -25,9 +25,10 @@ import style from './style.scss';
 interface Props {
   fileHandler: (fileList: FileList) => void;
   children: ComponentChildren;
+  className: string;
 }
 
-const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children }) => {
+const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children, className }) => {
   const [isDrop, setIsDrop] = useState(false);
 
   const onDragOver = (event: JSX.TargetedDragEvent<HTMLElement>) => {
@@ -57,7 +58,7 @@ const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children }) => 
   };
 
   return <>
-    <label class={`button is-primary mb-5 ${style.inputFile} ${isDrop ? style.dropActive : ''}`}
+    <label class={`${className} ${style.inputFile} ${isDrop ? style.dropActive : ''}`}
            onDragOver={onDragOver}
            onDragLeave={onDragLeave}
            onDrop={onDrop}>

@@ -20,6 +20,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
+import { cyrb53 } from 'utils/common';
+
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
@@ -164,9 +166,19 @@ export const tournamentSlice = createSlice({
       state.view = {
         selectedRound: 0,
       };
+
+      state.tournament.id = cyrb53(JSON.stringify(state)).toString(16);
     },
     loadNewFromJson: (state, { payload }: PayloadAction<TournamentStateJson>) => {
-      state = payload;
+      state.tournament = payload.tournament;
+      state.configuration = payload.configuration;
+      state.players = payload.players;
+      state.pairs = payload.pairs;
+      state.view = payload.view;
+
+      if (state.tournament && !state.tournament.id) {
+        state.tournament.id = cyrb53(JSON.stringify(state)).toString(16);
+      }
     },
     close: (state) => {
       state.tournament = undefined;

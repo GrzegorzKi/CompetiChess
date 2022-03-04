@@ -52,6 +52,9 @@ export function createDefaultConfiguration(): Configuration {
 
 export function createTournamentData(overrides?: Partial<Tournament>): Tournament {
   const data: Tournament = {
+    id: '',
+    createdDate: Date.now(),
+
     tournamentName: '',
     city: '',
     federation: '',

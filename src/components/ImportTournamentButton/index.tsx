@@ -59,28 +59,29 @@ function validateAndHydrateData(data: unknown): TournamentStateJson {
   if (!isTournamentStateJsonValid(data) || !normalizePlayersKeysToNumbers(data)) {
     throw new Error('File is invalid - please provide a valid JSON file');
   }
-  
+
   recalculatePlayerScores(data.players.index, data.configuration);
   return data;
 }
 
 function importTournament(fileList: FileList) {
-  loadFile(fileList[0]).then((json) => {
-    const parsedData = JSON.parse(json);
-    const data = validateAndHydrateData(parsedData);
-    store.dispatch(loadNewFromJson(data));
-    toast.success(<>
-      Tournament <strong>{data.tournament.tournamentName}</strong> has been successfully loaded!
-    </>);
-  }).catch(() => {
-    toast.error('Provided invalid file or file content is not in a JSON format.');
-  });
+  loadFile(fileList[0])
+    .then((json) => {
+      const parsedData = JSON.parse(json);
+      const data = validateAndHydrateData(parsedData);
+      store.dispatch(loadNewFromJson(data));
+      const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
+      toast.success(successText);
+    })
+    .catch(() => {
+      toast.error('Provided invalid file or file content is not a JSON object');
+    });
 }
 
 const ImportTournamentButton: FunctionalComponent = () => {
   return (
-    <FileSelector fileHandler={importTournament}>
-      Import JSON tournament
+    <FileSelector fileHandler={importTournament} className="button">
+      Import from JSON
     </FileSelector>
   );
 };

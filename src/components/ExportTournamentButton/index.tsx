@@ -38,7 +38,7 @@ function exportTournament() {
   const tStore = clone(store.getState() as RootState);
   stripData(tStore);
   const tournamentJson = JSON.stringify(tStore.tournament);
-  downloadFile(tournamentJson, 'exportedTournament.json', 'application/json');
+  downloadFile(tournamentJson, `tournament-${tStore.tournament.tournament?.id}.json`, 'application/json');
 }
 
 const ExportTournamentButton: FunctionalComponent = () => {
@@ -48,8 +48,8 @@ const ExportTournamentButton: FunctionalComponent = () => {
     return null;
   }
 
-  return <button class="button is-primary trans-bg is-block mb-5" onClick={() => exportTournament()}>
-    Export tournament to file
+  return <button class="button" onClick={() => exportTournament()}>
+    Export
   </button>;
 };
 

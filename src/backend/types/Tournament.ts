@@ -38,6 +38,9 @@ Tournament section:
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
 interface Tournament {
+  id: string;
+  createdDate: number;
+
   tournamentName: string;
   city: string;
   federation: string;
