@@ -26,7 +26,9 @@ import { close, loadNew } from 'reducers/tournamentReducer';
 import parseTrfFile, { isTournamentValid } from '#/TrfxParser/parseTrfFile';
 import WarnCode from '#/types/WarnCode';
 
+import ExportTournamentButton from '@/ExportTournamentButton';
 import FileSelector from '@/FileSelector';
+import ImportTournamentButton from '@/ImportTournamentButton';
 import TrfxParseSummary from '@/TrfxParseSummary';
 
 const CreateTournament = (): JSX.Element => {
@@ -35,7 +37,7 @@ const CreateTournament = (): JSX.Element => {
   const [parseErrors, setParseErrors] = useState<string[]>();
   const [warnings, setWarnings] = useState<WarnCode[]>();
 
-  function fileHandler(files: FileList) {
+  function loadTrfxTournament(files: FileList) {
     if (files.length > 0) {
       const fr = new FileReader();
 
@@ -60,10 +62,14 @@ const CreateTournament = (): JSX.Element => {
   }
 
   return (
-    <>
-      <FileSelector fileHandler={fileHandler} />
+    <div>
+      <FileSelector fileHandler={loadTrfxTournament}>
+        <strong>Choose a file or drop it here</strong>
+      </FileSelector>
       <TrfxParseSummary warnings={warnings} parsingErrors={parseErrors} />
-    </>
+      <ExportTournamentButton />
+      <ImportTournamentButton />
+    </div>
   );
 };
 

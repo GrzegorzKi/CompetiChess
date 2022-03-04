@@ -17,6 +17,57 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import FileSelector from './FileSelector';
+import { h, FunctionalComponent, JSX, ComponentChildren } from 'preact';
+import { useState } from 'preact/hooks';
+
+import style from './style.scss';
+
+interface Props {
+  fileHandler: (fileList: FileList) => void;
+  children: ComponentChildren;
+}
+
+const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children }) => {
+  const [isDrop, setIsDrop] = useState(false);
+
+  const onDragOver = (event: JSX.TargetedDragEvent<HTMLElement>) => {
+    setIsDrop(true);
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+  };
+  const onDragLeave = () => setIsDrop(false);
+
+  const onDrop = (event: JSX.TargetedDragEvent<HTMLElement>) => {
+    setIsDrop(false);
+    event.preventDefault();
+    const files = event.dataTransfer?.files;
+    if (files) {
+      fileHandler(files);
+    }
+  };
+
+  const onChange = (event: JSX.TargetedEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const files = event.currentTarget.files;
+    if (files) {
+      fileHandler(files);
+    }
+  };
+
+  return <>
+    <label class={`button is-primary mb-5 ${style.inputFile} ${isDrop ? style.dropActive : ''}`}
+           onDragOver={onDragOver}
+           onDragLeave={onDragLeave}
+           onDrop={onDrop}>
+      <input class="is-sr-only"
+        type="file" name="file"
+        onChange={onChange}
+      />
+      {children}
+    </label>
+  </>;
+};
 
 export default FileSelector;

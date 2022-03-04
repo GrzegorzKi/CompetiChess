@@ -36,6 +36,7 @@ import {
   recalculateTiebreakers,
 } from '#/utils/TournamentUtils';
 
+import { TournamentStateJson } from '@/ImportTournamentButton';
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
 
@@ -164,6 +165,9 @@ export const tournamentSlice = createSlice({
         selectedRound: 0,
       };
     },
+    loadNewFromJson: (state, { payload }: PayloadAction<TournamentStateJson>) => {
+      state = payload;
+    },
     close: (state) => {
       state.tournament = undefined;
       state.configuration = undefined;
@@ -283,7 +287,7 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, close, selectNextRound, selectPrevRound, selectRound, errorHandler, setResult } = tournamentSlice.actions;
+export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, errorHandler, setResult } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

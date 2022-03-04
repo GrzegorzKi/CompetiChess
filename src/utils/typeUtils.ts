@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,14 +17,26 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import '/styles/variables';
-@import 'bulma/sass/helpers/visibility';
-
-.inputFile {
-  border: 3px dashed rgba(0, 0, 0, 0);
-  transition: all 0.5s;
-
-  &.dropActive {
-    border-color: mix(black, $hover, 30%);
+export function convertStringRecordToNumberRecord<T>(record: Record<string, T>): Record<number, T> | undefined {
+  const newRecord: Record<number, T> = {};
+  for (const [key, value] of Object.entries(record)) {
+    const numKey = parseInt(key, 10);
+    if (isNaN(numKey)) {
+      return undefined;
+    }
+    newRecord[numKey] = value;
   }
+  return newRecord;
+}
+
+export function convertStringArrayToNumberArray(array: string[]): number[] | undefined {
+  const newArray: number[] = [];
+  for (const value of array) {
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue)) {
+      return undefined;
+    }
+    newArray.push(numValue);
+  }
+  return newArray;
 }

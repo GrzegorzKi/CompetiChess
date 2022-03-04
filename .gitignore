@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# Project-specific ignores
+**/*.guard.ts
