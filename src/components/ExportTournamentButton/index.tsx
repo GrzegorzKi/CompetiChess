@@ -22,7 +22,10 @@ import { FunctionalComponent, h } from 'preact';
 
 import { TournamentState } from 'reducers/tournamentReducer';
 import { downloadFile } from 'utils/fileUtils';
-import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
+import {
+  readFromLocalStorage,
+  tournamentKeyPrefix,
+} from 'utils/localStorageUtils';
 
 import { RootState, store } from '@/store';
 
@@ -36,20 +39,21 @@ function stripData(tournament: TournamentState) {
 
 function exportTournament(id: string) {
   const storeState = store.getState() as RootState;
-  let tournamentJson: string;
+  let tournamentState: TournamentState;
   if (storeState.tournament.tournament?.id === id) {
-    const tournamentState = clone(storeState.tournament);
-    stripData(tournamentState);
-    tournamentJson = JSON.stringify(tournamentState);
+    tournamentState = clone(storeState.tournament);
   } else {
-    const readState = readTournamentJsonFromLocalStorage(id);
+    const readState = readFromLocalStorage<TournamentState>(tournamentKeyPrefix + id);
     if (!readState) {
       return;
     }
-    tournamentJson = readState;
+    tournamentState = readState;
   }
 
-  downloadFile(tournamentJson, `tournament-${id}.json`, 'application/json');
+  stripData(tournamentState);
+  const json = JSON.stringify(tournamentState);
+
+  downloadFile(json, `tournament-${id}.json`, 'application/json');
 }
 
 interface Props {
