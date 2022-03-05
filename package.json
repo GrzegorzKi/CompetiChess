@@ -5,9 +5,9 @@
   "license": "GNU GPL 3.0",
   "scripts": {
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
-    "predev": "ts-auto-guard --debug ./src/components/ImportTournamentButton/index.tsx",
+    "predev": "ts-auto-guard --debug ./src/backend/JsonImport/index.ts",
     "dev": "preact watch",
-    "prebuild": "ts-auto-guard ./src/components/ImportTournamentButton/index.tsx",
+    "prebuild": "ts-auto-guard ./src/backend/JsonImport/index.ts",
     "build": "preact build",
     "serve": "sirv build --port 8080 --cors --single",
     "test": "jest"

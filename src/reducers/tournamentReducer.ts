@@ -24,6 +24,7 @@ import { cyrb53 } from 'utils/common';
 
 import BbpPairings from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
+import { TournamentStateJson } from '#/JsonImport';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
 import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
@@ -38,7 +39,6 @@ import {
   recalculateTiebreakers,
 } from '#/utils/TournamentUtils';
 
-import { TournamentStateJson } from '@/ImportTournamentButton';
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
 

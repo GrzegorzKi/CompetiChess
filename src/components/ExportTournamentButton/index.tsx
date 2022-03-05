@@ -20,35 +20,44 @@
 import clone from 'just-clone';
 import { FunctionalComponent, h } from 'preact';
 
-import { useAppSelector } from 'hooks';
-import { selectTournament } from 'reducers/tournamentReducer';
+import { TournamentState } from 'reducers/tournamentReducer';
 import { downloadFile } from 'utils/fileUtils';
+import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 
 import { RootState, store } from '@/store';
 
-function stripData(data: RootState) {
-  if (data.tournament.players) {
-    for (const [, player] of Object.entries(data.tournament.players.index)) {
+function stripData(tournament: TournamentState) {
+  if (tournament.players) {
+    for (const [, player] of Object.entries(tournament.players.index)) {
       player.scores = [];
     }
   }
 }
 
-function exportTournament() {
-  const tStore = clone(store.getState() as RootState);
-  stripData(tStore);
-  const tournamentJson = JSON.stringify(tStore.tournament);
-  downloadFile(tournamentJson, `tournament-${tStore.tournament.tournament?.id}.json`, 'application/json');
-}
-
-const ExportTournamentButton: FunctionalComponent = () => {
-  const tournament = useAppSelector(selectTournament);
-
-  if (!tournament) {
-    return null;
+function exportTournament(id: string) {
+  const storeState = store.getState() as RootState;
+  let tournamentJson: string;
+  if (storeState.tournament.tournament?.id === id) {
+    const tournamentState = clone(storeState.tournament);
+    stripData(tournamentState);
+    tournamentJson = JSON.stringify(tournamentState);
+  } else {
+    const readState = readTournamentJsonFromLocalStorage(id);
+    if (!readState) {
+      return;
+    }
+    tournamentJson = readState;
   }
 
-  return <button class="button" onClick={() => exportTournament()}>
+  downloadFile(tournamentJson, `tournament-${id}.json`, 'application/json');
+}
+
+interface Props {
+  id: string;
+}
+
+const ExportTournamentButton: FunctionalComponent<Props> = ({ id }) => {
+  return <button class="button" onClick={() => exportTournament(id)}>
     Export
   </button>;
 };

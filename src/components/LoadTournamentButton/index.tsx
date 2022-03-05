@@ -21,32 +21,36 @@ import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { loadNewFromJson } from 'reducers/tournamentReducer';
-import { loadFile } from 'utils/fileUtils';
+import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
-import FileSelector from '@/FileSelector';
 import { store } from '@/store';
 
-function importTournament(fileList: FileList) {
-  loadFile(fileList[0])
-    .then((json) => {
+
+function loadTournament(id: string) {
+  try {
+    const json = readTournamentJsonFromLocalStorage(id);
+    if (json) {
       const data = importTournamentFromJson(json);
       store.dispatch(loadNewFromJson(data));
 
       const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
       toast.success(successText);
-    })
-    .catch(() => {
-      toast.error('Provided invalid file or file content is not a JSON object');
-    });
+      return;
+    }
+  } catch (e) { /* Pass-through */ }
+
+  toast.error('Provided invalid file or file content is not a JSON object');
 }
 
-const ImportTournamentButton: FunctionalComponent = () => {
-  return (
-    <FileSelector fileHandler={importTournament} className="button">
-      Import from JSON
-    </FileSelector>
-  );
+interface Props {
+  id: string;
+}
+
+const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
+  return <button class="button" onClick={() => loadTournament(id)}>
+    Load
+  </button>;
 };
 
-export default ImportTournamentButton;
+export default LoadTournamentButton;

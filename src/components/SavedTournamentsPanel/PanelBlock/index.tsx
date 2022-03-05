@@ -26,6 +26,8 @@ import { TournamentEntry } from '..';
 import style from './style.scss';
 
 import ExportTournamentButton from '@/ExportTournamentButton';
+import LoadTournamentButton from '@/LoadTournamentButton';
+import SaveTournamentButton from '@/SaveTournamentButton';
 
 interface PanelBlockProps extends TournamentEntry {
   isActive?: true,
@@ -46,8 +48,10 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
       <span class={style.subText} style="margin-right: 0.75em">Created:{' '}<strong>{createdDate}</strong></span>
       {updatedDate && <span class={style.subText}>Updated:{' '}<strong>{updatedDate}</strong></span>}
       <div class={style.panelButtons}>
-        {!isActive && <button class="button">Load</button>}
-        <ExportTournamentButton />
+        {isActive
+          ? <SaveTournamentButton />
+          : <LoadTournamentButton id={id} />}
+        <ExportTournamentButton id={id} />
       </div>
     </a>
   );
