@@ -23,6 +23,8 @@ import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
 import { selectPairs, selectPlayers, selectTournament } from 'reducers/tournamentReducer';
 
+import { routes } from '../../constants';
+
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
 
@@ -42,7 +44,7 @@ const Pairs: FunctionalComponent = () => {
       :
       <p>There is no tournament open right now.
         {' '}
-        <Link className="has-text-link" to="/create">Do you want to create one?</Link>
+        <Link className="has-text-link" to={routes.tournaments.path}>Do you want to create one?</Link>
       </p>
   );
 };

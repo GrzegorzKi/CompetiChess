@@ -21,10 +21,10 @@ import { h } from 'preact';
 
 import SavedTournamentsPanel from '@/SavedTournamentsPanel';
 
-const CreateTournament = (): JSX.Element => {
+const Tournaments = (): JSX.Element => {
   return (
     <SavedTournamentsPanel />
   );
 };
 
-export default CreateTournament;
+export default Tournaments;

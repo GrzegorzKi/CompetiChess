@@ -28,8 +28,8 @@ export type RoutesData = {
   }
 }
 export const routes = {
-  create: {
-    path: '/create',
+  tournaments: {
+    path: '/tournaments',
     title: 'Create tournament'
   },
   pairs: {

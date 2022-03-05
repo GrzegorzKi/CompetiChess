@@ -22,10 +22,10 @@ import { useEffect } from 'preact/hooks';
 import { Route, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 
-import CreateTournament from 'routes/create';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
+import Tournaments from 'routes/tournaments';
 
 import constants, { routes, RoutesData } from '../constants';
 
@@ -115,7 +115,7 @@ const App: FunctionalComponent = () => {
         })}
         className="route-wrapper"
       >
-        <Route path={routes.create.path} element={<CreateTournament />} />
+        <Route path={routes.tournaments.path} element={<Tournaments />} />
         <Route path={routes.pairs.path} element={<Pairs />} />
         <Route path={routes[''].path} element={<Home />} />
         <Route path="*" element={<NotFound />} />
