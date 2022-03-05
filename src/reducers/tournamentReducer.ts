@@ -55,13 +55,6 @@ const verifyNextRoundConditions = (
   }
 };
 
-const errorHandlerAction = (payload: string): PayloadAction<string> => (
-  {
-    payload,
-    type: 'tournament/errorHandler'
-  }
-);
-
 export interface PlayersState {
   index: Record<number, Player>,
   orderById: number[],
@@ -78,13 +71,14 @@ export interface TournamentState {
   players?: PlayersState,
   pairs?: Array<Pair[]>,
   view: ViewState,
-  error?: string,
+  isModified: boolean,
 }
 
 const initialState: TournamentState = {
   view: {
     selectedRound: 0,
   },
+  isModified: false,
 };
 
 type SetResultType = { round?: number, pairNo: string, type: ResultType };
@@ -166,6 +160,7 @@ export const tournamentSlice = createSlice({
       state.view = {
         selectedRound: 0,
       };
+      state.isModified = false;
 
       state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
     },
@@ -175,10 +170,14 @@ export const tournamentSlice = createSlice({
       state.players = payload.players;
       state.pairs = payload.pairs;
       state.view = payload.view;
+      state.isModified = false;
 
       if (state.tournament && !state.tournament.id) {
         state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
       }
+    },
+    clearIsModified: (state) => {
+      state.isModified = false;
     },
     close: (state) => {
       state.tournament = undefined;
@@ -186,38 +185,40 @@ export const tournamentSlice = createSlice({
       state.players = undefined;
       state.pairs = undefined;
     },
-    selectNextRound: ({ view, tournament }) => {
+    selectNextRound: (state) => {
+      const { view, tournament } = state;
       if (tournament && view.selectedRound < tournament.playedRounds - 1) {
         view.selectedRound += 1;
       }
+      state.isModified = true;
     },
-    selectPrevRound: ({ view, tournament }) => {
+    selectPrevRound: (state) => {
+      const { view, tournament } = state;
       if (tournament && view.selectedRound > 0) {
         view.selectedRound -= 1;
       }
+      state.isModified = true;
     },
-    selectRound: ({ view, tournament }, { payload }: PayloadAction<number>) => {
+    selectRound: (state, { payload }: PayloadAction<number>) => {
+      const { view, tournament } = state;
       if (tournament && payload >= 0 && payload < tournament.playedRounds) {
         view.selectedRound = payload;
       }
+      state.isModified = true;
     },
-    errorHandler: (state, action: PayloadAction<string>) => {
-      state.error = action.payload;
-      toast.error(state.error);
-    },
-    setResult: ({ pairs, players, configuration, view }, action: PayloadAction<SetResultType>) => {
+    setResult: (state, action: PayloadAction<SetResultType>) => {
+      const { pairs, players, configuration, view } = state;
+
       if (!pairs || !players || !configuration) {
         return;
       }
 
-      const { pairNo, type } = action.payload;
-      let { round } = action.payload;
-      round ??= view.selectedRound;
-
+      const round = action.payload.round ?? view.selectedRound;
       if (round >= pairs.length) {
         return;
       }
 
+      const { pairNo, type } = action.payload;
       const no = Number.parseInt(pairNo, 10) - 1;
       const pairElement = pairs[round][no];
       if (!pairElement) {
@@ -242,10 +243,14 @@ export const tournamentSlice = createSlice({
       playerArray.forEach(player => {
         recalculateTiebreakers(player, playerArray, configuration, round);
       });
+
+      state.isModified = true;
     }
   },
   extraReducers: (builder) => {
     builder.addCase(createNextRound.fulfilled, (state, { payload }) => {
+      dismissDelayedToast(payload.toastId);
+
       const { tournament, configuration, pairs, players, view } = state;
 
       if (!tournament || !players || !pairs || !configuration) {
@@ -260,11 +265,8 @@ export const tournamentSlice = createSlice({
       });
       const result = pairsParser.apply(pairs);
 
-      dismissDelayedToast(payload.toastId);
-
       if (isError(result)) {
-        tournamentSlice.caseReducers.errorHandler(state,
-          errorHandlerAction(getDetails(result)));
+        toast.error(getDetails(result));
         return;
       }
 
@@ -277,29 +279,26 @@ export const tournamentSlice = createSlice({
       tournament.playedRounds += 1;
       view.selectedRound = tournament.playedRounds - 1;
 
-      // Reset error and return modified values
+      state.isModified = true;
       toast('Next round pairings are ready!', {
         type: toast.TYPE.SUCCESS,
       });
-      state.error = undefined;
-    }
-    );
+    });
     builder.addCase(createNextRound.rejected, (state, action) => {
       action.payload?.toastId && dismissDelayedToast(action.payload.toastId);
 
       const reason = action.payload?.reason ?? 'Unknown error occurred';
 
       if (action.payload?.isValidationError) {
-        state.error = reason;
-        toast.warning(state.error);
+        toast.warning(reason);
       } else {
-        tournamentSlice.caseReducers.errorHandler(state, errorHandlerAction(reason));
+        toast.error(reason);
       }
     });
   },
 });
 
-export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, errorHandler, setResult } = tournamentSlice.actions;
+export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;
