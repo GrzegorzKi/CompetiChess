@@ -19,7 +19,11 @@
 
 import { TournamentState } from 'reducers/tournamentReducer';
 
+import Tournament from '#/types/Tournament';
+import { TournamentEntry } from '@/SavedTournamentsPanel';
+
 export const tournamentKeyPrefix = 'competichess:tournament-';
+export const tournamentsIndexKey = 'competichess:tournaments';
 
 export function parseJSON<T>(value: string | null): T | undefined {
   try {
@@ -29,7 +33,7 @@ export function parseJSON<T>(value: string | null): T | undefined {
   }
 }
 
-export function readFromLocalStorage(key: string): string | null | undefined {
+export function readRawFromLocalStorage(key: string): string | null | undefined {
   if (typeof window === 'undefined') {
     console.warn(`Tried reading localStorage key "${key}" in non-client environment`);
     return undefined;
@@ -38,23 +42,71 @@ export function readFromLocalStorage(key: string): string | null | undefined {
   return window.localStorage.getItem(key);
 }
 
+export function readFromLocalStorage<T>(key: string): T | null | undefined {
+  const item = readRawFromLocalStorage(key);
+
+  return (item !== undefined && item !== null) ? parseJSON<T>(item) : item;
+}
+
 export function readTournamentJsonFromLocalStorage(id: string): string | undefined {
-  const item = readFromLocalStorage(tournamentKeyPrefix + id);
+  const item = readRawFromLocalStorage(tournamentKeyPrefix + id);
   return item ?? undefined;
 }
 
-export function saveToLocalStorage<T>(value: T, key: string): void {
-  if (typeof window == 'undefined') {
+export function saveToLocalStorage<T>(value: T, key: string): T {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } else {
     console.warn(`Tried setting localStorage key "${key}" in non-client environment`);
-    return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(value));
+  return value;
+}
+
+function saveTournamentIndex(index: TournamentEntry[]) {
+  return saveToLocalStorage<TournamentEntry[]>(index, tournamentsIndexKey);
+}
+
+export function readTournamentIndex() {
+  return readFromLocalStorage<TournamentEntry[]>(tournamentsIndexKey);
+}
+
+type UpdateTournamentsIndexProps =
+  | { update: Tournament }
+  | { remove: string }
+
+function updateTournamentsIndex(params: UpdateTournamentsIndexProps) {
+  let index = readTournamentIndex();
+  if (!index) {
+    index = saveTournamentIndex([]);
+  }
+
+  if ('update' in params) {
+    const { id, tournamentName, createdDate } = params.update;
+    const found = index.find(entry => entry.id === id);
+    if (found) {
+      found.name = tournamentName;
+      found.updated = Date.now();
+    } else {
+      index.push({
+        id,
+        name: tournamentName,
+        created: createdDate,
+        updated: Date.now(),
+      });
+    }
+    saveTournamentIndex(index);
+  } else {
+    index = index.filter(entry => entry.id !== params.remove);
+    saveTournamentIndex(index);
+  }
 }
 
 export function saveTournamentToLocalStorage(tournament: TournamentState): boolean {
   if (tournament.tournament?.id) {
-    saveToLocalStorage(tournament, tournamentKeyPrefix + tournament.tournament.id);
+    const key = tournamentKeyPrefix + tournament.tournament.id;
+    saveToLocalStorage(tournament, key);
+    updateTournamentsIndex({ update: tournament.tournament });
     return true;
   }
 

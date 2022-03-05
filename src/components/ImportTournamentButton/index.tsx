@@ -31,6 +31,9 @@ function importTournament(fileList: FileList) {
   loadFile(fileList[0])
     .then((json) => {
       const data = importTournamentFromJson(json);
+      // Reset tournament ID - generate new to
+      // avoid clashes with existing entries
+      data.tournament.id = '';
       store.dispatch(loadNewFromJson(data));
 
       const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;

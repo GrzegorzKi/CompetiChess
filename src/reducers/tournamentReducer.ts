@@ -167,7 +167,7 @@ export const tournamentSlice = createSlice({
         selectedRound: 0,
       };
 
-      state.tournament.id = cyrb53(JSON.stringify(state)).toString(16);
+      state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
     },
     loadNewFromJson: (state, { payload }: PayloadAction<TournamentStateJson>) => {
       state.tournament = payload.tournament;
@@ -177,7 +177,7 @@ export const tournamentSlice = createSlice({
       state.view = payload.view;
 
       if (state.tournament && !state.tournament.id) {
-        state.tournament.id = cyrb53(JSON.stringify(state)).toString(16);
+        state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
       }
     },
     close: (state) => {

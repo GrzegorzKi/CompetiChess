@@ -26,6 +26,8 @@ import { useAppSelector } from 'hooks/index';
 import useDebounce from 'hooks/useDebounce';
 import { selectTournament } from 'reducers/tournamentReducer';
 
+import { readTournamentIndex } from 'utils/localStorageUtils';
+
 import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBlock';
 import style from './style.scss';
 
@@ -66,12 +68,12 @@ const SavedTournamentsPanel = (): JSX.Element => {
   const debouncedQuery = useDebounce(query, 300);
 
   function filterByNameOrId(entry: TournamentEntry) {
-    return entry.name.toLowerCase().includes(debouncedQuery.toLowerCase())
-      || entry.id.toLowerCase().includes(debouncedQuery.toLowerCase());
+    return entry.id !== tournament?.id &&
+      (entry.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+      || entry.id.toLowerCase().includes(debouncedQuery.toLowerCase()));
   }
 
-  // TODO Read entries from LocalStorage
-  const entries: TournamentEntry[] = [];
+  const entries = readTournamentIndex() ?? [];
   const currentEntry = tournament
     ? {
       id: tournament.id,
