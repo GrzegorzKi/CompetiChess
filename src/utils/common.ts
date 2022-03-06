@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const cyrb53 = (str: string, seed = 0): number => {
+export const cyrb53 = (str: string, seed = 0): number => {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {
     ch = str.charCodeAt(i);
@@ -28,5 +28,3 @@ const cyrb53 = (str: string, seed = 0): number => {
   h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
   return 4294967296 * (2097151 & h2) + (h1>>>0);
 };
-
-export { cyrb53 };

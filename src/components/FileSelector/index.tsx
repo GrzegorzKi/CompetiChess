@@ -44,7 +44,7 @@ const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children, class
     setIsDrop(false);
     event.preventDefault();
     const files = event.dataTransfer?.files;
-    if (files) {
+    if (files && files.length > 0) {
       fileHandler(files);
     }
   };
@@ -52,7 +52,7 @@ const FileSelector: FunctionalComponent<Props> = ({ fileHandler, children, class
   const onChange = (event: JSX.TargetedEvent<HTMLInputElement>) => {
     event.preventDefault();
     const files = event.currentTarget.files;
-    if (files) {
+    if (files && files.length > 0) {
       fileHandler(files);
     }
   };
