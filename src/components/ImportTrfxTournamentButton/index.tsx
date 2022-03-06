@@ -34,7 +34,7 @@ import parseTrfFile, {
 } from '#/TrfxParser/parseTrfFile';
 import { getMessageForWarnCode } from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
-import SaveConfirmationModal from '@/SaveConfirmationModal';
+import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
 
 import { store } from '@/store';
 

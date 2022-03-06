@@ -29,7 +29,7 @@ import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
 import FileSelector from '@/FileSelector';
-import SaveConfirmationModal from '@/SaveConfirmationModal';
+import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
 import { store } from '@/store';
 
 function importTournament(fileList: FileList) {

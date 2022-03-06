@@ -27,7 +27,7 @@ import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
-import SaveConfirmationModal from '@/SaveConfirmationModal';
+import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
 import { store } from '@/store';
 
 async function loadTournament(id: string, onModified: () => Promise<unknown>) {
