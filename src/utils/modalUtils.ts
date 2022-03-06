@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022  Grzegorz Kita
+ * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,23 +17,16 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Bulma's global variables
-$primary: #8ebf42;
-$navbar-background-color: #673AB7;
-$navbar-height: 3.25rem;
-$navbar-item-color: hsl(0, 0%, 98%);
-$navbar-item-hover-color: hsl(0, 0%, 98%);
-$navbar-item-hover-background-color: rgba(0, 0, 0, 20%);
-$navbar-item-active-color: hsl(0, 0%, 98%);
-$navbar-item-active-background-color: rgba(0, 0, 0, 40%);
+import { store } from '@/store';
 
-$navbar-box-shadow-size: 0 1px 1px 0;
-$navbar-box-shadow-color: hsl(0, 0%, 6%);
-
-$modal-content-margin-mobile: 0;
-
-// App's global variables
-$hover: #00ab97;
-$innerPaddingH: 1rem;
-$innerPaddingW: 1rem;
-$scrollbarSize: 8px;
+export async function blockIfModified(onModified: () => Promise<unknown>): Promise<boolean> {
+  const storeState = store.getState();
+  if (storeState.tournament.isModified) {
+    try {
+      await onModified();
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}

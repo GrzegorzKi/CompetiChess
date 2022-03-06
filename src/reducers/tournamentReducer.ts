@@ -298,7 +298,7 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
+export const { loadNew, loadNewFromJson, clearIsModified, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

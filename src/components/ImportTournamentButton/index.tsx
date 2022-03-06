@@ -18,13 +18,18 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useCallback } from 'preact/hooks';
 import { toast } from 'react-toastify';
 
+import usePromiseModal from 'hooks/usePromiseModal';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
-import { loadFile } from 'utils/fileUtils';
+
+import { loadFile } from '../../utils/fileUtils';
+import { blockIfModified } from '../../utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
 import FileSelector from '@/FileSelector';
+import SaveConfirmationModal from '@/SaveConfirmationModal';
 import { store } from '@/store';
 
 function importTournament(fileList: FileList) {
@@ -45,10 +50,25 @@ function importTournament(fileList: FileList) {
 }
 
 const ImportTournamentButton: FunctionalComponent = () => {
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+
+  const checkCurrentAndImportTournament = useCallback(async (files: FileList) => {
+    if (await blockIfModified(openModal)) {
+      importTournament(files);
+    }
+  }, [openModal]);
+
   return (
-    <FileSelector fileHandler={importTournament} className="button">
-      Import from JSON
-    </FileSelector>
+    <>
+      <FileSelector fileHandler={checkCurrentAndImportTournament} className="button">
+        Import from JSON
+      </FileSelector>
+      <SaveConfirmationModal
+        isOpen={isOpen}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    </>
   );
 };
 

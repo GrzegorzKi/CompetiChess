@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
-import { selectTournament } from 'reducers/tournamentReducer';
+import { clearIsModified, selectTournament } from 'reducers/tournamentReducer';
 
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
@@ -32,6 +32,7 @@ function saveTournament() {
     const storeState = store.getState() as RootState;
 
     const saved = saveTournamentToLocalStorage(storeState.tournament);
+    store.dispatch(clearIsModified());
     if (saved) {
       toast.success('Tournament saved!');
     } else {

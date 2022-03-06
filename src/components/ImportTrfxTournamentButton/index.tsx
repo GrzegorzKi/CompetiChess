@@ -18,11 +18,14 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useCallback } from 'preact/hooks';
 import { toast } from 'react-toastify';
 
+import usePromiseModal from 'hooks/usePromiseModal';
 import { loadNew } from 'reducers/tournamentReducer';
 
 import { loadFile } from '../../utils/fileUtils';
+import { blockIfModified } from '../../utils/modalUtils';
 
 import parseTrfFile, {
   isTournamentValid,
@@ -31,6 +34,7 @@ import parseTrfFile, {
 } from '#/TrfxParser/parseTrfFile';
 import { getMessageForWarnCode } from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
+import SaveConfirmationModal from '@/SaveConfirmationModal';
 
 import { store } from '@/store';
 
@@ -80,10 +84,25 @@ function loadTrfxTournament(files: FileList) {
 }
 
 const ImportTrfxTournamentButton: FunctionalComponent = () => {
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+
+  const checkCurrentAndImportTournament = useCallback(async (files: FileList) => {
+    if (await blockIfModified(openModal)) {
+      loadTrfxTournament(files);
+    }
+  }, [openModal]);
+
   return (
-    <FileSelector fileHandler={loadTrfxTournament} className="button">
-      Import TRFx file
-    </FileSelector>
+    <>
+      <FileSelector fileHandler={checkCurrentAndImportTournament} className="button">
+        Import TRFx file
+      </FileSelector>
+      <SaveConfirmationModal
+        isOpen={isOpen}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    </>
   );
 };
 

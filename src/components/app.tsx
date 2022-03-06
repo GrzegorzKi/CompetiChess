@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useEffect } from 'preact/hooks';
+import Modal from 'react-modal';
 import { Route, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 
@@ -65,7 +66,7 @@ function listenToSwUpdates() {
 
     navigator.serviceWorker.ready.then(registration => {
       registration.addEventListener('updatefound', () => {
-        registration.installing!.addEventListener('statechange', () => {
+        registration.installing?.addEventListener('statechange', () => {
           const waitingWorker = registration.waiting;
           if (waitingWorker !== null) {
             toast.info(<p><strong>Application update is ready!</strong><br /> Ready to reload the app?</p>, {
@@ -95,7 +96,10 @@ function getTitle(location: string): string {
 }
 
 const App: FunctionalComponent = () => {
-  useEffect(() => listenToSwUpdates(), []);
+  useEffect(() => {
+    listenToSwUpdates();
+    Modal.setAppElement('#root');
+  }, []);
 
   const { pathname } = useLocation();
   useEffect(() => {

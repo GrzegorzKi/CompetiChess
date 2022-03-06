@@ -20,14 +20,19 @@
 import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
+import usePromiseModal from 'hooks/usePromiseModal';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
-import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
+
+import { readTournamentJsonFromLocalStorage } from '../../utils/localStorageUtils';
+import { blockIfModified } from '../../utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
+import SaveConfirmationModal from '@/SaveConfirmationModal';
 import { store } from '@/store';
 
+async function loadTournament(id: string, onModified: () => Promise<unknown>) {
+  if (!await blockIfModified(onModified)) return;
 
-function loadTournament(id: string) {
   try {
     const json = readTournamentJsonFromLocalStorage(id);
     if (json) {
@@ -48,9 +53,18 @@ interface Props {
 }
 
 const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
-  return <button class="button" onClick={() => loadTournament(id)}>
-    Load
-  </button>;
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+
+  return <>
+    <button class="button" onClick={() => loadTournament(id, openModal)}>
+      Load
+    </button>
+    <SaveConfirmationModal
+      isOpen={isOpen}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
+  </>;
 };
 
 export default LoadTournamentButton;
