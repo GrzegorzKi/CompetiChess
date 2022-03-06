@@ -19,9 +19,9 @@
 
 import { useCallback, useState } from 'preact/hooks';
 
-const noop = () => {/**/};
+const noop = (_: boolean) => {/**/};
 
-export default function usePromiseModal(): [() => void, () => void, boolean, () => Promise<void>] {
+export default function usePromiseModal(): [() => void, () => void, boolean, () => Promise<boolean>] {
   const [promiseInfo, setPromiseInfo] = useState({
     isOpen: false,
     resolve: noop,
@@ -32,21 +32,21 @@ export default function usePromiseModal(): [() => void, () => void, boolean, () 
     if (promiseInfo.isOpen) {
       return Promise.reject();
     }
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<boolean>((resolve, reject) => {
       setPromiseInfo({ isOpen: true, resolve, reject });
     });
   }, [promiseInfo.isOpen]);
 
   const onConfirm = useCallback(() => {
     setPromiseInfo(prevInfo => {
-      prevInfo.resolve();
+      prevInfo.resolve(true);
       return { isOpen: false, resolve: noop, reject: noop };
     });
   }, []);
 
   const onCancel = useCallback(() => {
     setPromiseInfo(prevInfo => {
-      prevInfo.reject();
+      prevInfo.resolve(false);
       return { isOpen: false, resolve: noop, reject: noop };
     });
   }, []);

@@ -25,6 +25,7 @@ import { TournamentEntry } from '..';
 
 import style from './style.scss';
 
+import DeleteTournamentButton from '@/DeleteTournamentButton';
 import ExportTournamentButton from '@/ExportTournamentButton';
 import LoadTournamentButton from '@/LoadTournamentButton';
 import SaveTournamentButton from '@/SaveTournamentButton';
@@ -52,6 +53,7 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
           ? <SaveTournamentButton />
           : <LoadTournamentButton id={id} />}
         <ExportTournamentButton id={id} />
+        <DeleteTournamentButton id={id} />
       </div>
     </a>
   );

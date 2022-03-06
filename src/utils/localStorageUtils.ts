@@ -67,7 +67,15 @@ function saveTournamentIndex(index: TournamentEntry[]) {
   return saveToLocalStorage<TournamentEntry[]>(index, tournamentsIndexKey);
 }
 
-export function readTournamentIndex() {
+export function removeFromLocalStorage(key: string): void {
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(key);
+  } else {
+    console.warn(`Tried removing localStorage key "${key}" in non-client environment`);
+  }
+}
+
+function readTournamentIndex() {
   return readFromLocalStorage<TournamentEntry[]>(tournamentsIndexKey);
 }
 
@@ -100,6 +108,10 @@ function updateTournamentsIndex(params: UpdateTournamentsIndexProps) {
     index = index.filter(entry => entry.id !== params.remove);
     saveTournamentIndex(index);
   }
+
+  // We dispatch a custom event so every useLocalStorage hook are notified
+  // See: usehooks-ts useLocalStorage
+  window.dispatchEvent(new Event('local-storage'));
 }
 
 export function saveTournamentToLocalStorage(tournament: TournamentState): boolean {
@@ -113,4 +125,7 @@ export function saveTournamentToLocalStorage(tournament: TournamentState): boole
   return false;
 }
 
-
+export function removeTournamentFromLocalStorage(id: string): void {
+  removeFromLocalStorage(tournamentKeyPrefix + id);
+  updateTournamentsIndex({ remove: id });
+}

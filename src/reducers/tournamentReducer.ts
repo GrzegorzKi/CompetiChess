@@ -184,6 +184,7 @@ export const tournamentSlice = createSlice({
       state.configuration = undefined;
       state.players = undefined;
       state.pairs = undefined;
+      state.isModified = false;
     },
     selectNextRound: (state) => {
       const { view, tournament } = state;

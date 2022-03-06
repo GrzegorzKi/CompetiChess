@@ -17,49 +17,42 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import usePromiseModal from 'hooks/usePromiseModal';
-import { loadNewFromJson } from 'reducers/tournamentReducer';
+import { close } from 'reducers/tournamentReducer';
+import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
-import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
-import { blockIfModified } from 'utils/modalUtils';
-
-import { importTournamentFromJson } from '#/JsonImport';
-import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
+import DeleteModal from '@/modals/DeleteModal';
 import { store } from '@/store';
 
-async function loadTournament(id: string, onModified: () => Promise<boolean>) {
-  if (!await blockIfModified(onModified)) return;
+async function deleteTournament(id: string, openModal: () => Promise<unknown>) {
+  if (!await openModal()) return;
 
-  try {
-    const json = readTournamentJsonFromLocalStorage(id);
-    if (json) {
-      const data = importTournamentFromJson(json);
-      store.dispatch(loadNewFromJson(data));
+  removeTournamentFromLocalStorage(id);
+  const state = store.getState();
+  if (state.tournament.tournament?.id === id) {
+    store.dispatch(close());
+  }
 
-      const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
-      toast.success(successText);
-      return;
-    }
-  } catch (e) { /* Pass-through */ }
-
-  toast.error('Provided invalid file or file content is not a JSON object');
+  toast.info('Tournament has been deleted');
 }
 
 interface Props {
   id: string;
 }
 
-const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
+const DeleteTournamentButton: FunctionalComponent<Props> = ({ id }) => {
   const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
 
   return <>
-    <button class="button" onClick={() => loadTournament(id, openModal)}>
-      Load
+    <button class="button is-outlined is-danger" onClick={() => deleteTournament(id, openModal)}>
+      <Icon icon={faTrash} />
     </button>
-    <SaveConfirmationModal
+    <DeleteModal
       isOpen={isOpen}
       onConfirm={onConfirm}
       onCancel={onCancel}
@@ -67,4 +60,4 @@ const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
   </>;
 };
 
-export default LoadTournamentButton;
+export default DeleteTournamentButton;

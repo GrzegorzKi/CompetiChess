@@ -21,12 +21,11 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import { useDebounce, useReadLocalStorage } from 'usehooks-ts';
 
 import { useAppSelector } from 'hooks/index';
-import useDebounce from 'hooks/useDebounce';
 import { selectTournament } from 'reducers/tournamentReducer';
-
-import { readTournamentIndex } from 'utils/localStorageUtils';
+import { tournamentsIndexKey } from 'utils/localStorageUtils';
 
 import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBlock';
 import style from './style.scss';
@@ -67,13 +66,7 @@ const SavedTournamentsPanel = (): JSX.Element => {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
 
-  function filterByNameOrId(entry: TournamentEntry) {
-    return entry.id !== tournament?.id &&
-      (entry.name.toLowerCase().includes(debouncedQuery.toLowerCase())
-      || entry.id.toLowerCase().includes(debouncedQuery.toLowerCase()));
-  }
-
-  const entries = readTournamentIndex() ?? [];
+  const entries = useReadLocalStorage<TournamentEntry[]>(tournamentsIndexKey) ?? [];
   const currentEntry = tournament
     ? {
       id: tournament.id,
@@ -81,6 +74,12 @@ const SavedTournamentsPanel = (): JSX.Element => {
       created: tournament.createdDate
     }
     : undefined;
+
+  function filterByNameOrId(entry: TournamentEntry) {
+    return entry.id !== tournament?.id &&
+      (entry.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+        || entry.id.toLowerCase().includes(debouncedQuery.toLowerCase()));
+  }
 
   const filteredEntries = entries.filter(filterByNameOrId);
 
