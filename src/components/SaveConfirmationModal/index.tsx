@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 import Modal from 'react-modal';
 
-import { saveTournamentToLocalStorage } from '../../utils/localStorageUtils';
+import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import style from './style.scss';
 

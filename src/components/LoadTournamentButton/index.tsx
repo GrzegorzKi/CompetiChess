@@ -23,8 +23,8 @@ import { toast } from 'react-toastify';
 import usePromiseModal from 'hooks/usePromiseModal';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
 
-import { readTournamentJsonFromLocalStorage } from '../../utils/localStorageUtils';
-import { blockIfModified } from '../../utils/modalUtils';
+import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
+import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
 import SaveConfirmationModal from '@/SaveConfirmationModal';

@@ -23,7 +23,7 @@ import { Link } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
 import { selectPairs, selectPlayers, selectTournament } from 'reducers/tournamentReducer';
 
-import { routes } from '../../constants';
+import { routes } from 'utils';
 
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';

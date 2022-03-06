@@ -79,6 +79,7 @@
       "^routes/(.*)$": "<rootDir>/src/routes/$1",
       "^hooks/(.*)$": "<rootDir>/src/hooks/$1",
       "^reducers/(.*)$": "<rootDir>/src/reducers/$1",
+      "^utils/(.*)$": "<rootDir>/src/utils/$1",
       "^react$": "preact/compat",
       "^react-dom/test-utils$": "preact/test-utils",
       "^react-dom$": "preact/compat",

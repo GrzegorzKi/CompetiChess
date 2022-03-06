@@ -24,8 +24,8 @@ import { toast } from 'react-toastify';
 import usePromiseModal from 'hooks/usePromiseModal';
 import { loadNew } from 'reducers/tournamentReducer';
 
-import { loadFile } from '../../utils/fileUtils';
-import { blockIfModified } from '../../utils/modalUtils';
+import { loadFile } from 'utils/fileUtils';
+import { blockIfModified } from 'utils/modalUtils';
 
 import parseTrfFile, {
   isTournamentValid,

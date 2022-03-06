@@ -12,7 +12,8 @@
       "#/*": ["backend/*"],
       "routes/*": ["routes/*"],
       "hooks/*": ["hooks/*"],
-      "reducers/*": ["reducers/*"]
+      "reducers/*": ["reducers/*"],
+      "utils/*": ["utils/*"]
     },
 
     "allowJs": true,

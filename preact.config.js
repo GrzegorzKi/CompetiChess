@@ -85,6 +85,7 @@ export default (config, env, helpers) => {
     routes: path.resolve(__dirname, 'src/routes'),
     hooks: path.resolve(__dirname, 'src/hooks'),
     reducers: path.resolve(__dirname, 'src/reducers'),
+    utils: path.resolve(__dirname, 'src/utils'),
     ...config.resolve.alias
   };
 
