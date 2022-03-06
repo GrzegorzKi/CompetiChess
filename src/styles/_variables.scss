@@ -30,7 +30,9 @@ $navbar-item-active-background-color: rgba(0, 0, 0, 40%);
 $navbar-box-shadow-size: 0 1px 1px 0;
 $navbar-box-shadow-color: hsl(0, 0%, 6%);
 
-$modal-content-margin-mobile: 0;
+$tablet: 769px;
+$modal-breakpoint: $tablet;
+$modal-content-margin-mobile: 20px;
 
 // App's global variables
 $hover: #00ab97;

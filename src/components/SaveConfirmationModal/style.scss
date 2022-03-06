@@ -22,6 +22,10 @@
 .modal {
   transform: translate(0, $navbar-height + 1rem);
 
+  @media screen and (max-width: $modal-breakpoint - 1px) {
+    width: unset;
+  }
+
   & > header {
     background-color: mix(black, $primary, 10%);
     & > p {

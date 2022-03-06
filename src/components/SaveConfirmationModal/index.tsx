@@ -52,7 +52,6 @@ const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, o
       overlayClassName={style.modalOverlay}
       isOpen={isOpen}
       onRequestClose={onCancel}
-
       contentLabel="Save tournament confirmation modal"
     >
       <header class="modal-card-head">
@@ -62,10 +61,10 @@ const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, o
       <section className="modal-card-body">
         <div>Do you want to save tournament?</div>
       </section>
-      <footer className="modal-card-foot">
-        <button class="button is-success" onClick={saveAndConfirm}>Save changes</button>
+      <footer class="modal-card-foot" style="overflow-x: auto;">
+        <button class="button is-success" onClick={saveAndConfirm}>Save</button>
         <button class="button is-outlined is-danger" onClick={onConfirm}>Don't save</button>
-        <button class="button is-outlined" onClick={onCancel}>Cancel</button>
+        <button class="button is-outlined ml-auto" onClick={onCancel}>Cancel</button>
       </footer>
     </Modal>
   );
