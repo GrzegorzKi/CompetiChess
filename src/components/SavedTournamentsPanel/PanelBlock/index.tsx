@@ -25,10 +25,10 @@ import { TournamentEntry } from '..';
 
 import style from './style.scss';
 
-import DeleteTournamentButton from '@/DeleteTournamentButton';
-import ExportTournamentButton from '@/ExportTournamentButton';
-import LoadTournamentButton from '@/LoadTournamentButton';
-import SaveTournamentButton from '@/SaveTournamentButton';
+import DeleteTournamentButton from '@/SavedTournamentsPanel/DeleteTournamentButton';
+import ExportTournamentButton from '@/SavedTournamentsPanel/ExportTournamentButton';
+import LoadTournamentButton from '@/SavedTournamentsPanel/LoadTournamentButton';
+import SaveTournamentButton from '@/SavedTournamentsPanel/SaveTournamentButton';
 
 interface PanelBlockProps extends TournamentEntry {
   isActive?: true,

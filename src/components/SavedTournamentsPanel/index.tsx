@@ -30,8 +30,8 @@ import { tournamentsIndexKey } from 'utils/localStorageUtils';
 import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBlock';
 import style from './style.scss';
 
-import ImportTournamentButton from '@/ImportTournamentButton';
-import ImportTrfxTournamentButton from '@/ImportTrfxTournamentButton';
+import ImportTournamentButton from '@/SavedTournamentsPanel/ImportTournamentButton';
+import ImportTrfxTournamentButton from '@/SavedTournamentsPanel/ImportTrfxTournamentButton';
 
 export type TournamentEntry = {
   id: string,
