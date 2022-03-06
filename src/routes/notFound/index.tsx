@@ -20,11 +20,11 @@
 import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
 
-import constants from '../../constants';
+import constants from 'utils';
 
 export default function NotFound(): JSX.Element {
   useEffect(() => {
-    document.title = `404 Not Found | ${constants.APP_NAME}`;
+    document.title = `404 Not Found | ${constants.appName}`;
   }, []);
 
   // Preact's pre-render works in Node environment,

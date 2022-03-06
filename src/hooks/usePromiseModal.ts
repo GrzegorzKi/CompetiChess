@@ -29,10 +29,13 @@ export default function usePromiseModal(): [() => void, () => void, boolean, () 
   });
 
   const openModal = useCallback(() => {
+    if (promiseInfo.isOpen) {
+      return Promise.reject();
+    }
     return new Promise<void>((resolve, reject) => {
       setPromiseInfo({ isOpen: true, resolve, reject });
     });
-  }, []);
+  }, [promiseInfo.isOpen]);
 
   const onConfirm = useCallback(() => {
     setPromiseInfo(prevInfo => {

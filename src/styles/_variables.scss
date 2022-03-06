@@ -34,6 +34,10 @@ $tablet: 769px;
 $modal-breakpoint: $tablet;
 $modal-content-margin-mobile: 20px;
 
+$radius-large: 6px;
+$modal-card-foot-radius: $radius-large;
+$modal-card-head-radius: $radius-large;
+
 // App's global variables
 $hover: #00ab97;
 $innerPaddingH: 1rem;

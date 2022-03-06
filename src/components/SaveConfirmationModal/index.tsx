@@ -18,9 +18,10 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useCallback } from 'preact/hooks';
+import { useCallback, useRef } from 'preact/hooks';
 import Modal from 'react-modal';
 
+import { useBlocker } from 'hooks/useBlocker';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import style from './style.scss';
@@ -34,13 +35,21 @@ interface Props {
 }
 
 const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, onConfirm }) => {
-
   const saveAndConfirm = useCallback(() => {
     const storeState = store.getState() as RootState;
     saveTournamentToLocalStorage(storeState.tournament);
 
     onConfirm();
   }, [onConfirm]);
+
+  const modalRef = useRef<HTMLDivElement>();
+  useBlocker(() => {
+    if (modalRef.current && !modalRef.current.classList.contains(style.needsAction)) {
+      modalRef.current.classList.add(style.needsAction);
+      setTimeout(() => modalRef.current?.classList.remove(style.needsAction), 1100);
+    }
+    return false;
+  }, isOpen);
 
   if (!isOpen) {
     return null;
@@ -50,6 +59,8 @@ const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, o
     <Modal
       className={`modal-card ${style.modal}`}
       overlayClassName={style.modalOverlay}
+      bodyOpenClassName={null}
+      contentRef={(ref) => modalRef.current = ref}
       isOpen={isOpen}
       onRequestClose={onCancel}
       contentLabel="Save tournament confirmation modal"

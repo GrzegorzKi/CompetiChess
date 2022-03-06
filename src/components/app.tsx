@@ -28,7 +28,7 @@ import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
 import Tournaments from 'routes/tournaments';
 
-import constants, { routes, RoutesData } from '../constants';
+import constants, { routes, RoutesData } from 'utils';
 
 import { AnimatedRoutes, slide } from '@/Animation';
 import Header from '@/Header';
@@ -91,8 +91,8 @@ function listenToSwUpdates() {
 function getTitle(location: string): string {
   const route = (routes as RoutesData)[location.substring(1)];
   return route && route.title
-    ? `${route.title} | ${constants.APP_NAME}`
-    : constants.APP_NAME;
+    ? `${route.title} | ${constants.appName}`
+    : constants.appName;
 }
 
 const App: FunctionalComponent = () => {

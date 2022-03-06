@@ -18,7 +18,7 @@
  */
 
 const constants = {
-  APP_NAME: 'CompetiChess',
+  appName: 'CompetiChess'
 };
 
 export type RoutesData = {

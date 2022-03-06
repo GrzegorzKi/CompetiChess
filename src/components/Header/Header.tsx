@@ -25,7 +25,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
-import { routes } from '../../constants';
+import { routes } from 'utils';
 
 const Burger = ({ onClick, isActive }: { onClick: () => void, isActive: boolean }) => (
   <a role="button" class={`navbar-burger${isActive ? ' is-active' : ''}`} aria-label="menu" aria-expanded={isActive}
