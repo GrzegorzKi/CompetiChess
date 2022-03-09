@@ -120,6 +120,8 @@ const App: FunctionalComponent = () => {
         className="route-wrapper"
       >
         <Route path={routes.tournaments.path} element={<Tournaments />} />
+        <Route path={routes.createTournament.path} element={null} />
+        <Route path={routes.manageTournament.path} element={null} />
         <Route path={routes.pairs.path} element={<Pairs />} />
         <Route path={routes[''].path} element={<Home />} />
         <Route path="*" element={<NotFound />} />

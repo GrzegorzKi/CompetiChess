@@ -32,6 +32,7 @@ import style from './style.scss';
 
 import ImportTournamentButton from '@/SavedTournamentsPanel/ImportTournamentButton';
 import ImportTrfxTournamentButton from '@/SavedTournamentsPanel/ImportTrfxTournamentButton';
+import ManageTournamentButton from '@/SavedTournamentsPanel/ManageTournamentButton';
 
 export type TournamentEntry = {
   id: string,
@@ -101,7 +102,7 @@ const SavedTournamentsPanel = (): JSX.Element => {
         </p>
       </div>
       <span className={style.controlButtons}>
-        <button disabled class="button is-primary">Save tournament</button>
+        <ManageTournamentButton />
         <ImportTournamentButton />
         <ImportTrfxTournamentButton />
       </span>
