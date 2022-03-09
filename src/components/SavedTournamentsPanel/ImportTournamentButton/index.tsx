@@ -21,7 +21,9 @@ import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 import { toast } from 'react-toastify';
 
+import { useAppSelector } from 'hooks/index';
 import usePromiseModal from 'hooks/usePromiseModal';
+import { selectIsModified } from 'reducers/flagsReducer';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
 
 import { loadFile } from 'utils/fileUtils';
@@ -51,12 +53,13 @@ function importTournament(fileList: FileList) {
 
 const ImportTournamentButton: FunctionalComponent = () => {
   const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+  const isModified = useAppSelector(selectIsModified);
 
   const checkCurrentAndImportTournament = useCallback(async (files: FileList) => {
-    if (await blockIfModified(openModal)) {
+    if (await blockIfModified(isModified, openModal)) {
       importTournament(files);
     }
-  }, [openModal]);
+  }, [isModified, openModal]);
 
   return (
     <>

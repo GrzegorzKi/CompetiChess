@@ -17,11 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { store } from '@/store';
-
-export async function blockIfModified(onModified: () => Promise<boolean>): Promise<boolean> {
-  const storeState = store.getState();
-  if (storeState.tournament.isModified) {
+export async function blockIfModified(isModified: boolean, onModified: () => Promise<boolean>): Promise<boolean> {
+  if (isModified) {
     try {
       return await onModified();
     } catch {

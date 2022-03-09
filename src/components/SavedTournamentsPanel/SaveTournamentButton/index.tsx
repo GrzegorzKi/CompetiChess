@@ -21,7 +21,8 @@ import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
-import { clearIsModified, selectTournament } from 'reducers/tournamentReducer';
+import { clearIsModified } from 'reducers/flagsReducer';
+import { selectTournament } from 'reducers/tournamentReducer';
 
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 

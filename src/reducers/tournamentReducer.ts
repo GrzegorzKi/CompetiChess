@@ -71,14 +71,12 @@ export interface TournamentState {
   players?: PlayersState,
   pairs?: Array<Pair[]>,
   view: ViewState,
-  isModified: boolean,
 }
 
 const initialState: TournamentState = {
   view: {
     selectedRound: 0,
   },
-  isModified: false,
 };
 
 type SetResultType = { round?: number, pairNo: string, type: ResultType };
@@ -160,7 +158,6 @@ export const tournamentSlice = createSlice({
       state.view = {
         selectedRound: 0,
       };
-      state.isModified = false;
 
       state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
     },
@@ -170,42 +167,34 @@ export const tournamentSlice = createSlice({
       state.players = payload.players;
       state.pairs = payload.pairs;
       state.view = payload.view;
-      state.isModified = false;
 
       if (state.tournament && !state.tournament.id) {
         state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
       }
-    },
-    clearIsModified: (state) => {
-      state.isModified = false;
     },
     close: (state) => {
       state.tournament = undefined;
       state.configuration = undefined;
       state.players = undefined;
       state.pairs = undefined;
-      state.isModified = false;
     },
     selectNextRound: (state) => {
       const { view, tournament } = state;
       if (tournament && view.selectedRound < tournament.playedRounds - 1) {
         view.selectedRound += 1;
       }
-      state.isModified = true;
     },
     selectPrevRound: (state) => {
       const { view, tournament } = state;
       if (tournament && view.selectedRound > 0) {
         view.selectedRound -= 1;
       }
-      state.isModified = true;
     },
     selectRound: (state, { payload }: PayloadAction<number>) => {
       const { view, tournament } = state;
       if (tournament && payload >= 0 && payload < tournament.playedRounds) {
         view.selectedRound = payload;
       }
-      state.isModified = true;
     },
     setResult: (state, action: PayloadAction<SetResultType>) => {
       const { pairs, players, configuration, view } = state;
@@ -244,8 +233,6 @@ export const tournamentSlice = createSlice({
       playerArray.forEach(player => {
         recalculateTiebreakers(player, playerArray, configuration, round);
       });
-
-      state.isModified = true;
     }
   },
   extraReducers: (builder) => {
@@ -280,7 +267,6 @@ export const tournamentSlice = createSlice({
       tournament.playedRounds += 1;
       view.selectedRound = tournament.playedRounds - 1;
 
-      state.isModified = true;
       toast('Next round pairings are ready!', {
         type: toast.TYPE.SUCCESS,
       });
@@ -299,7 +285,7 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, loadNewFromJson, clearIsModified, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
+export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;
