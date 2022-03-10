@@ -31,12 +31,11 @@ import {
   setResult,
 } from 'reducers/tournamentReducer';
 
-import Tournament, { Pair, Player, PlayersRecord } from '#/types/Tournament';
+import { Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 
 interface Props {
-  data: Tournament,
   roundPairs: Array<Pair[]>,
   players: PlayersRecord,
   forceRound?: number
@@ -58,7 +57,7 @@ function displayPlayer(player: Player) {
   return `${player.name} (${player.id})`;
 }
 
-const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forceRound }) => {
+const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound }) => {
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
 
@@ -164,7 +163,7 @@ const PairsView: FunctionalComponent<Props> = ({ data, roundPairs, players, forc
 
   return (
     <>
-      <PaginateRound pageCount={data.playedRounds}
+      <PaginateRound pageCount={roundPairs.length}
                      page={round}
                      onPageChange={({ selected }) => dispatch(selectRound(selected))} />
       <div class='table-container'>

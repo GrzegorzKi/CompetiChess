@@ -60,9 +60,6 @@ export function createTournamentData(overrides?: Partial<Tournament>): Tournamen
     federation: '',
     dateOfStart: '',
     dateOfEnd: '',
-    numberOfPlayers: 0,
-    numberOfRatedPlayers: 0,
-    numberOfTeams: 0,
     tournamentType: '',
     chiefArbiter: '',
     deputyArbiters: [],
@@ -71,7 +68,6 @@ export function createTournamentData(overrides?: Partial<Tournament>): Tournamen
     teams: [],
     otherFields: {},
     forbiddenPairs: [],
-    playedRounds: 0,
   };
 
   return Object.assign(
@@ -219,9 +215,9 @@ export const recalculateScores = (
   let calcPts = (fromRound >= 2 ? scores[fromRound - 2].points : 0.0);
 
   const maxLen = Math.min(games.length, toRound);
-  for (let r = fromRound - 1; r < maxLen; ++r) {
-    calcPts += getPoints(games[r], configuration);
-    scores[r] = { round: r + 1, points: calcPts, tiebreakers: {} };
+  for (let round = fromRound; round <= maxLen; ++round) {
+    calcPts += getPoints(games[round - 1], configuration);
+    scores[round - 1] = { round, points: calcPts, tiebreakers: {} };
   }
 };
 

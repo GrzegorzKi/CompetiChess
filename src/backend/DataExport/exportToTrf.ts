@@ -26,7 +26,7 @@ export type ExportConfig = {
   tournament: Tournament,
   players: Player[],
   configuration: Configuration,
-  forRound?: number;
+  forRound: number;
   exportForPairing?: boolean;
   pointsModFormat?: PointsModFormat;
 }
@@ -96,9 +96,6 @@ function exportTournamentInfo(tournament: Tournament): string {
   tournament.federation && (string += `032 ${tournament.federation}\n`);
   tournament.dateOfStart && (string += `042 ${tournament.dateOfStart}\n`);
   tournament.dateOfEnd && (string += `052 ${tournament.dateOfEnd}\n`);
-  tournament.numberOfPlayers && (string += `062 ${tournament.numberOfPlayers}\n`);
-  tournament.numberOfRatedPlayers && (string += `072 ${tournament.numberOfRatedPlayers}\n`);
-  tournament.numberOfTeams && (string += `082 ${tournament.numberOfTeams}\n`);
   tournament.tournamentType && (string += `092 ${tournament.tournamentType}\n`);
   tournament.chiefArbiter && (string += `102 ${tournament.chiefArbiter}\n`);
   tournament.deputyArbiters.length && (string += `112 ${tournament.deputyArbiters.join(' ')}\n`);
@@ -205,17 +202,11 @@ export default function exportToTrf({
   tournament,
   players,
   configuration,
-  forRound = tournament.playedRounds,
+  forRound,
   exportForPairing = true,
   pointsModFormat = 'JaVaFo'
 }: ExportConfig): string | undefined {
-
-  const { playedRounds } = tournament;
   let resultString = '';
-
-  if (forRound < 0 || forRound > playedRounds) {
-    forRound = playedRounds;
-  }
 
   if (!exportForPairing) {
     resultString += exportTournamentInfo(tournament);

@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { Link } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
-import { selectPairs, selectPlayers, selectTournament } from 'reducers/tournamentReducer';
+import { selectPairs, selectPlayers } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils';
 
@@ -29,16 +29,15 @@ import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
 
 const Pairs: FunctionalComponent = () => {
-  const tournament = useAppSelector(selectTournament);
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
 
   return (
-    tournament && pairs && players
+    pairs && players
       ? (
         <>
           <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-          <PairsView data={tournament} roundPairs={pairs} players={players.index} />
+          <PairsView roundPairs={pairs} players={players.index} />
         </>
       )
       :

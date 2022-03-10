@@ -46,9 +46,6 @@ interface Tournament {
   federation: string;
   dateOfStart: string;
   dateOfEnd: string;
-  numberOfPlayers: number;
-  numberOfRatedPlayers: number;
-  numberOfTeams: number;
   tournamentType: string;
   chiefArbiter: string;
   deputyArbiters: string[];
@@ -57,7 +54,6 @@ interface Tournament {
   teams: Team[];
   otherFields: Record<string, string>;
   forbiddenPairs: ForbiddenPairs[];
-  playedRounds: number;
 }
 
 export default Tournament;

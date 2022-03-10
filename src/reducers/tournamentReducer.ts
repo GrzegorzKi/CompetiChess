@@ -43,7 +43,7 @@ import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
 
 const verifyNextRoundConditions = (
-  { playedRounds }: Tournament, { expectedRounds }: Configuration, players: PlayersRecord,
+  playedRounds: number, { expectedRounds }: Configuration, players: PlayersRecord,
 ): string | undefined => {
   const allFilled = checkPairingsFilled(players, playedRounds);
   if (!allFilled) {
@@ -104,7 +104,9 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
       return thunkAPI.rejectWithValue({ reason: 'There is no tournament active. Cannot start new round.' });
     }
 
-    const verifyError = verifyNextRoundConditions(tournament, configuration, players.index);
+    const playedRounds = pairs.length;
+
+    const verifyError = verifyNextRoundConditions(playedRounds, configuration, players.index);
 
     if (verifyError) {
       return thunkAPI.rejectWithValue({ reason: verifyError, isValidationError: true });
@@ -117,6 +119,7 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
       tournament,
       players: playersToIter,
       configuration,
+      forRound: playedRounds,
       exportForPairing: true
     });
 
@@ -179,20 +182,20 @@ export const tournamentSlice = createSlice({
       state.pairs = undefined;
     },
     selectNextRound: (state) => {
-      const { view, tournament } = state;
-      if (tournament && view.selectedRound < tournament.playedRounds - 1) {
+      const { view, pairs } = state;
+      if (pairs && view.selectedRound < pairs.length - 1) {
         view.selectedRound += 1;
       }
     },
     selectPrevRound: (state) => {
-      const { view, tournament } = state;
-      if (tournament && view.selectedRound > 0) {
+      const { view, pairs } = state;
+      if (pairs && view.selectedRound > 0) {
         view.selectedRound -= 1;
       }
     },
     selectRound: (state, { payload }: PayloadAction<number>) => {
-      const { view, tournament } = state;
-      if (tournament && payload >= 0 && payload < tournament.playedRounds) {
+      const { view, pairs } = state;
+      if (pairs && payload >= 0 && payload < pairs.length) {
         view.selectedRound = payload;
       }
     },
@@ -204,7 +207,7 @@ export const tournamentSlice = createSlice({
       }
 
       const round = action.payload.round ?? view.selectedRound;
-      if (round >= pairs.length) {
+      if (round > (pairs.length - 1)) {
         return;
       }
 
@@ -258,14 +261,13 @@ export const tournamentSlice = createSlice({
         return;
       }
 
-      evenUpGamesHistory(players.index, tournament.playedRounds);
+      evenUpGamesHistory(players.index, pairs.length);
       recalculatePlayerScores(
         playersArray,
         configuration,
-        tournament.playedRounds);
+        pairs.length);
 
-      tournament.playedRounds += 1;
-      view.selectedRound = tournament.playedRounds - 1;
+      view.selectedRound = pairs.length - 1;
 
       toast('Next round pairings are ready!', {
         type: toast.TYPE.SUCCESS,

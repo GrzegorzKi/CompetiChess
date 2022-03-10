@@ -72,7 +72,6 @@ function postProcessData({
   }
 
   const playedRounds = calculatePlayedRounds(players);
-  tournament.playedRounds = playedRounds;
   if (configuration.expectedRounds <= 0
     || playedRounds > configuration.expectedRounds) {
     configuration.expectedRounds = playedRounds;

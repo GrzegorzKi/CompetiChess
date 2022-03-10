@@ -42,27 +42,9 @@ export const fieldParser: Record<Field, ParseFunc> = {
   [Field.FEDERATION]: ({ tournament: t }, value) => { t.federation = value; },
   [Field.START_DATE]: ({ tournament: t }, value) => { t.dateOfStart = value; },
   [Field.END_DATE]: ({ tournament: t }, value) => { t.dateOfEnd = value; },
-  [Field.NUM_PLAYERS]: ({ tournament: t }, value) => {
-    const tryNumPlayers = parseNumber(value);
-    if (isError(tryNumPlayers)) {
-      return tryNumPlayers;
-    }
-    t.numberOfPlayers = tryNumPlayers;
-  },
-  [Field.NUM_RATED_PLAYERS]: ({ tournament: t }, value) => {
-    const tryNumRatedPlayers = parseNumber(value);
-    if (isError(tryNumRatedPlayers)) {
-      return tryNumRatedPlayers;
-    }
-    t.numberOfRatedPlayers = tryNumRatedPlayers;
-  },
-  [Field.NUM_TEAMS]: ({ tournament: t }, value) => {
-    const tryNumTeams = parseNumber(value);
-    if (isError(tryNumTeams)) {
-      return tryNumTeams;
-    }
-    t.numberOfTeams = tryNumTeams;
-  },
+  [Field.NUM_PLAYERS]: () => {/* Ignore value - should be derived from players array */},
+  [Field.NUM_RATED_PLAYERS]: () => {/* Ignore value - should be derived from players array */},
+  [Field.NUM_TEAMS]: () => {/* Ignore value - should be derived from teams array */},
   [Field.TYPE]: ({ tournament: t }, value) => { t.tournamentType = value; },
   [Field.CHIEF_ARBITER]: ({ tournament: t }, value) => { t.chiefArbiter = value; },
   [Field.DEPUTY_ARBITER]: ({ tournament: t }, value) => { t.deputyArbiters.push(value); },
