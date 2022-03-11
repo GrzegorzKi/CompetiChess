@@ -30,6 +30,8 @@ import Tournaments from 'routes/tournaments';
 
 import constants, { routes, RoutesData } from 'utils';
 
+import TournamentSettings from './TournamentSettings';
+
 import { AnimatedRoutes, slide } from '@/Animation';
 import Header from '@/Header';
 import NoScriptMessage from '@/NoScriptMessage';
@@ -120,7 +122,7 @@ const App: FunctionalComponent = () => {
         className="route-wrapper"
       >
         <Route path={routes.tournaments.path} element={<Tournaments />} />
-        <Route path={routes.createTournament.path} element={null} />
+        <Route path={routes.createTournament.path} element={<TournamentSettings />} />
         <Route path={routes.manageTournament.path} element={null} />
         <Route path={routes.pairs.path} element={<Pairs />} />
         <Route path={routes[''].path} element={<Home />} />
