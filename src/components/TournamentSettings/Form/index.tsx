@@ -17,49 +17,34 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { cloneElement, h, JSX, VNode } from 'preact';
+import { ComponentChildren, h, JSX } from 'preact';
 import { useEffect } from 'preact/hooks';
-import { DefaultValues, SubmitHandler, useForm } from 'react-hook-form';
-
-import Field, { IFieldProps } from '@/TournamentSettings/Field';
+import { DefaultValues, SubmitHandler, useForm, UseFormReturn } from 'react-hook-form';
 
 export type IFormProps<T extends Record<string, unknown>> = {
   onSubmit: SubmitHandler<T>;
   onDirtyChange?: (isDirty: boolean) => void;
   defaultValues?: DefaultValues<T>;
-  children: VNode<IFieldProps<T> | unknown>[];
-}
-
-function isChildAField(child?: VNode<any>): child is VNode<typeof Field> {
-  return child !== undefined && 'name' in child.props;
+  children: (formMethods: UseFormReturn<T>) => ComponentChildren;
 }
 
 function Form<T extends Record<string, unknown>>(
   { children, defaultValues, onDirtyChange, onSubmit }: IFormProps<T>): JSX.Element {
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm<T>({
+  const formMethods = useForm<T>({
     mode: 'onTouched',
     defaultValues
   });
+  const { handleSubmit, formState: { isDirty } } = formMethods;
 
   useEffect(() => {
     onDirtyChange && onDirtyChange(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const aChildren = Array.isArray(children) ? children : [children];
-
   return (
-    <form onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}>
-      {aChildren.map(child => {
-        return isChildAField(child)
-          ? cloneElement<typeof Field>(child, {
-            ...child.props,
-            key: child.props.name,
-            register,
-            errors: errors[child.props.name],
-          }
-          ) : child;
-      })}
+    <form onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
+          noValidate>
+      {children(formMethods)}
     </form>
   );
 }

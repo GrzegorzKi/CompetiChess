@@ -32,6 +32,7 @@ export type IFormInputs = {
   tournamentType: string,
   chiefArbiter: string,
   rateOfPlay: string,
+  numberOfRounds: number,
 }
 
 interface IProps {
@@ -42,41 +43,60 @@ const TournamentForm: FunctionalComponent<IProps> = ({ modifiedFn }) => {
   const onSubmit: SubmitHandler<IFormInputs> = (data) => console.log(data);
 
   return (
-    <Form
-      onSubmit={onSubmit}
-      onDirtyChange={modifiedFn}
-      defaultValues={{
-        tournamentName: '',
-        city: '',
-        federation: '',
-        dateOfStart: '',
-        dateOfEnd: '',
-        tournamentType: '',
-        chiefArbiter: '',
-        rateOfPlay: ''
-      } as IFormInputs}
-    >
-      <Field name="tournamentName"
-             label="Tournament name"
-             options={{ required: 'Tournament name is required' }} />
-      <Field name="city"
-             label="City" />
-      <Field name="federation"
-             label="Federation" />
-      <Field name="dateOfStart"
-             label="Date of start"
-             options={{ required: 'Date of start is required' }} />
-      <Field name="dateOfEnd"
-             label="Date of end" />
-      <Field name="tournamentType"
-             label="Tournament type"
-             placeholder="E.g.: Swiss system, individual, round-robin" />
-      <Field name="chiefArbiter"
-             label="Chief arbiter" />
-      <Field name="rateOfPlay"
-             label="Rate of play"
-             placeholder="Allotted times per moves/game" />
-      <input value="Create" type="submit" class="button is-primary" />
+    <Form onSubmit={onSubmit}
+          onDirtyChange={modifiedFn}
+          defaultValues={{
+            tournamentName: '',
+            city: '',
+            federation: '',
+            dateOfStart: '',
+            dateOfEnd: '',
+            tournamentType: '',
+            chiefArbiter: '',
+            rateOfPlay: '',
+            numberOfRounds: 9,
+          }}>
+      {({ register, formState: { errors } }) => (<>
+        <Field label="Tournament name"
+               {...register('tournamentName', { required: 'Tournament name is required' })}
+               errors={errors.tournamentName} />
+        <div className="field field-body is-horizontal">
+          <Field label="City"
+                 {...register('city')} />
+          <Field label="Federation"
+                 {...register('federation')} />
+        </div>
+        <div className="field field-body is-horizontal">
+          <Field label="Date of start"
+                 {...register('dateOfStart', { required: 'Date of start is required' })}
+                 errors={errors.dateOfStart} />
+          <Field label="Date of end"
+                 {...register('dateOfEnd')} />
+        </div>
+        <Field label="Tournament type"
+               placeholder="E.g.: Swiss system, individual, round-robin"
+               {...register('tournamentType')} />
+        <Field label="Chief arbiter"
+               {...register('chiefArbiter')} />
+        <Field label="Rate of play"
+               placeholder="Allotted times per moves/game"
+               {...register('rateOfPlay')} />
+        <Field label="Number of rounds" type="number"
+               {...register('numberOfRounds', {
+                 valueAsNumber: true,
+                 required: 'Number of rounds is required',
+                 min: {
+                   value: 1,
+                   message: 'Number of rounds must be positive'
+                 },
+                 max: {
+                   value: 99,
+                   message: 'Number of rounds cannot exceed 99 rounds'
+                 },
+               })}
+               errors={errors.numberOfRounds} />
+        <input value="Create" type="submit" class="button is-primary" />
+      </>)}
     </Form>
   );
 };

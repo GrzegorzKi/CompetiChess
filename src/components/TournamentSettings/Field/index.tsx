@@ -19,26 +19,24 @@
 
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { h } from 'preact';
-import { FieldError, Path, RegisterOptions, UseFormRegister } from 'react-hook-form';
+import { ComponentChildren, h } from 'preact';
+import { forwardRef } from 'preact/compat';
+import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 
-export interface IFieldProps<T extends Record<string, unknown> = Record<string, unknown>> {
-  name: keyof T;
+export interface IFieldProps extends UseFormRegisterReturn {
   label: string;
   placeholder?: string;
-  register?: UseFormRegister<T>;
-  options?: RegisterOptions<T>;
+  type?: React.HTMLInputTypeAttribute;
   errors?: FieldError;
+  children?: ComponentChildren;
 }
 
-function Field<T extends Record<string, unknown>>({ name, label, placeholder, register, options, errors }: IFieldProps<T>): JSX.Element | null {
-  if (!register) return null;
-
+const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, errors, children, ...register }, ref) => {
   return <div class="field">
     <label>
       <span class="label is-small">{label}</span>
       <div class="control has-icons-right">
-        <input {...register(name as Path<T>, options)}
+        <input {...register} ref={ref}
                class={`input is-small${errors ? ' is-danger' : ''}`}
                placeholder={placeholder ?? label}
                aria-invalid={errors ? true : undefined}
@@ -49,7 +47,8 @@ function Field<T extends Record<string, unknown>>({ name, label, placeholder, re
       </div>
     </label>
     {errors && <p class="help is-danger">{errors?.message}</p>}
+    {children}
   </div>;
-}
+});
 
 export default Field;
