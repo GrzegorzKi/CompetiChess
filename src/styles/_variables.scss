@@ -32,7 +32,8 @@ $navbar-item-active-background-color: rgba(0, 0, 0, 40%);
 $navbar-box-shadow-size: 0 1px 1px 0;
 $navbar-box-shadow-color: hsl(0, 0%, 6%);
 
-$tablet: 769px;
+$mobile: 768px;
+$tablet: $mobile + 1px;
 $modal-breakpoint: $tablet;
 $modal-content-margin-mobile: 20px;
 

@@ -25,3 +25,18 @@
     padding: 0.5rem 0.75rem;
   }
 }
+
+.content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  & > aside {
+    padding-inline-end: 0.5rem;
+    margin-inline-end: 0.5rem;
+  }
+
+  & > form {
+    flex: 1;
+  }
+}

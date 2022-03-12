@@ -25,20 +25,18 @@ import useTournamentFormData from 'hooks/useTournamentFormData';
 
 import style from './style.scss';
 import TournamentForm from './TournamentForm';
+import TournamentFormSideMenu, { Tab } from './TournamentFormSideMenu';
 
 import { waitForRehydration } from '@/store';
 
-type Tabs = 'General' | 'Tiebreakers';
-
 const _TournamentSettings: FunctionalComponent = () => {
   const generalFormRef = useRef<UseFormReturn<any>>();
-  const [tab, setTab] = useState<Tabs>('General');
+  const [tab, setTab] = useState<Tab>('General');
 
   const tournamentData = useTournamentFormData();
 
   const onSubmit = useCallback(async () => {
     if (generalFormRef.current) {
-      console.log(generalFormRef.current.formState.isDirty);
       const isValid = await generalFormRef.current.trigger();
       if (isValid) {
         // TODO Dispatch creating new tournament
@@ -52,14 +50,14 @@ const _TournamentSettings: FunctionalComponent = () => {
       <p class="panel-heading">
         Tournament settings
       </p>
-      <section>
+      <section class={style.content}>
+        <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <TournamentForm inputRef={generalFormRef}
                         defaultValues={tournamentData?.general}
                         visible={tab === 'General'} />
       </section>
-      <section>
-        <input onClick={onSubmit} value="Create" type="submit" className="button is-primary" />
-        {/*<button onClick={() => tab === 'General' ? setTab('Tiebreakers') : setTab('General')}>Change tab </button>*/}
+      <section class="buttons">
+        <input onClick={onSubmit} value="Create" type="submit" class="button is-primary ml-auto" />
       </section>
     </article>
   );
