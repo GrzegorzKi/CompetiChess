@@ -18,12 +18,13 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { SubmitHandler } from 'react-hook-form';
+import { MutableRef, useMemo } from 'preact/hooks';
+import { SubmitHandler, UseFormReturn } from 'react-hook-form';
 
 import Field from '@/TournamentSettings/Field';
 import Form from '@/TournamentSettings/Form';
 
-export type IFormInputs = {
+export type IGeneralFormInputs = {
   tournamentName: string,
   city: string,
   federation: string,
@@ -36,26 +37,37 @@ export type IFormInputs = {
 }
 
 interface IProps {
-  modifiedFn: (isModified: boolean) => void
+  inputRef?: MutableRef<UseFormReturn<IGeneralFormInputs> | undefined>;
+  defaultValues?: Partial<IGeneralFormInputs>;
+  values?: Partial<IGeneralFormInputs>;
+  visible?: boolean;
 }
 
-const TournamentForm: FunctionalComponent<IProps> = ({ modifiedFn }) => {
-  const onSubmit: SubmitHandler<IFormInputs> = (data) => console.log(data);
+const TournamentForm: FunctionalComponent<IProps> = (
+  { inputRef, defaultValues, values, visible }) => {
+
+  const _defaultValues = useMemo(() => (
+    defaultValues ?? {
+      tournamentName: '',
+      city: '',
+      federation: '',
+      dateOfStart: '',
+      dateOfEnd: '',
+      tournamentType: '',
+      chiefArbiter: '',
+      rateOfPlay: '',
+      numberOfRounds: 9,
+    }
+  ), [defaultValues]);
+
+  const onSubmit: SubmitHandler<IGeneralFormInputs> = (data) => console.log(data);
 
   return (
     <Form onSubmit={onSubmit}
-          onDirtyChange={modifiedFn}
-          defaultValues={{
-            tournamentName: '',
-            city: '',
-            federation: '',
-            dateOfStart: '',
-            dateOfEnd: '',
-            tournamentType: '',
-            chiefArbiter: '',
-            rateOfPlay: '',
-            numberOfRounds: 9,
-          }}>
+          inputRef={inputRef}
+          defaultValues={_defaultValues}
+          values={values}
+          visible={visible}>
       {({ register, formState: { errors } }) => (<>
         <Field label="Tournament name"
                {...register('tournamentName', { required: 'Tournament name is required' })}
@@ -95,7 +107,6 @@ const TournamentForm: FunctionalComponent<IProps> = ({ modifiedFn }) => {
                  },
                })}
                errors={errors.numberOfRounds} />
-        <input value="Create" type="submit" class="button is-primary" />
       </>)}
     </Form>
   );

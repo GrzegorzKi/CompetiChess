@@ -18,7 +18,7 @@
  */
 
 import { Action, combineReducers, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import { FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, persistReducer } from 'redux-persist';
+import { FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import flagsReducer from 'reducers/flagsReducer';
@@ -48,6 +48,28 @@ export const store = configureStore({
     })
 });
 
+let rehydrationComplete = () => {/**/};
+let rehydrationFailed = () => {/**/};
+
+const rehydrationPromise = new Promise<void>((resolve, reject) => {
+  rehydrationComplete = resolve;
+  rehydrationFailed = reject;
+});
+
+export const waitForRehydration = (): Promise<void> => rehydrationPromise;
+
+const initStore = () => {
+  try {
+    const persistor = persistStore(store, null, () => {
+      rehydrationComplete();
+    });
+    return { store, persistor };
+  } catch {
+    rehydrationFailed();
+    return { store, undefined };
+  }
+};
+
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppThunk<ReturnType = void> = ThunkAction<
@@ -56,3 +78,5 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   Action<string>
 >;
+
+export default initStore;

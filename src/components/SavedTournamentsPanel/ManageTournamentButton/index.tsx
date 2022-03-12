@@ -31,19 +31,19 @@ const ManageTournamentButton: FunctionalComponent = () => {
   let buttons: JSX.Element;
   if (!tournament) {
     buttons = <p class="control">
-      <button disabled class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
+      <button class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
         Create tournament
       </button>
     </p>;
   } else {
     buttons = <>
       <p class="control">
-        <button disabled class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
+        <button class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
           Create
         </button>
       </p>
       <p class="control">
-        <button disabled class="button is-info" onClick={() => navigate(routes.manageTournament.path)}>
+        <button class="button is-info" onClick={() => navigate(routes.manageTournament.path)}>
           Manage
         </button>
       </p>

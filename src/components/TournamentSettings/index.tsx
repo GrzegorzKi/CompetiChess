@@ -18,13 +18,34 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useRef } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { UseFormReturn } from 'react-hook-form';
+
+import useTournamentFormData from 'hooks/useTournamentFormData';
 
 import style from './style.scss';
 import TournamentForm from './TournamentForm';
 
-const TournamentSettings: FunctionalComponent = () => {
-  const isModified = useRef(false);
+import { waitForRehydration } from '@/store';
+
+type Tabs = 'General' | 'Tiebreakers';
+
+const _TournamentSettings: FunctionalComponent = () => {
+  const generalFormRef = useRef<UseFormReturn<any>>();
+  const [tab, setTab] = useState<Tabs>('General');
+
+  const tournamentData = useTournamentFormData();
+
+  const onSubmit = useCallback(async () => {
+    if (generalFormRef.current) {
+      console.log(generalFormRef.current.formState.isDirty);
+      const isValid = await generalFormRef.current.trigger();
+      if (isValid) {
+        // TODO Dispatch creating new tournament
+        console.log(tournamentData);
+      }
+    }
+  }, [tournamentData]);
 
   return (
     <article class={`panel is-primary ${style.panel}`}>
@@ -32,10 +53,29 @@ const TournamentSettings: FunctionalComponent = () => {
         Tournament settings
       </p>
       <section>
-        <TournamentForm modifiedFn={(isDirty) => isModified.current = isDirty} />
+        <TournamentForm inputRef={generalFormRef}
+                        defaultValues={tournamentData?.general}
+                        visible={tab === 'General'} />
+      </section>
+      <section>
+        <input onClick={onSubmit} value="Create" type="submit" className="button is-primary" />
+        {/*<button onClick={() => tab === 'General' ? setTab('Tiebreakers') : setTab('General')}>Change tab </button>*/}
       </section>
     </article>
   );
+};
+
+const TournamentSettings: FunctionalComponent = () => {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    waitForRehydration().then(() => {
+      setReady(true);
+    });
+  }, []);
+
+  return ready
+    ? <_TournamentSettings />
+    : <p>Loading tournament data, please wait...</p>;
 };
 
 export default TournamentSettings;

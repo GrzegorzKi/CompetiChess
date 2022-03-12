@@ -23,6 +23,8 @@ import { ComponentChildren, h } from 'preact';
 import { forwardRef } from 'preact/compat';
 import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 
+import style from './style.scss';
+
 export interface IFieldProps extends UseFormRegisterReturn {
   label: string;
   placeholder?: string;
@@ -34,10 +36,10 @@ export interface IFieldProps extends UseFormRegisterReturn {
 const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, errors, children, ...register }, ref) => {
   return <div class="field">
     <label>
-      <span class="label is-small">{label}</span>
+      <span class={`label ${style.isSmallTablet}`}>{label}</span>
       <div class="control has-icons-right">
         <input {...register} ref={ref}
-               class={`input is-small${errors ? ' is-danger' : ''}`}
+               class={`input ${style.isSmallTablet}${errors ? ' is-danger' : ''}`}
                placeholder={placeholder ?? label}
                aria-invalid={errors ? true : undefined}
         />

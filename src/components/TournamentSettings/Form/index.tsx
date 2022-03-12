@@ -18,31 +18,40 @@
  */
 
 import { ComponentChildren, h, JSX } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { MutableRef, useEffect } from 'preact/hooks';
 import { DefaultValues, SubmitHandler, useForm, UseFormReturn } from 'react-hook-form';
 
 export type IFormProps<T extends Record<string, unknown>> = {
   onSubmit: SubmitHandler<T>;
-  onDirtyChange?: (isDirty: boolean) => void;
   defaultValues?: DefaultValues<T>;
+  values?: DefaultValues<T>;
   children: (formMethods: UseFormReturn<T>) => ComponentChildren;
+  inputRef?: MutableRef<UseFormReturn<T> | undefined>;
+  visible?: boolean;
 }
 
 function Form<T extends Record<string, unknown>>(
-  { children, defaultValues, onDirtyChange, onSubmit }: IFormProps<T>): JSX.Element {
+  { children, defaultValues, values, inputRef, onSubmit, visible }: IFormProps<T>): JSX.Element {
 
   const formMethods = useForm<T>({
     mode: 'onTouched',
     defaultValues
   });
-  const { handleSubmit, formState: { isDirty } } = formMethods;
+  const { handleSubmit, reset } = formMethods;
 
   useEffect(() => {
-    onDirtyChange && onDirtyChange(isDirty);
-  }, [isDirty, onDirtyChange]);
+    if (inputRef) {
+      inputRef.current = formMethods;
+    }
+  }, [formMethods, inputRef]);
+
+  useEffect(() => {
+    values && reset(values);
+  }, [reset, values]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
+    <form style={visible === false ? 'display: none;' : ''}
+          onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
           noValidate>
       {children(formMethods)}
     </form>
