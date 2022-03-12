@@ -17,15 +17,18 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { faChevronLeft, faChevronRight, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { useLocation } from 'react-router';
-import { Link, NavLink } from 'react-router-dom';
+import { useNavigate, Link, NavLink } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils';
+import { isInStandaloneOrFullscreenMode } from 'utils/common';
 
 const Burger = ({ onClick, isActive }: { onClick: () => void, isActive: boolean }) => (
   <a role="button" class={`navbar-burger${isActive ? ' is-active' : ''}`} aria-label="menu" aria-expanded={isActive}
@@ -59,13 +62,33 @@ const Header: FunctionalComponent = () => {
     ? <span class="navbar-item"><b>{tournament.tournamentName}</b></span>
     : null;
 
+  const standaloneMode = isInStandaloneOrFullscreenMode();
+  const navigate = useNavigate();
+
+  const navigationLinks = standaloneMode
+    ? <>
+      <a role="navigation" aria-label="Go back" class="navbar-item" onClick={() => history.back()}>
+        <Icon icon={faChevronLeft} />
+      </a>
+      <a role="navigation" aria-label="Go forward" class="navbar-item" onClick={() => history.forward()}>
+        <Icon icon={faChevronRight} />
+      </a>
+      <a role="navigation" aria-label="Go to home page" class="navbar-item" onClick={() => {
+        if (history.length > 1) {
+          history.go(-(history.length - 1));
+        }
+        navigate(routes[''].path, { replace: true });
+      }}><Icon icon={faHouse} /></a>
+    </>
+    : null;
+
   return (
     <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
+        {navigationLinks}
         <Link className="navbar-item" to={routes[''].path}>
           <strong>CompetiChess</strong>
         </Link>
-
         <Burger isActive={active} onClick={() => setActive(!active)} />
       </div>
 

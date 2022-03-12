@@ -109,7 +109,7 @@ input[type=number]::-webkit-outer-spin-button {
   padding: $innerPaddingH $innerPaddingW;
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow-y: scroll;
 }
 
 @media (pointer: fine) {

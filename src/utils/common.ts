@@ -28,3 +28,16 @@ export const cyrb53 = (str: string, seed = 0): number => {
   h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
   return 4294967296 * (2097151 & h2) + (h1>>>0);
 };
+
+export const isInStandaloneMode = (): boolean =>
+  typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches
+    || ('standalone' in window.navigator)
+    || document.referrer.includes('android-app://'));
+
+export const isInStandaloneOrFullscreenMode = (): boolean =>
+  typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches
+    || window.matchMedia('(display-mode: fullscreen)').matches
+    || ('standalone' in window.navigator)
+    || document.referrer.includes('android-app://'));
