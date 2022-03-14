@@ -487,7 +487,8 @@ export function compareHeadToHead(first: Player, second: Player): number {
   return 0;
 }
 
-type TiebreakerInfo = {
+export type TiebreakerInfo = {
+  key: Tiebreaker,
   abbr: string,
   name: string,
   description: string,
@@ -499,6 +500,7 @@ type CalcFunction = (player: Player, forRound: number, players: Player[], config
 
 export const tiebreakers: Record<Tiebreaker, TiebreakerInfo> = {
   [Tiebreaker.DIRECT_ENCOUNTER]: {
+    key: Tiebreaker.DIRECT_ENCOUNTER,
     abbr: 'DirEn',
     name: 'Bezpośrednia konfrontacja',
     description: `System rozstrzygania remisów między zawodnikami. Jeżeli
@@ -509,6 +511,7 @@ znajdzie się osoba, która wygrała w tej parze.`,
   } as const,
 
   [Tiebreaker.CUMULATIVE]: {
+    key: Tiebreaker.CUMULATIVE,
     abbr: 'Cumul',
     name: 'Kumulacyjny',
     description: `Obliczana jest suma punktów posiadanych przez gracza
@@ -523,6 +526,7 @@ zostaną dodane tylko DWA punkty, a nie trzy za tę rundę.`,
   } as const,
 
   [Tiebreaker.CUMULATIVE_CUT_1]: {
+    key: Tiebreaker.CUMULATIVE_CUT_1,
     abbr: 'Cuml1',
     name: 'Kumulacyjny zredukowany 1',
     description: `Obliczana jest suma punktów posiadanych przez gracza
@@ -532,6 +536,7 @@ pierwszej rundy w obliczeniach.`,
   } as const,
 
   [Tiebreaker.OPPOSITION_CUMULATIVE]: {
+    key: Tiebreaker.OPPOSITION_CUMULATIVE,
     abbr: 'OpCuml',
     name: 'Kumulacyjny przeciwników',
     description: `Dla każdego przeciwnika, z którym grał zawodnik, obliczana
@@ -545,6 +550,7 @@ w kolejności używaną punktację pomocniczą.`,
   } as const,
 
   [Tiebreaker.PROGRESSIVE]: {
+    key: Tiebreaker.PROGRESSIVE,
     abbr: 'Prog',
     name: 'Progres',
     description: `Obliczana jest suma punktów posiadanych przez gracza
@@ -555,6 +561,7 @@ ewentualne niegrane partie (np. przez walkower czy nieobecność) nie obniżają
   } as const,
 
   [Tiebreaker.PROGRESSIVE_CUT_1]: {
+    key: Tiebreaker.PROGRESSIVE_CUT_1,
     abbr: 'Prog',
     name: 'Progres zredukowany 1',
     description: `Obliczana jest suma punktów posiadanych przez gracza
@@ -564,6 +571,7 @@ pierwszej rundy w obliczeniach.`,
   } as const,
 
   [Tiebreaker.ROUNDS_WON]: {
+    key: Tiebreaker.ROUNDS_WON,
     abbr: 'RWon',
     name: 'Wygrane rundy',
     description: `Obliczana jest liczba wygranych przez gracza rund,
@@ -573,6 +581,7 @@ niezależnie od tego, czy przez walkower bądź wygraną partię.`,
   } as const,
 
   [Tiebreaker.ROUNDS_WON_BLACK_PIECES]: {
+    key: Tiebreaker.ROUNDS_WON_BLACK_PIECES,
     abbr: 'RWnB',
     name: 'Wygrane rundy czarnymi',
     description: `Obliczana jest liczba wygranych przez gracza rund, grając
@@ -583,6 +592,7 @@ wobec czego nie wlicza się do punktacji.`,
   } as const,
 
   [Tiebreaker.TIME_OF_LOSS]: {
+    key: Tiebreaker.TIME_OF_LOSS,
     abbr: 'TmOL',
     name: 'Czas do pierwszej przegranej',
     description: `Obliczana jest runda, w której zawodnik przegrał, przegrał
@@ -593,6 +603,7 @@ Bye. Pauza wynikająca z braku przeciwnika do pary nie jest brana pod uwagę.`,
   } as const,
 
   [Tiebreaker.PLAYED_BLACKS]: {
+    key: Tiebreaker.PLAYED_BLACKS,
     abbr: 'Blks',
     name: 'Rundy grane czarnymi',
     description: 'Obliczana jest ilość rund granych czarnymi bierkami.',
@@ -601,6 +612,7 @@ Bye. Pauza wynikająca z braku przeciwnika do pary nie jest brana pod uwagę.`,
   } as const,
 
   [Tiebreaker.KASHDAN]: {
+    key: Tiebreaker.KASHDAN,
     abbr: 'Kash',
     name: 'Kashdan',
     description: `Stworzona przez Isaac'a Kashdan'a. System przydziela cztery
@@ -610,6 +622,7 @@ partie (walkower, pauza, nieobecność) liczą się jako zero punktów.`,
   } as const,
 
   [Tiebreaker.SONNEBORN_BERGER]: {
+    key: Tiebreaker.SONNEBORN_BERGER,
     abbr: 'SoBe',
     name: 'Sonneborn-Berger',
     description: `Ten system został nazwany od osób William'a Sonneborn'a oraz
@@ -630,6 +643,7 @@ and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
   } as const,
 
   [Tiebreaker.BUCHHOLZ]: {
+    key: Tiebreaker.BUCHHOLZ,
     abbr: 'Buch',
     name: 'Buchholz',
     description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
@@ -649,6 +663,7 @@ and tie-break regulations, pkt. 13.15.3.) oraz dokumentacji użytkowej.`,
   } as const,
 
   [Tiebreaker.BUCHHOLZ_CUT_1]: {
+    key: Tiebreaker.BUCHHOLZ_CUT_1,
     abbr: 'Bch1',
     name: 'Buchholz zredukowany 1',
     description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
@@ -661,6 +676,7 @@ przeciwnika, który zdobył najmniejszą liczbą punktów.`,
   } as const,
 
   [Tiebreaker.MEDIAN_BUCHHOLZ]: {
+    key: Tiebreaker.MEDIAN_BUCHHOLZ,
     abbr: 'ModM',
     name: 'Median Buchholz 1',
     description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
@@ -674,6 +690,7 @@ i największą liczbę punktów.`,
   } as const,
 
   [Tiebreaker.SOLKOFF]: {
+    key: Tiebreaker.SOLKOFF,
     abbr: 'SOff',
     name: 'Solkoff',
     description: `Obliczana jest suma punktów zdobytych przez przeciwników
@@ -686,6 +703,7 @@ są liczone jako partie zremisowane (przyznaje się 1/2 punktu).`,
   } as const,
 
   [Tiebreaker.MODIFIED_MEDIAN]: {
+    key: Tiebreaker.MODIFIED_MEDIAN,
     abbr: 'ModM',
     name: 'Zmodyfikowana mediana',
     description: `Odmiana systemu "Median Buchholz". Stanowi wariant mieszany.
@@ -708,6 +726,7 @@ System zmodyfikowanej mediany jest podobna do systemu mediany, z wyjątkiem:
   },
 
   [Tiebreaker.ARO]: {
+    key: Tiebreaker.ARO,
     abbr: 'ARO',
     name: 'Średni ranking przeciwników',
     description: `Obliczana jest suma rankingów przeciwników zawodnika,
@@ -718,6 +737,7 @@ zakończone walkowerem.`,
   },
 
   [Tiebreaker.AROC_1]: {
+    key: Tiebreaker.AROC_1,
     abbr: 'ARO1',
     name: 'Średni ranking przeciwników zredukowany 1',
     description: `Obliczana jest suma rankingów przeciwników zawodnika,
@@ -732,6 +752,7 @@ dowolnej z partii, to nie są odrzucane żadne rankingi.`,
   },
 
   [Tiebreaker.OPPOSITION_PERFORMANCE]: {
+    key: Tiebreaker.OPPOSITION_PERFORMANCE,
     abbr: 'OpPf',
     name: 'Średnia siła przeciwników',
     description: `System zbliżony do "Średni ranking przeciwników", z tą
@@ -742,6 +763,7 @@ przegrane odejmują 400 punktów.`,
   },
 
   [Tiebreaker.KOYA]: {
+    key: Tiebreaker.KOYA,
     abbr: 'Koya',
     name: 'System Koya',
     description: `System przeznaczony dla turniejów w systemie Round Robin.

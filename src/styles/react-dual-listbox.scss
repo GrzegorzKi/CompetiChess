@@ -1,0 +1,50 @@
+/*!
+ * Copyright (c) 2022  Grzegorz Kita
+ *
+ * This file is part of CompetiChess.
+ *
+ * CompetiChess is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CompetiChess is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*! purgecss start ignore */
+@import 'react-dual-listbox/src/scss/react-dual-listbox.scss';
+@import '/styles/variables';
+
+@media all and (max-width: $mobile) {
+  .react-dual-listbox {
+    flex-flow: row wrap;
+    align-items: end !important;
+  }
+
+  .rdl-list-box {
+    flex-grow: 1;
+    flex-basis: 50%;
+  }
+
+  .rdl-control-container {
+    height: 9rem;
+  }
+
+  .rdl-selected {
+    margin-top: 1rem;
+  }
+
+  .rdl-actions {
+    padding-top: 0 !important;
+    margin: 0.5rem 0.5rem;
+    flex-direction: column;
+    flex-shrink: 1;
+  }
+}
+/*! purgecss end ignore */

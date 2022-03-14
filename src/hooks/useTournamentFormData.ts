@@ -20,18 +20,34 @@
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectTournament } from 'reducers/tournamentReducer';
 
+import Tiebreaker from '#/Tiebreaker/Tiebreaker';
+
 import { IGeneralFormInputs } from '@/TournamentSettings/TournamentForm';
 
 export interface IFormData {
   general: IGeneralFormInputs;
+  tiebreakers: Tiebreaker[];
 }
 
-const useTournamentFormData = (): IFormData | undefined => {
+const useTournamentFormData = (): IFormData => {
   const tournament = useAppSelector(selectTournament);
   const configuration = useAppSelector(selectConfiguration);
 
   if (!tournament || !configuration) {
-    return undefined;
+    return {
+      general: {
+        tournamentName: '',
+        city: '',
+        federation: '',
+        dateOfStart: '',
+        dateOfEnd: '',
+        tournamentType: '',
+        chiefArbiter: '',
+        rateOfPlay: '',
+        numberOfRounds: 9,
+      },
+      tiebreakers: [],
+    };
   }
 
   const { tournamentName, city, federation, dateOfStart, dateOfEnd, tournamentType, chiefArbiter, rateOfPlay } = tournament;
@@ -48,7 +64,8 @@ const useTournamentFormData = (): IFormData | undefined => {
       chiefArbiter,
       rateOfPlay,
       numberOfRounds: expectedRounds,
-    }
+    },
+    tiebreakers: configuration.tiebreakers,
   };
 };
 

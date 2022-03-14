@@ -24,25 +24,40 @@ import { UseFormReturn } from 'react-hook-form';
 import useTournamentFormData from 'hooks/useTournamentFormData';
 
 import style from './style.scss';
+import TiebreakerForm from './TiebreakerForm';
 import TournamentForm from './TournamentForm';
 import TournamentFormSideMenu, { Tab } from './TournamentFormSideMenu';
 
+import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 import { waitForRehydration } from '@/store';
 
 const _TournamentSettings: FunctionalComponent = () => {
   const generalFormRef = useRef<UseFormReturn<any>>();
+  const tiebreakersFormRef = useRef<HTMLSelectElement>();
   const [tab, setTab] = useState<Tab>('General');
 
   const tournamentData = useTournamentFormData();
 
   const onSubmit = useCallback(async () => {
-    if (generalFormRef.current) {
-      const isValid = await generalFormRef.current.trigger();
-      if (isValid) {
-        // TODO Dispatch creating new tournament
-        console.log(tournamentData);
-      }
+    if (!generalFormRef.current || !tiebreakersFormRef.current) {
+      return;
     }
+
+    const isValid = await generalFormRef.current.trigger();
+    if (!isValid) {
+      setTab('General');
+      return;
+    }
+
+    const selectedItems = Array
+      .from(tiebreakersFormRef.current.options)
+      .map(item => item.value as unknown as Tiebreaker);
+
+    tournamentData.general = generalFormRef.current.getValues();
+    tournamentData.tiebreakers = selectedItems;
+
+    // TODO Dispatch creating new tournament
+    console.log(tournamentData);
   }, [tournamentData]);
 
   return (
@@ -53,8 +68,11 @@ const _TournamentSettings: FunctionalComponent = () => {
       <section class={style.content}>
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <TournamentForm inputRef={generalFormRef}
-                        defaultValues={tournamentData?.general}
+                        defaultValues={tournamentData.general}
                         visible={tab === 'General'} />
+        <TiebreakerForm inputRef={tiebreakersFormRef}
+                        defaultValues={tournamentData.tiebreakers}
+                        visible={tab === 'Tiebreakers'} />
       </section>
       <section class="buttons">
         <input onClick={onSubmit} value="Create" type="submit" class="button is-primary ml-auto" />

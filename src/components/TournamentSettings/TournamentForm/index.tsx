@@ -18,7 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { MutableRef, useMemo } from 'preact/hooks';
+import { MutableRef } from 'preact/hooks';
 import { SubmitHandler, UseFormReturn } from 'react-hook-form';
 
 import Field from '@/TournamentSettings/Field';
@@ -39,34 +39,18 @@ export type IGeneralFormInputs = {
 interface IProps {
   inputRef?: MutableRef<UseFormReturn<IGeneralFormInputs> | undefined>;
   defaultValues?: Partial<IGeneralFormInputs>;
-  values?: Partial<IGeneralFormInputs>;
   visible?: boolean;
 }
 
 const TournamentForm: FunctionalComponent<IProps> = (
-  { inputRef, defaultValues, values, visible }) => {
-
-  const _defaultValues = useMemo(() => (
-    defaultValues ?? {
-      tournamentName: '',
-      city: '',
-      federation: '',
-      dateOfStart: '',
-      dateOfEnd: '',
-      tournamentType: '',
-      chiefArbiter: '',
-      rateOfPlay: '',
-      numberOfRounds: 9,
-    }
-  ), [defaultValues]);
+  { inputRef, defaultValues, visible }) => {
 
   const onSubmit: SubmitHandler<IGeneralFormInputs> = (data) => console.log(data);
 
   return (
     <Form onSubmit={onSubmit}
           inputRef={inputRef}
-          defaultValues={_defaultValues}
-          values={values}
+          defaultValues={defaultValues}
           visible={visible}>
       {({ register, formState: { errors } }) => (<>
         <Field label="Tournament name"
