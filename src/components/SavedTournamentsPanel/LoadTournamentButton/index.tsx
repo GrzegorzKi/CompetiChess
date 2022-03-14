@@ -21,7 +21,6 @@ import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
-import usePromiseModal from 'hooks/usePromiseModal';
 import { selectIsModified } from 'reducers/flagsReducer';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
 
@@ -29,11 +28,11 @@ import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
-import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
+import { useModalContext } from '@/ModalProvider';
 import { store } from '@/store';
 
-async function loadTournament(id: string, isModified: boolean, onModified: () => Promise<boolean>) {
-  if (!await blockIfModified(isModified, onModified)) return;
+async function loadTournament(id: string, isModified: boolean, onModified?: () => Promise<boolean>) {
+  if (onModified && !await blockIfModified(isModified, onModified)) return;
 
   try {
     const json = readTournamentJsonFromLocalStorage(id);
@@ -55,18 +54,13 @@ interface Props {
 }
 
 const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
-  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
   const isModified = useAppSelector(selectIsModified);
+  const { onSaveGuard } = useModalContext();
 
   return <>
-    <button class="button" onClick={() => loadTournament(id, isModified, openModal)}>
+    <button class="button" onClick={() => loadTournament(id, isModified, onSaveGuard)}>
       Load
     </button>
-    <SaveConfirmationModal
-      isOpen={isOpen}
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-    />
   </>;
 };
 

@@ -30,6 +30,7 @@ import { tournamentsIndexKey } from 'utils/localStorageUtils';
 import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBlock';
 import style from './style.scss';
 
+import { ModalProvider } from '@/ModalProvider';
 import ImportTournamentButton from '@/SavedTournamentsPanel/ImportTournamentButton';
 import ImportTrfxTournamentButton from '@/SavedTournamentsPanel/ImportTrfxTournamentButton';
 import ManageTournamentButton from '@/SavedTournamentsPanel/ManageTournamentButton';
@@ -41,7 +42,13 @@ export type TournamentEntry = {
   updated?: number,
 }
 
-function getPanelBlocks(filteredEntries: TournamentEntry[], query: string, currentEntry?: TournamentEntry): JSX.Element {
+interface GetPanelBlocksProps {
+  filteredEntries: TournamentEntry[];
+  query: string;
+  currentEntry?: TournamentEntry;
+}
+
+function getPanelBlocks({ filteredEntries, query, currentEntry }: GetPanelBlocksProps): JSX.Element {
   const currentPanelBlock = currentEntry
     ? <PanelBlock isActive key={currentEntry.id} {...currentEntry} />
     : null;
@@ -84,35 +91,41 @@ const SavedTournamentsPanel = (): JSX.Element => {
 
   const filteredEntries = entries.filter(filterByNameOrId);
 
-  const panelBlocks = getPanelBlocks(filteredEntries, debouncedQuery, currentEntry);
+  const panelBlocks = getPanelBlocks({
+    filteredEntries,
+    query: debouncedQuery,
+    currentEntry,
+  });
 
   return (
-    <article class={`panel is-primary ${style.panel}`}>
-      <p class="panel-heading">
-        Tournaments
-      </p>
-      <div class="panel-block">
-        <p class="control has-icons-left">
-          <span class="icon is-left">
-            <Icon icon={faSearch} />
-          </span>
-          <input class="input is-primary" type="text"
-                 value={query} onInput={(e) => setQuery(e.currentTarget.value)}
-                 placeholder="Search" />
+    <ModalProvider>
+      <article class={`panel is-primary ${style.panel}`}>
+        <p class="panel-heading">
+          Tournaments
         </p>
-      </div>
-      <span className={style.controlButtons}>
-        <ManageTournamentButton />
-        <ImportTournamentButton />
-        <ImportTrfxTournamentButton />
-      </span>
-      <p className="panel-tabs">
-        <a className="is-active">All</a>
-      </p>
-      <section>
-        {panelBlocks}
-      </section>
-    </article>
+        <div class="panel-block">
+          <p class="control has-icons-left">
+            <span class="icon is-left">
+              <Icon icon={faSearch} />
+            </span>
+            <input class="input is-primary" type="text"
+                   value={query} onInput={(e) => setQuery(e.currentTarget.value)}
+                   placeholder="Search" />
+          </p>
+        </div>
+        <span className={style.controlButtons}>
+          <ManageTournamentButton />
+          <ImportTournamentButton />
+          <ImportTrfxTournamentButton />
+        </span>
+        <p className="panel-tabs">
+          <a className="is-active">All</a>
+        </p>
+        <section>
+          {panelBlocks}
+        </section>
+      </article>
+    </ModalProvider>
   );
 };
 

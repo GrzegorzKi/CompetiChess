@@ -19,7 +19,7 @@
 
 import { useCallback, useState } from 'preact/hooks';
 
-const noop = (_: boolean) => {/**/};
+const noop: (value: boolean) => void = () => {/**/};
 
 export default function usePromiseModal(): [() => void, () => void, boolean, () => Promise<boolean>] {
   const [promiseInfo, setPromiseInfo] = useState({

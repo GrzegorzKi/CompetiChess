@@ -22,15 +22,14 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
-import usePromiseModal from 'hooks/usePromiseModal';
 import { close } from 'reducers/tournamentReducer';
 import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
-import DeleteModal from '@/modals/DeleteModal';
+import { useModalContext } from '@/ModalProvider';
 import { store } from '@/store';
 
-async function deleteTournament(id: string, openModal: () => Promise<unknown>) {
-  if (!await openModal()) return;
+async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknown>) {
+  if (onDeleteGuard && !await onDeleteGuard()) return;
 
   removeTournamentFromLocalStorage(id);
   const state = store.getState();
@@ -46,17 +45,12 @@ interface Props {
 }
 
 const DeleteTournamentButton: FunctionalComponent<Props> = ({ id }) => {
-  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+  const { onDeleteGuard } = useModalContext();
 
   return <>
-    <button class="button is-outlined is-danger" onClick={() => deleteTournament(id, openModal)}>
+    <button class="button is-outlined is-danger" onClick={() => deleteTournament(id, onDeleteGuard)}>
       <Icon icon={faTrash} />
     </button>
-    <DeleteModal
-      isOpen={isOpen}
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-    />
   </>;
 };
 
