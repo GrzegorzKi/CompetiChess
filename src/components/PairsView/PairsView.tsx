@@ -22,7 +22,6 @@ import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
-import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import useElementFocus from 'hooks/useElementFocus';
 import {
   selectNextRound,
@@ -32,34 +31,18 @@ import {
   setResult,
 } from 'reducers/tournamentReducer';
 
-import { Pair, Player, PlayersRecord } from '#/types/Tournament';
+import { Pair, PlayersRecord } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 import PairContextMenu from '@/PairsView/PairContextMenu';
+import PairsTable from '@/PairsView/PairsTable';
 
-interface Props {
-  roundPairs: Array<Pair[]>,
-  players: PlayersRecord,
-  forceRound?: number
+interface IProps {
+  roundPairs: Array<Pair[]>;
+  players: PlayersRecord;
 }
 
-function prevRoundPoints(player: Player, round: number): number {
-  return (round <= 0)
-    ? 0.0
-    : player.scores[round - 1].points;
-}
-
-function getResult(pair: Pair, players: PlayersRecord, round: number) {
-  const white = players[pair.white];
-  const black = players[pair.black];
-  return `${white.games[round].result} : ${black.games[round].result}`;
-}
-
-function displayPlayer(player: Player) {
-  return `${player.name} (${player.id})`;
-}
-
-const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound }) => {
+const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
 
@@ -71,11 +54,6 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
 
   const pairs: Pair[] = roundPairs[round];
 
-  useEffect(() => {
-    if (forceRound) {
-      dispatch(selectRound(forceRound));
-    }
-  }, [dispatch, forceRound]);
   useEffect(() => {
     setIdx(1);
     if (ref.current === document.activeElement) {
@@ -131,42 +109,17 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
     return () => document.removeEventListener('keydown', arrowHandling);
   }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
 
-  const selectRow = (event: JSX.TargetedEvent<HTMLElement>) => {
-    const attribute = event.currentTarget.dataset['index'];
-    if (attribute) {
-      setIdx(+attribute);
-    }
+  const selectRow = (pairNo: number) => {
+    setIdx(pairNo);
   };
 
-  const enterRow = (event: JSX.TargetedEvent<HTMLElement>) => {
-    const attribute = event.currentTarget.dataset['index'];
-    if (attribute) {
-      alert(`Selected pair no ${attribute}`);
-    }
+  const enterRow = (pairNo: number) => {
+    alert(`Selected pair no ${pairNo}`);
   };
 
-  const handleContextMenu = useContextMenuHandler<HTMLTableRowElement>((e) => {
-    selectRow(e);
+  const handleContextMenu = (e: JSX.TargetedMouseEvent<HTMLElement>) => {
     setAnchorPoint({ x: e.clientX, y: e.clientY });
     toggleMenu(true);
-  });
-
-  if (!pairs) {
-    return <h2>No data found for round {round + 1}</h2>;
-  }
-
-  const handleDoubleClick = (event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
-    if (event.detail > 1 && event.button === 0 /* Main button */) {
-      event.preventDefault();
-      enterRow(event);
-    }
-  };
-
-  const handleKeyOnRow = (event: JSX.TargetedKeyboardEvent<HTMLElement>) => {
-    if (['Enter', 'Space'].includes(event.code)) {
-      event.preventDefault();
-      enterRow(event);
-    }
   };
 
   return (
@@ -185,41 +138,10 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
                            editResult: () => {/**/},
                            editPairing: () => {/**/},
                          }} />
-
-        <table class='table is-striped is-hoverable'>
-          <caption>Data for round {round + 1}</caption>
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Pts</th>
-              <th>First player</th>
-              <th>Result</th>
-              <th>Second player</th>
-              <th>Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pairs.map((pair) =>
-              <tr key={pair.no} data-index={pair.no}
-                  onClick={selectRow} onFocus={selectRow}
-                  onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
-                  onContextMenu={handleContextMenu}
-                  class={idx === pair.no ? 'is-selected' : ''}
-                  ref={idx === pair.no ? setRef : undefined}
-                  tabIndex={0}
-              >
-                <td>{pair.no}</td>
-                <td>{prevRoundPoints(players[pair.white], round)
-                  .toFixed(1)}</td>
-                <td>{displayPlayer(players[pair.white])}</td>
-                <td>{getResult(pair, players, round)}</td>
-                <td>{displayPlayer(players[pair.black])}</td>
-                <td>{prevRoundPoints(players[pair.black], round)
-                  .toFixed(1)}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <PairsTable pairs={pairs} players={players} idx={idx}
+                    selectedRef={setRef} onContextMenu={handleContextMenu}
+                    onRowEnter={enterRow} onRowSelect={selectRow}
+        />
       </div>
     </>
   );
