@@ -18,7 +18,7 @@
  */
 
 import { RefCallback, RefObject } from 'preact';
-import { useCallback, useRef, useState } from 'preact/hooks';
+import { MutableRef, useCallback, useRef, useState } from 'preact/hooks';
 
 type FocusOnNextCallback = () => boolean
 type FocusOnPrevCallback = () => boolean
@@ -78,7 +78,7 @@ export interface UseElementFocusProps<H extends HTMLElement> {
 export default function useElementFocus<H extends HTMLElement = HTMLElement>({
   initialRef = null,
   offset
-}: UseElementFocusProps<H>): [RefObject<H>, RefCallback<H>, FocusOnNextCallback, FocusOnPrevCallback, FocusOnFirstCallback] {
+}: UseElementFocusProps<H>): [RefObject<H>, RefCallback<H>, FocusOnNextCallback, FocusOnPrevCallback, FocusOnFirstCallback, MutableRef<Element | null>] {
   const ref = useRef<H | null>(initialRef);
   const [_offset] = useState(() => {
     return offset ?? {
@@ -133,5 +133,5 @@ export default function useElementFocus<H extends HTMLElement = HTMLElement>({
     }
   }, [_offset]);
 
-  return [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst];
+  return [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent];
 }

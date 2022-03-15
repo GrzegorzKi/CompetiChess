@@ -17,6 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
@@ -34,6 +35,7 @@ import {
 import { Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
+import PairContextMenu from '@/PairsView/PairContextMenu';
 
 interface Props {
   roundPairs: Array<Pair[]>,
@@ -62,7 +64,10 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
   const dispatch = useAppDispatch();
 
   const [idx, setIdx] = useState(0);
-  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst] = useElementFocus<HTMLTableRowElement>({});
+  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({});
+
+  const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
   const pairs: Pair[] = roundPairs[round];
 
@@ -86,9 +91,11 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
       switch (event.code) {
       case 'ArrowLeft':
         dispatch(selectPrevRound());
+        toggleMenu(false);
         break;
       case 'ArrowRight':
         dispatch(selectNextRound());
+        toggleMenu(false);
         break;
       case 'ArrowUp':
         focusOnPrev() && event.preventDefault();
@@ -122,7 +129,7 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
 
     document.addEventListener('keydown', arrowHandling);
     return () => document.removeEventListener('keydown', arrowHandling);
-  }, [dispatch, focusOnNext, focusOnPrev, ref]);
+  }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
 
   const selectRow = (event: JSX.TargetedEvent<HTMLElement>) => {
     const attribute = event.currentTarget.dataset['index'];
@@ -138,9 +145,10 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
     }
   };
 
-  const handleContextMenu = useContextMenuHandler<HTMLTableRowElement>((event) => {
-    selectRow(event);
-    // TODO Display custom context menu. Check if it's active and discard event otherwise
+  const handleContextMenu = useContextMenuHandler<HTMLTableRowElement>((e) => {
+    selectRow(e);
+    setAnchorPoint({ x: e.clientX, y: e.clientY });
+    toggleMenu(true);
   });
 
   if (!pairs) {
@@ -167,6 +175,17 @@ const PairsView: FunctionalComponent<Props> = ({ roundPairs, players, forceRound
                      page={round}
                      onPageChange={({ selected }) => dispatch(selectRound(selected))} />
       <div class='table-container'>
+        <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}
+                         anchorPoint={anchorPoint} boundingBoxRef={scrollParent}
+                         actions={{
+                           setScore: (result) => {
+                             const pairNo = ref.current?.dataset['index'];
+                             pairNo && dispatch(setResult({ pairNo, type: result }));
+                           },
+                           editResult: () => {/**/},
+                           editPairing: () => {/**/},
+                         }} />
+
         <table class='table is-striped is-hoverable'>
           <caption>Data for round {round + 1}</caption>
           <thead>

@@ -22,6 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.0.0",
     "@fortawesome/react-fontawesome": "^0.1.17",
     "@reduxjs/toolkit": "^1.8.0",
+    "@szhsin/react-menu": "^3.0.0",
     "just-clone": "^5.0.1",
     "normalize.css": "^8.0.1",
     "preact": "^10.6.6",

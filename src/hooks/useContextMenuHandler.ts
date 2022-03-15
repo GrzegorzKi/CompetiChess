@@ -18,21 +18,19 @@
  */
 
 import { JSX } from 'preact';
-import { useCallback, useRef } from 'preact/hooks';
+import { useCallback } from 'preact/hooks';
 
 import useTouchCheck from './useTouchCheck';
 
 export default function useContextMenuHandler<T extends EventTarget>(
   handler: (event: JSX.TargetedMouseEvent<T>) => void): JSX.MouseEventHandler<T> {
-  const lastElementRef = useRef<T>();
   const isMobile = useTouchCheck();
 
   return useCallback((event) => {
     // We don't want to disable native context menu for mobile users
     // (for example, in case of selecting text)
-    if (lastElementRef.current !== event.currentTarget && !isMobile) {
+    if (!isMobile) {
       event.preventDefault();
-      lastElementRef.current = event.currentTarget;
     }
 
     handler(event);
