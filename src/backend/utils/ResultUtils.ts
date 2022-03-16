@@ -36,6 +36,8 @@ export type ResultType =
 
 export type ComputedResults = { w: GameResult, b: GameResult };
 
+export const blankResult = { w: GameResult.UNASSIGNED, b: GameResult.UNASSIGNED } as const;
+
 const resultTypeToResult: Record<ResultType, ComputedResults> = {
   ZERO_ZERO: {
     w: GameResult.LOSS,
@@ -157,7 +159,7 @@ export const parseResultString = (resultString: string, configuration: Configura
   const blackResult = parseResultSingle(black, configuration);
 
   if (whiteResult === undefined) {
-    return { w: GameResult.UNASSIGNED, b: GameResult.UNASSIGNED };
+    return blankResult;
   }
   if (whiteResult === '+') {
     return { w: GameResult.FORFEIT_WIN, b: GameResult.FORFEIT_LOSS };
@@ -173,7 +175,7 @@ export const parseResultString = (resultString: string, configuration: Configura
   const blackGameResult = getBlackGameResult(blackResult, configuration);
 
   if (!isValidResult(whiteGameResult, blackGameResult, configuration)) {
-    return { w: GameResult.UNASSIGNED, b: GameResult.UNASSIGNED };
+    return blankResult;
   }
 
   return { w: whiteGameResult, b: blackGameResult };

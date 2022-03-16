@@ -48,6 +48,12 @@ label.panel-block {
   }
 }
 
+// Replacement for .is-static if we also want colors on a button
+.button.non-interactive {
+  pointer-events: none;
+  box-shadow: none;
+}
+
 * {
   box-sizing: border-box;
 }

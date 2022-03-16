@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,29 +17,46 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ComponentProps, FunctionalComponent, h } from 'preact';
-import ReactModal from 'react-modal';
+.divider {
+  display: flex;
 
-import style from '../style.scss';
+  align-items: center;
+  margin: 0 -1rem 0.75rem;
+  color: dimgrey;
 
-const Modal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) => {
-  const { children, className, overlayClassName, bodyOpenClassName, isOpen, ...aProps } = props;
-
-  if (!isOpen) {
-    return null;
+  &:before,
+  &:after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    margin: 0.25rem 0.75rem 0;
   }
 
-  return (
-    <ReactModal
-      className={className ?? `modal-card ${style.modal}`}
-      overlayClassName={overlayClassName ?? style.modalOverlay}
-      bodyOpenClassName={bodyOpenClassName ?? undefined}
-      isOpen={isOpen}
-      {...aProps}
-    >
-      {children}
-    </ReactModal>
-  );
-};
+  &:before {
+    background-image: linear-gradient(to right, transparent, rgb(48,49,51));
+  }
+  &:after {
+    background-image: linear-gradient(to left, transparent, rgb(48,49,51));
+  }
+}
 
-export default Modal;
+.players {
+  flex: 1;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.no > span {
+  width: 3rem;
+  justify-content: center;
+}
+
+.name {
+  width: 100%;
+
+  & > span {
+    width: 100%;
+    justify-content: start;
+  }
+}

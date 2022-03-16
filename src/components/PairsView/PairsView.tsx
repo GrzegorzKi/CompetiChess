@@ -35,7 +35,20 @@ import { Pair, PlayersRecord } from '#/types/Tournament';
 
 import PaginateRound from '@/PaginateRound';
 import PairContextMenu from '@/PairsView/PairContextMenu';
+import PairResultModal from '@/PairsView/PairResultModal';
 import PairsTable from '@/PairsView/PairsTable';
+
+export function getPairNo(element?: HTMLElement | null): number | undefined {
+  const index = element?.dataset['index'];
+  if (index !== undefined) {
+    return +index;
+  }
+  return undefined;
+}
+
+function isModalOpen(className = 'ReactModal__Body--open') {
+  return document.querySelector(`body[class="${className}"]`);
+}
 
 interface IProps {
   roundPairs: Array<Pair[]>;
@@ -52,6 +65,8 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
+  const [resultsModalOpen, setResultsModalOpen] = useState(false);
+
   const pairs: Pair[] = roundPairs[round];
 
   useEffect(() => {
@@ -64,7 +79,10 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   // Register keys handler
   useEffect(() => {
     const arrowHandling = (event: JSX.TargetedKeyboardEvent<any>) => {
-      const pairNo: string | undefined = ref.current?.dataset['index'];
+      if (isModalOpen()) {
+        return;
+      }
+      const pairNo = getPairNo(ref.current);
 
       switch (event.code) {
       case 'ArrowLeft':
@@ -113,8 +131,8 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
     setIdx(pairNo);
   };
 
-  const enterRow = (pairNo: number) => {
-    alert(`Selected pair no ${pairNo}`);
+  const enterRow = () => {
+    setResultsModalOpen(true);
   };
 
   const handleContextMenu = (e: JSX.TargetedMouseEvent<HTMLElement>) => {
@@ -133,15 +151,22 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                          actions={{
                            setScore: (result) => {
                              const pairNo = ref.current?.dataset['index'];
-                             pairNo && dispatch(setResult({ pairNo, type: result }));
+                             pairNo && dispatch(setResult({ pairNo: (+pairNo), type: result }));
                            },
-                           editResult: () => {/**/},
+                           editResult: enterRow,
                            editPairing: () => {/**/},
                          }} />
         <PairsTable pairs={pairs} players={players} idx={idx}
                     selectedRef={setRef} onContextMenu={handleContextMenu}
                     onRowEnter={enterRow} onRowSelect={selectRow}
         />
+        {resultsModalOpen &&
+          <PairResultModal pairNo={idx} round={round}
+                           isOpen={resultsModalOpen}
+                           onClose={() => setResultsModalOpen(false)}
+                           setPairNo={setIdx}
+          />
+        }
       </div>
     </>
   );

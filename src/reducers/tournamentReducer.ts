@@ -29,7 +29,13 @@ import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
 import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
-import Tournament, { Configuration, Pair, Player, PlayersRecord } from '#/types/Tournament';
+import Tournament, {
+  Configuration,
+  GameResult,
+  Pair,
+  Player,
+  PlayersRecord,
+} from '#/types/Tournament';
 import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { computeResult, ResultType } from '#/utils/ResultUtils';
 import {
@@ -79,7 +85,9 @@ const initialState: TournamentState = {
   },
 };
 
-type SetResultType = { round?: number, pairNo: string, type: ResultType };
+type SetResultType =
+  | { round?: number, pairNo: number, type: ResultType }
+  | { round?: number, pairNo: number, type: { w: GameResult, b: GameResult }};
 
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
@@ -212,8 +220,8 @@ export const tournamentSlice = createSlice({
       }
 
       const { pairNo, type } = action.payload;
-      const no = Number.parseInt(pairNo, 10) - 1;
-      const pairElement = pairs[round][no];
+
+      const pairElement = pairs[round][pairNo - 1];
       if (!pairElement) {
         return;
       }

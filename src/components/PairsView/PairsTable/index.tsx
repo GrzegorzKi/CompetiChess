@@ -22,6 +22,8 @@ import { useCallback } from 'preact/hooks';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
 
+import { getPairNo } from '../PairsView';
+
 import { Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 function prevRoundPoints(player: Player, round: number): number {
@@ -50,21 +52,13 @@ interface IProps {
   onContextMenu: JSX.MouseEventHandler<HTMLElement>;
 }
 
-function getPairNo(event: JSX.TargetedEvent<HTMLElement>) {
-  const index = event.currentTarget.dataset['index'];
-  if (index !== undefined) {
-    return +index;
-  }
-  return undefined;
-}
-
 const PairsTable: FunctionalComponent<IProps> = (
   { pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
 
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
       event.preventDefault();
-      const index = getPairNo(event);
+      const index = getPairNo(event.currentTarget);
       if (index !== undefined) {
         onRowEnter(index);
       }
@@ -74,7 +68,7 @@ const PairsTable: FunctionalComponent<IProps> = (
   const handleKeyOnRow = useCallback((event: JSX.TargetedKeyboardEvent<HTMLElement>) => {
     if (['Enter', 'Space'].includes(event.code)) {
       event.preventDefault();
-      const index = getPairNo(event);
+      const index = getPairNo(event.currentTarget);
       if (index !== undefined) {
         onRowEnter(index);
       }
