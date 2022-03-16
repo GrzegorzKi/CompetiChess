@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import 'styles/variables';
+@use '/styles/variables' as *;
 
 @keyframes needsAction {
   0% { box-shadow: unset; }

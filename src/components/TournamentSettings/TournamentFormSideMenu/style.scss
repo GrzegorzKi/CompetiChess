@@ -17,7 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import '/styles/variables';
+@use '/styles/variables' as *;
+@use 'bulma/sass/utilities/mixins' as mixins;
 
 $width: 180px;
 $widthP: $width - 58px;
@@ -48,7 +49,7 @@ $collapsedWidth: 54px;
   transition: width 0.5s;
 }
 
-@media screen and (max-width: $mobile) {
+@include mixins.mobile {
   .sideNav {
     width: $collapsedWidth;
 

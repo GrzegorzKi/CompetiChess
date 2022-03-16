@@ -17,11 +17,11 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import "bulma/sass/utilities/mixins";
-@import "bulma/sass/utilities/controls";
+@use 'bulma/sass/utilities/mixins';
+@use 'bulma/sass/utilities/controls';
 
-@include tablet {
+@include mixins.tablet {
   .isSmallTablet {
-    @include control-small;
+    @include controls.control-small;
   }
 }

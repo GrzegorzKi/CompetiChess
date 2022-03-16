@@ -17,13 +17,13 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@import "bulma/sass/utilities/mixins";
+@use 'bulma/sass/utilities/mixins' as mixins;
 
 .flex {
   display: flex;
 }
 
-@include tablet {
+@include mixins.tablet {
   .flex {
     flex-direction: row;
 
@@ -34,7 +34,7 @@
   }
 }
 
-@include mobile {
+@include mixins.mobile {
   .flex {
     flex-direction: column;
 

@@ -17,32 +17,19 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Bulma's global variables
 $primary: #8ebf42;
-$danger: hsl(348, 80%, 54%);
+$hover: #00ab97;
 
-$navbar-background-color: #673AB7;
 $navbar-height: 3.25rem;
-$navbar-item-color: hsl(0, 0%, 98%);
-$navbar-item-hover-color: hsl(0, 0%, 98%);
-$navbar-item-hover-background-color: rgba(0, 0, 0, 20%);
-$navbar-item-active-color: hsl(0, 0%, 98%);
-$navbar-item-active-background-color: rgba(0, 0, 0, 40%);
-
-$navbar-box-shadow-size: 0 1px 1px 0;
-$navbar-box-shadow-color: hsl(0, 0%, 6%);
-
-$mobile: 768px;
-$tablet: $mobile + 1px;
-$modal-breakpoint: $tablet;
-$modal-content-margin-mobile: 20px;
 
 $radius-large: 6px;
 $modal-card-foot-radius: $radius-large;
 $modal-card-head-radius: $radius-large;
 
-// App's global variables
-$hover: #00ab97;
+$mobile: 768px;
+$tablet: $mobile + 1px;
+$modal-breakpoint: $tablet;
+
 $innerPaddingH: 1rem;
 $innerPaddingW: 1rem;
 $scrollbarSize: 8px;

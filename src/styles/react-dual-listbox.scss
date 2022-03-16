@@ -18,10 +18,12 @@
  */
 
 /*! purgecss start ignore */
-@import 'react-dual-listbox/src/scss/react-dual-listbox.scss';
-@import '/styles/variables';
+@use '/styles/variables' as *;
+@use 'bulma/sass/utilities/mixins' as bulma;
 
-@media all and (max-width: $mobile) {
+@import 'react-dual-listbox/src/scss/react-dual-listbox.scss';
+
+@include bulma.mobile {
   .react-dual-listbox {
     flex-flow: row wrap;
     align-items: end !important;
