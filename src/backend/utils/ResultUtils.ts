@@ -32,6 +32,7 @@ export type ResultType =
   | 'BLACK_HALF_POINT'
   | 'WHITE_HALF_POINT'
   | 'ZERO_ZERO'
+  | 'RESET'
 
 export type ComputedResults = { w: GameResult, b: GameResult };
 
@@ -71,6 +72,10 @@ const resultTypeToResult: Record<ResultType, ComputedResults> = {
   WHITE_WIN: {
     w: GameResult.WIN,
     b: GameResult.LOSS
+  },
+  RESET: {
+    w: GameResult.UNASSIGNED,
+    b: GameResult.UNASSIGNED,
   }
 };
 
@@ -133,7 +138,7 @@ function getBlackGameResult(result: '+' | '-' | number | undefined, configuratio
   return getWhiteGameResult(result, configuration);
 }
 
-const isValidResult = (white: GameResult, black: GameResult, configuration: Configuration): boolean => {
+export const isValidResult = (white: GameResult, black: GameResult, configuration: Configuration): boolean => {
   const winPoints = configuration.pointsForWin + configuration.pointsForLoss;
   const drawPoints = configuration.pointsForDraw * 2;
   const drawAndLossPoints = configuration.pointsForDraw + configuration.pointsForLoss;
@@ -174,6 +179,17 @@ export const parseResultString = (resultString: string, configuration: Configura
   return { w: whiteGameResult, b: blackGameResult };
 };
 
-export const computeResult = (type: ResultType): ComputedResults => {
-  return resultTypeToResult[type];
+export const computeResult = (type: ResultType | ComputedResults): ComputedResults => {
+  if (typeof type === 'string') {
+    return resultTypeToResult[type];
+  }
+
+  return type;
+};
+
+export const toResultString = ({ w, b }: ComputedResults): string => {
+  if (w === GameResult.UNASSIGNED || b === GameResult.UNASSIGNED) {
+    return '';
+  }
+  return `${w}:${b}`;
 };

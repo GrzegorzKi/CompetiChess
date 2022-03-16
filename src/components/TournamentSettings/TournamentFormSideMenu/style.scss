@@ -20,6 +20,7 @@
 @import '/styles/variables';
 
 $width: 180px;
+$widthP: $width - 58px;
 $collapsedWidth: 54px;
 
 .sideNav {
@@ -43,7 +44,7 @@ $collapsedWidth: 54px;
   margin-left: 0.25em;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: $width;
+  width: $widthP;
   transition: width 0.5s;
 }
 

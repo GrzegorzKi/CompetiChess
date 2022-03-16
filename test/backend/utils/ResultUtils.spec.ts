@@ -17,13 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { GameResult } from '#/types/Tournament';
-import { parseResultString } from '#/utils/ResultUtils';
+import { parseResultString, toResultString } from '#/utils/ResultUtils';
 import { createDefaultConfiguration } from '#/utils/TournamentUtils';
-
-const toResultString = ({ w, b }: { w: GameResult, b: GameResult }): string => {
-  return `${w}:${b}`;
-};
 
 describe('parseResultString', () => {
   const configuration = createDefaultConfiguration();
@@ -40,18 +35,18 @@ describe('parseResultString', () => {
     ['-:0', '-:+'],
     ['0:x', '0:0'],
     ['1:x', '1:0'],
-    ['x:0', ' : '],
-    ['x:1', ' : '],
-    ['W:0', ' : '],
-    ['D:0', ' : '],
-    ['L:0', ' : '],
+    ['x:0', ''],
+    ['x:1', ''],
+    ['W:0', ''],
+    ['D:0', ''],
+    ['L:0', ''],
     ['0:W', '0:0'],
     ['0:D', '0:0'],
     ['0:L', '0:0'],
     // Invalid as per default configuration
-    ['1:1', ' : '],
-    ['1:=', ' : '],
-    ['=:1', ' : '],
+    ['1:1', ''],
+    ['1:=', ''],
+    ['=:1', ''],
     // Test half points
     ['=:0', '=:0'],
     ['.5:0', '=:0'],
@@ -66,7 +61,7 @@ describe('parseResultString', () => {
     ['=:=', '=:='],
     // Potentially invalid, doing lenient parsing
     ['=:-', '=:0'],
-    ['=:+', ' : '],
+    ['=:+', ''],
     ['=:', '=:0'],
     ['0.5:', '=:0'],
     ['+:', '+:-'],
@@ -75,9 +70,9 @@ describe('parseResultString', () => {
     ['=', '=:0'],
     ['1', '1:0'],
     ['0', '0:0'],
-    ['', ' : '],
-    ['1:0=', ' : '],
-    ['1=:0=', ' : '],
+    ['', ''],
+    ['1:0=', ''],
+    ['1=:0=', ''],
     ['0=:0=', '=:='],
     ['0=:0=', '=:='],
     ['==:=0', '=:='],

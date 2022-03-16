@@ -28,7 +28,7 @@ import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils';
-import { isInStandaloneOrFullscreenMode } from 'utils/common';
+import { isInStandaloneMode } from 'utils/common';
 
 const Burger = ({ onClick, isActive }: { onClick: () => void, isActive: boolean }) => (
   <a role="button" class={`navbar-burger${isActive ? ' is-active' : ''}`} aria-label="menu" aria-expanded={isActive}
@@ -62,7 +62,7 @@ const Header: FunctionalComponent = () => {
     ? <span class="navbar-item"><b>{tournament.tournamentName}</b></span>
     : null;
 
-  const standaloneMode = isInStandaloneOrFullscreenMode();
+  const standaloneMode = isInStandaloneMode();
   const navigate = useNavigate();
 
   const navigationLinks = standaloneMode
