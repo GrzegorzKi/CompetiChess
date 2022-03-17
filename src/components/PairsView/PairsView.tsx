@@ -160,13 +160,11 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                     selectedRef={setRef} onContextMenu={handleContextMenu}
                     onRowEnter={enterRow} onRowSelect={selectRow}
         />
-        {resultsModalOpen &&
-          <PairResultModal pairNo={idx} round={round}
-                           isOpen={resultsModalOpen}
-                           onClose={() => setResultsModalOpen(false)}
-                           setPairNo={setIdx}
-          />
-        }
+        <PairResultModal pairNo={idx} round={round}
+                         isOpen={resultsModalOpen}
+                         onClose={() => setResultsModalOpen(false)}
+                         setPairNo={setIdx}
+        />
       </div>
     </>
   );

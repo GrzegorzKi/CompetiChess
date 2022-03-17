@@ -25,14 +25,19 @@ import style from '../style.scss';
 const Modal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) => {
   const { children, className, overlayClassName, bodyOpenClassName, isOpen, ...aProps } = props;
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <ReactModal
-      className={className ?? `modal-card ${style.modal}`}
-      overlayClassName={overlayClassName ?? style.modalOverlay}
+      className={className ?? {
+        base: `modal-card ${style.modal}`,
+        afterOpen: `modal-card ${style.modalAfterOpen}`,
+        beforeClose: `modal-card ${style.modalBeforeClose}`,
+      }}
+      overlayClassName={overlayClassName ?? {
+        base: style.modalOverlay,
+        afterOpen: style.modalOverlayAfterOpen,
+        beforeClose: style.modalOverlayBeforeClose,
+      }}
+      closeTimeoutMS={500}
       bodyOpenClassName={bodyOpenClassName ?? undefined}
       isOpen={isOpen}
       {...aProps}

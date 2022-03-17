@@ -28,7 +28,8 @@
 }
 
 .modal {
-  transform: translate(0, $navbar-height + 1rem);
+  transition: transform 300ms ease-in-out;
+  transform: translate(0, $navbar-height);
   border-radius: $modal-card-head-radius $modal-card-head-radius $modal-card-foot-radius $modal-card-foot-radius;
 
   @media screen and (max-width: $modal-breakpoint - 1px) {
@@ -45,10 +46,28 @@
   &.needsAction {
     animation: needsAction 1s;
   }
+
+  &AfterOpen {
+    transform: translate(0, $navbar-height + 1rem);
+  }
+
+  &BeforeClose {
+    transform: translate(0, $navbar-height);
+  }
 }
 
 .modalOverlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.33);
+  transition: opacity 300ms ease-in-out;
+  opacity: 0;
+
+  &AfterOpen {
+    opacity: 1;
+  }
+
+  &BeforeClose {
+    opacity: 0;
+  }
 }
