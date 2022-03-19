@@ -34,6 +34,7 @@ $padding: 0.5rem;
   padding: $padding;
 
   background-color: whitesmoke;
+  box-shadow: none;
   border-right: 1px solid rgba(0, 0, 0, 0.15);
   height: 100%;
   overflow-y: auto;
@@ -42,7 +43,7 @@ $padding: 0.5rem;
   white-space: nowrap;
   text-overflow: ellipsis;
   width: $sideNavWidth;
-  transition: width 0.5s;
+  transition: width 0.5s, box-shadow 0.5s;
 
   & :global(.navbar-burger) {
     display: none;
@@ -77,19 +78,25 @@ $padding: 0.5rem;
 }
 
 @include mixins.mobile {
-  .sideNav :global(.navbar-burger) {
-    display: block !important;
-  }
-
-  .sideNav:not(.isActive) {
-    width: $sideNavWidthCollapsed;
-
-    & > p {
-      width: calc(#{$sideNavWidthCollapsed} - #{$padding});
+  .sideNav {
+    & :global(.navbar-burger) {
+      display: block !important;
     }
 
-    & .sideNavText {
-      width: 0;
+    &.isActive {
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+
+    &:not(.isActive) {
+      width: $sideNavWidthCollapsed;
+
+      & > p {
+        width: calc(#{$sideNavWidthCollapsed} - #{$padding});
+      }
+
+      & .sideNavText {
+        width: 0;
+      }
     }
   }
 
