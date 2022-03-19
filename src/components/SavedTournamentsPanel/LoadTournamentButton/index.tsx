@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
-import { selectIsModified } from 'reducers/flagsReducer';
+import { clearIsModified, selectIsModified } from 'reducers/flagsReducer';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
 
 import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
@@ -39,6 +39,7 @@ async function loadTournament(id: string, isModified: boolean, onModified?: () =
     if (json) {
       const data = importTournamentFromJson(json);
       store.dispatch(loadNewFromJson(data));
+      store.dispatch(clearIsModified());
 
       const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
       toast.success(successText);

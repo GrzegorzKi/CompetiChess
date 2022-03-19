@@ -18,18 +18,33 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useCallback } from 'preact/hooks';
 import { useNavigate } from 'react-router-dom';
 
+import { useAppSelector } from 'hooks/index';
+import { selectIsModified } from 'reducers/flagsReducer';
 import { routes } from 'utils/index';
+import { blockIfModified } from 'utils/modalUtils';
+
+import { useModalContext } from '@/ModalProvider';
 
 const CreateTournamentButton: FunctionalComponent = () => {
   const navigate = useNavigate();
+
+  const isModified = useAppSelector(selectIsModified);
+  const { onSaveGuard } = useModalContext();
+
+  const checkCurrentAndNavigate = useCallback(async () => {
+    if (onSaveGuard && await blockIfModified(isModified, onSaveGuard)) {
+      navigate(routes.createTournament.path);
+    }
+  }, [isModified, navigate, onSaveGuard]);
 
   return (
     <div class="field has-addons">
       <p className="control">
         <button className="button is-primary"
-                onClick={() => navigate(routes.createTournament.path)}>
+                onClick={checkCurrentAndNavigate}>
           Create tournament
         </button>
       </p>

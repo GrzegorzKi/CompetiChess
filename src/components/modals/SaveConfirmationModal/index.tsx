@@ -20,6 +20,8 @@
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 
+import { useAppDispatch } from 'hooks/index';
+import { clearIsModified } from 'reducers/flagsReducer';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import Modal from '@/modals/Modal';
@@ -32,12 +34,14 @@ interface Props {
 }
 
 const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, onConfirm }) => {
+  const dispatch = useAppDispatch();
   const saveAndConfirm = useCallback(() => {
     const storeState = store.getState() as RootState;
     saveTournamentToLocalStorage(storeState.tournament);
+    dispatch(clearIsModified());
 
     onConfirm();
-  }, [onConfirm]);
+  }, [dispatch, onConfirm]);
 
   return (
     <Modal

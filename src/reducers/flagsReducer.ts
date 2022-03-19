@@ -36,10 +36,13 @@ export const flags = createSlice({
   initialState,
   reducers: {
     loadNew: () => {
-      return { isModified: false };
+      return { isModified: true };
     },
     loadNewFromJson: () => {
-      return { isModified: false };
+      return { isModified: true };
+    },
+    createTournament: () => {
+      return { isModified: true };
     },
     clearIsModified: () => {
       return { isModified: false };
