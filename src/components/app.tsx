@@ -25,11 +25,10 @@ import { toast } from 'react-toastify';
 
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
-import Pairs from 'routes/pairs';
 import Tournaments from 'routes/tournaments';
 import CreateTournament from 'routes/tournaments-create';
 
-import constants, { routes, RoutesData } from 'utils';
+import constants, { locations, routes } from 'utils';
 
 import { AnimatedRoutes, slide } from '@/Animation';
 import Header from '@/Header';
@@ -90,9 +89,9 @@ function listenToSwUpdates() {
 // with two components existing simultaneously (i.e. when switching
 // them back and forth)
 function getTitle(location: string): string {
-  const route = (routes as RoutesData)[location.substring(1)];
-  return route && route.title
-    ? `${route.title} | ${constants.appName}`
+  const routeTitle = locations[location];
+  return routeTitle
+    ? `${routeTitle} | ${constants.appName}`
     : constants.appName;
 }
 
@@ -123,7 +122,6 @@ const App: FunctionalComponent = () => {
         <Route path={routes.tournaments.path} element={<Tournaments />} />
         <Route path={routes.createTournament.path} element={<CreateTournament />} />
         <Route path={routes.manageTournament.path} element={null} />
-        <Route path={routes.pairs.path} element={<Pairs />} />
         <Route path={routes[''].path} element={<Home />} />
         <Route path="*" element={<NotFound />} />
       </AnimatedRoutes>

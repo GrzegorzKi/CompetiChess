@@ -21,15 +21,9 @@ const constants = {
   appName: 'CompetiChess'
 };
 
-export type RoutesData = {
-  [p in string]: {
-    path: string,
-    title: string,
-  }
-}
 export const routes = {
   tournaments: {
-    path: '/tournaments',
+    path: '/tournaments/',
     title: 'Tournaments'
   },
   createTournament: {
@@ -37,17 +31,18 @@ export const routes = {
     title: 'Create tournament'
   },
   manageTournament: {
-    path: '/tournaments/manage',
-    title: 'Manage tournament'
-  },
-  pairs: {
-    path: '/pairs',
-    title: 'Pairs'
+    path: '/tournaments/settings',
+    title: 'Tournament settings'
   },
   '': {
     path: '/',
     title: ''
   }
 };
+
+export const locations = Object.entries(routes).reduce(((previous, [, value]) => {
+  previous[value.path] = value.title;
+  return previous;
+}), {} as Record<string, string>);
 
 export default constants;

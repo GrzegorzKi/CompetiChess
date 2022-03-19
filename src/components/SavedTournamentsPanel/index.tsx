@@ -31,9 +31,9 @@ import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBloc
 import style from './style.scss';
 
 import { ModalProvider } from '@/ModalProvider';
+import CreateTournamentButton from '@/SavedTournamentsPanel/CreateTournamentButton';
 import ImportTournamentButton from '@/SavedTournamentsPanel/ImportTournamentButton';
 import ImportTrfxTournamentButton from '@/SavedTournamentsPanel/ImportTrfxTournamentButton';
-import ManageTournamentButton from '@/SavedTournamentsPanel/ManageTournamentButton';
 
 export type TournamentEntry = {
   id: string,
@@ -114,7 +114,7 @@ const SavedTournamentsPanel = (): JSX.Element => {
           </p>
         </div>
         <span className={style.controlButtons}>
-          <ManageTournamentButton />
+          <CreateTournamentButton />
           <ImportTournamentButton />
           <ImportTrfxTournamentButton />
         </span>

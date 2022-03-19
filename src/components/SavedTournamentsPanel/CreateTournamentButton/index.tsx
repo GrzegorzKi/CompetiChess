@@ -20,41 +20,21 @@
 import { FunctionalComponent, h } from 'preact';
 import { useNavigate } from 'react-router-dom';
 
-import { useAppSelector } from 'hooks/index';
-import { selectTournament } from 'reducers/tournamentReducer';
 import { routes } from 'utils/index';
 
-const ManageTournamentButton: FunctionalComponent = () => {
-  const tournament = useAppSelector(selectTournament);
+const CreateTournamentButton: FunctionalComponent = () => {
   const navigate = useNavigate();
-
-  let buttons: JSX.Element;
-  if (!tournament) {
-    buttons = <p class="control">
-      <button class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
-        Create tournament
-      </button>
-    </p>;
-  } else {
-    buttons = <>
-      <p class="control">
-        <button class="button is-primary" onClick={() => navigate(routes.createTournament.path)}>
-          Create
-        </button>
-      </p>
-      <p class="control">
-        <button class="button is-info" onClick={() => navigate(routes.manageTournament.path)}>
-          Manage
-        </button>
-      </p>
-    </>;
-  }
 
   return (
     <div class="field has-addons">
-      {buttons}
+      <p className="control">
+        <button className="button is-primary"
+                onClick={() => navigate(routes.createTournament.path)}>
+          Create tournament
+        </button>
+      </p>
     </div>
   );
 };
 
-export default ManageTournamentButton;
+export default CreateTournamentButton;
