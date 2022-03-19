@@ -17,56 +17,83 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use '/styles/variables' as *;
+@use 'styles/variables' as *;
 @use 'bulma/sass/utilities/mixins' as mixins;
 
-$width: 180px;
-$widthP: $width - 58px;
-$collapsedWidth: 54px;
+$widthP: $sideNavWidth - 50px;
+
+$padding: 0.5rem;
+
 
 .sideNav {
-  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+
+  padding: $padding;
+
+  background-color: whitesmoke;
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
   white-space: nowrap;
   text-overflow: ellipsis;
-  width: $width;
+  width: $sideNavWidth;
   transition: width 0.5s;
+
+  & :global(.navbar-burger) {
+    display: none;
+    color: black;
+    width: unset;
+
+    &:hover {
+      color: black;
+    }
+  }
 
   & > p {
     padding: 0.25rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: $width;
+    width: $sideNavWidth;
+    transition: width 0.5s;
+  }
+
+  & .sideNavText {
+    display: inline-block;
+    margin-left: 0.25em;
+    overflow: hidden;
+    width: $widthP;
     transition: width 0.5s;
   }
 }
 
-.sideNavText {
-  display: inline-block;
-  margin-left: 0.25em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: $widthP;
-  transition: width 0.5s;
+.hasSideMenu {
+  padding-left: $sideNavWidth;
+  transition: padding-left 0.5s;
 }
 
 @include mixins.mobile {
-  .sideNav {
-    width: $collapsedWidth;
+  .sideNav :global(.navbar-burger) {
+    display: block !important;
+  }
+
+  .sideNav:not(.isActive) {
+    width: $sideNavWidthCollapsed;
 
     & > p {
-      width: $collapsedWidth;
+      width: calc(#{$sideNavWidthCollapsed} - #{$padding});
+    }
 
-      &:hover {
-        width: fit-content;
-        position: relative;
-        overflow: visible;
-        background-color: #eee;
-        border-radius: 2px;
-      }
+    & .sideNavText {
+      width: 0;
     }
   }
 
-  .sideNavText {
-    width: 0;
+  .hasSideMenu {
+    padding-left: $sideNavWidthCollapsed;
   }
 }

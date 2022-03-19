@@ -17,19 +17,24 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@use '/styles/variables' as *;
+@use 'bulma/sass/utilities/mixins' as mixins;
+
+
 .panel {
   margin: 1rem auto 0;
   max-width: 50rem;
-
-  & > section {
-    padding: 0.5rem 0.75rem;
-  }
 }
 
 .content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
+  position: relative;
+
+  min-height: 24rem;
+  padding: 0.5rem 0.75rem 0.5rem $sideNavWidth + 10px;
+  transition: padding-left 0.5s;
 
   & > aside {
     padding-inline-end: 0.5rem;
@@ -38,5 +43,16 @@
 
   & > form {
     flex: 1;
+  }
+}
+
+.buttons {
+  margin-top: auto;
+  padding: 0.5rem 0.75rem;
+}
+
+@include mixins.mobile {
+  .content {
+    padding-left: $sideNavWidthCollapsed + 10px;
   }
 }

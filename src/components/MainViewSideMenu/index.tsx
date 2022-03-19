@@ -17,21 +17,21 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faArrowDown19, faForwardFast, faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
-import { FunctionalComponent,h  } from 'preact';
+import { faHandshake, faTableCells, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { FunctionalComponent, h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
 import Burger from '@/Burger';
 import SideMenu, { TabLink } from '@/SideMenu';
 
-export type Tab = 'General' | 'Tiebreakers' | 'Accelerations' | 'Sorting criteria' | 'Matchmaking';
+type Tab = 'Pairs' | 'Players' | 'Tournament table';
 
 interface IProps<T> {
   activeTab: T;
   onChange: (value: T) => void;
 }
 
-const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, onChange: _onChange }) => {
+const MainViewSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, onChange: _onChange }) => {
   const [expanded, setExpanded] = useState(false);
 
   const onChange = useCallback((tab: Tab) => {
@@ -44,17 +44,12 @@ const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, o
       <Burger isActive={expanded} onClick={() => setExpanded(s => !s)} />
       <p class="menu-label">General</p>
       <ul class="menu-list">
-        <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Accelerations' icon={faForwardFast} />
-      </ul>
-      <p class="menu-label">Players & rounds</p>
-      <ul class="menu-list">
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Sorting criteria' icon={faArrowDown19} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip} />
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Pairs' icon={faHandshake} />
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Players' icon={faUsers} />
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Tournament table' icon={faTableCells} />
       </ul>
     </SideMenu>
   );
 };
 
-export default TournamentFormSideMenu;
+export default MainViewSideMenu;

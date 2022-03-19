@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022  Grzegorz Kita
+ * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,23 +17,22 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$primary: #8ebf42;
-$hover: #00ab97;
+import { FunctionalComponent, h } from 'preact';
 
-$navbar-color: #673AB7;
-$navbar-height: 3.25rem;
+interface IProps {
+  isActive: boolean;
+  onClick: () => void;
+  isActiveClass?: string;
+}
 
-$radius-large: 6px;
-$modal-card-foot-radius: $radius-large;
-$modal-card-head-radius: $radius-large;
+const Burger: FunctionalComponent<IProps> = ({ onClick, isActive, isActiveClass = 'is-active' }) => (
+  <a role="button" class={`navbar-burger ${isActive ? isActiveClass : ''}`}
+     aria-label="menu" aria-expanded={isActive}
+     onClick={onClick}>
+    <span aria-hidden="true" />
+    <span aria-hidden="true" />
+    <span aria-hidden="true" />
+  </a>
+);
 
-$mobile: 768px;
-$tablet: $mobile + 1px;
-$modal-breakpoint: $tablet;
-
-$innerPaddingH: 1rem;
-$innerPaddingW: 1rem;
-$scrollbarSize: 8px;
-
-$sideNavWidth: 184px;
-$sideNavWidthCollapsed: 64px;
+export default Burger;

@@ -73,9 +73,10 @@ const _TournamentSettings: FunctionalComponent = () => {
         <TiebreakerForm inputRef={tiebreakersFormRef}
                         defaultValues={tournamentData.tiebreakers}
                         visible={tab === 'Tiebreakers'} />
-      </section>
-      <section class="buttons">
-        <input onClick={onSubmit} value="Create" type="submit" class="button is-primary ml-auto" />
+        <section className={`buttons ${style.buttons}`}>
+          <input onClick={onSubmit} value="Create" type="submit"
+                 className="button is-primary ml-auto" />
+        </section>
       </section>
     </article>
   );

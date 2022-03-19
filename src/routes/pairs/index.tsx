@@ -25,8 +25,10 @@ import { selectPairs, selectPlayers } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils';
 
+import MainViewSideMenu from '@/MainViewSideMenu';
 import NextRoundButton from '@/NextRoundButton';
 import PairsView from '@/PairsView';
+import { SectionWithSideMenu } from '@/SideMenu';
 
 const Pairs: FunctionalComponent = () => {
   const pairs = useAppSelector(selectPairs);
@@ -36,8 +38,11 @@ const Pairs: FunctionalComponent = () => {
     pairs && players
       ? (
         <>
-          <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-          <PairsView roundPairs={pairs} players={players.index} />
+          <MainViewSideMenu activeTab="Pairs" onChange={() => {/**/}} />
+          <SectionWithSideMenu>
+            <NextRoundButton><strong>Start next round</strong></NextRoundButton>
+            <PairsView roundPairs={pairs} players={players.index} />
+          </SectionWithSideMenu>
         </>
       )
       :
