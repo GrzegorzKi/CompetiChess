@@ -18,22 +18,53 @@
  */
 
 import { ComponentChildren, h } from 'preact';
+import { useCallback } from 'preact/hooks';
+import { toast } from 'react-toastify';
 
-import { useAppDispatch } from 'hooks';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import usePromiseModal from 'hooks/usePromiseModal';
+import { createNextRound, selectPairs, selectPlayers } from 'reducers/tournamentReducer';
 
-import { createNextRound } from 'reducers/tournamentReducer';
+import InitialColorModal from '@/NextRoundButton/InitialColorModal';
 
 interface Props {
   children: ComponentChildren;
 }
 
-const NextRoundButton = ({ children }: Props): JSX.Element => {
-  
+const NextRoundButton = ({ children }: Props): JSX.Element | null => {
+  const pairs = useAppSelector(selectPairs);
+  const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
 
-  return <button class="button is-primary trans-bg is-block mb-5" onClick={() => dispatch(createNextRound())}>
-    {children}
-  </button>;
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+
+  const _createNextRound = useCallback(async () => {
+    const pairsLength = pairs?.length || 0;
+
+    if (!players || players.orderById.length < 3) {
+      toast.error('At least three players are required to start the next round.');
+      return;
+    }
+
+    if (pairsLength === 0) {
+      if (!await openModal()) {
+        return;
+      }
+    }
+
+    dispatch(createNextRound());
+  }, [dispatch, openModal, pairs, players]);
+
+  return <>
+    <button class="button is-primary trans-bg is-block mb-5" onClick={_createNextRound}>
+      {children}
+    </button>
+    <InitialColorModal
+      isOpen={isOpen}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />
+  </>;
 };
 
 export default NextRoundButton;

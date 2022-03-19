@@ -31,6 +31,7 @@ import { readPairs } from '#/Pairings/Pairings';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
 import Tournament, {
+  Color,
   Configuration,
   GameResult,
   Pair,
@@ -254,6 +255,20 @@ export const tournamentSlice = createSlice({
         view.selectedRound = payload;
       }
     },
+    setInitialColor: (state, action: PayloadAction<Color>) => {
+      if (!state.configuration) {
+        return;
+      }
+
+      let color = action.payload;
+      if (color === Color.NONE) {
+        color = cyrb53(JSON.stringify(state)) > 2_147_483_647
+          ? Color.WHITE
+          : Color.BLACK;
+      }
+
+      state.configuration.initialColor = color;
+    },
     setResult: (state, action: PayloadAction<SetResultType>) => {
       const { pairs, players, configuration, view } = state;
 
@@ -342,7 +357,7 @@ export const tournamentSlice = createSlice({
 
 export const {
   loadNew, loadNewFromJson, createTournament, updateTournament, close,
-  selectNextRound, selectPrevRound, selectRound, setResult
+  selectNextRound, selectPrevRound, selectRound, setInitialColor, setResult
 } = tournamentSlice.actions;
 
 export { createNextRound };
