@@ -289,7 +289,7 @@ export const tournamentSlice = createSlice({
 
       const playerArray = players.orderById.map(i => players.index[i]);
       playerArray.forEach(player => {
-        recalculateTiebreakers(player, playerArray, configuration, round);
+        recalculateTiebreakers(player, players.index, configuration, round);
       });
     }
   },
@@ -302,8 +302,6 @@ export const tournamentSlice = createSlice({
       if (!tournament || !players || !pairs || !configuration) {
         return;
       }
-
-      const playersArray = players.orderById.map(i => players.index[i]);
 
       const pairsParser = readPairs({
         players: players.index,
@@ -318,7 +316,7 @@ export const tournamentSlice = createSlice({
 
       evenUpGamesHistory(players.index, pairs.length);
       recalculatePlayerScores(
-        playersArray,
+        players.index,
         configuration,
         pairs.length);
 

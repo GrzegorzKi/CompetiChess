@@ -20,10 +20,11 @@
 import {
   Color,
   GameResult,
-  TiebreakersPoints,
+  Configuration,
   Game,
   Player,
-  Configuration,
+  PlayersRecord,
+  TiebreakersPoints,
 } from '#/types/Tournament';
 import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '#/utils/GamesUtils';
 import { numberComparator } from '#/utils/SortUtils';
@@ -496,7 +497,7 @@ export type TiebreakerInfo = {
   decimalPlaces?: number,
 };
 
-type CalcFunction = (player: Player, forRound: number, players: Player[], configuration: Configuration) => number;
+type CalcFunction = (player: Player, forRound: number, players: PlayersRecord, configuration: Configuration) => number;
 
 export const tiebreakers: Record<Tiebreaker, TiebreakerInfo> = {
   [Tiebreaker.DIRECT_ENCOUNTER]: {
@@ -778,7 +779,7 @@ export function calculateValue(
   player: Player,
   forRound: number,
   configuration: Configuration,
-  players: Player[]
+  players: PlayersRecord
 ): number {
   return tiebreakers[tiebreaker].calculate(player, forRound, players, configuration);
 }
@@ -787,7 +788,7 @@ export function calculateTiebreakers(
   player: Player,
   forRound: number,
   configuration: Configuration,
-  players: Player[],
+  players: PlayersRecord,
 ): TiebreakersPoints {
   const tbValues: TiebreakersPoints = Object.create(null);
 

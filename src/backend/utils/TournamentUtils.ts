@@ -230,7 +230,7 @@ function normalizeToArray<T>(arrayOrRecord: T[] | Record<any, T>): T[] {
 
 export const recalculateTiebreakers = (
   player: Player,
-  players: Player[] | PlayersRecord,
+  players: PlayersRecord,
   configuration: Configuration,
   fromRound = 1,
   toRound = Infinity
@@ -240,7 +240,7 @@ export const recalculateTiebreakers = (
   fromRound = Math.max(fromRound, 1);
   const maxLen = Math.min(games.length, toRound);
   for (let round = fromRound; round <= maxLen; ++round) {
-    scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, normalizeToArray(players));
+    scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, players);
   }
 };
 
@@ -251,7 +251,7 @@ export const recalculateTiebreakers = (
 /// @param {number} fromRound - Round number (one-offset) from which to recalculate
 /// @param {number} toRound   - Round number (one-offset) to which recalculate (exclusive)
 export const recalculatePlayerScores = (
-  players: Player[] | PlayersRecord,
+  players: PlayersRecord,
   configuration: Configuration,
   fromRound?: number,
   toRound?: number

@@ -112,7 +112,7 @@ function postProcessData({
   assignByesAndLates(players, playedRounds, byes);
   const pairs = generatePairs(players, playedRounds);
   evenUpGamesHistory(players, playedRounds);
-  recalculatePlayerScores(playersArray, configuration);
+  recalculatePlayerScores(players, configuration);
 
   return {
     tournament,

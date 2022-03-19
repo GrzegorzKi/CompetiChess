@@ -27,7 +27,7 @@ import {
 import { isTournamentStateJsonValid } from './index.guard';
 
 import { Player } from '#/types/Tournament';
-import { getPlayers, recalculatePlayerScores } from '#/utils/TournamentUtils';
+import { recalculatePlayerScores } from '#/utils/TournamentUtils';
 
 export interface PlayersStateJson extends Omit<PlayersState, 'index'> {
   index: Record<string, Player>,
@@ -59,10 +59,8 @@ function validateAndHydrateData(data: unknown): TournamentStateJson {
   }
 
   // Then hydrate the data
-  const { index, orderById, orderByPosition } = data.players;
-  const playersArray = getPlayers(index, orderById, orderByPosition, data.configuration.matchByRank);
+  recalculatePlayerScores(data.players.index, data.configuration);
 
-  recalculatePlayerScores(playersArray, data.configuration);
   return data;
 }
 
