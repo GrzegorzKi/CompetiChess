@@ -17,6 +17,30 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Home from 'routes/pairs';
+import { FunctionalComponent, h } from 'preact';
+import { useLocation } from 'react-router';
+import { Link, Navigate } from 'react-router-dom';
+
+import { useAppSelector } from 'hooks/index';
+import { selectTournament } from 'reducers/tournamentReducer';
+import { routes } from 'utils/index';
+
+const Home: FunctionalComponent = () => {
+  const tournament = useAppSelector(selectTournament);
+  const { pathname } = useLocation();
+
+  if (tournament) {
+    if (pathname === routes[''].path) {
+      return <Navigate to={routes.pairs.path} replace />;
+    }
+    return null;
+  }
+
+  return (
+    <p>There is no tournament open right now.
+      {' '}
+      <Link className="has-text-link" to={routes.tournaments.path}>Do you want to create one?</Link>
+    </p>
+  );};
 
 export default Home;

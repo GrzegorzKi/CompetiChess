@@ -18,11 +18,11 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router';
+import { Navigate } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
 import { selectPairs, selectPlayers } from 'reducers/tournamentReducer';
-
 import { routes } from 'utils';
 
 import MainViewSideMenu from '@/MainViewSideMenu';
@@ -33,23 +33,23 @@ import { SectionWithSideMenu } from '@/SideMenu';
 const Pairs: FunctionalComponent = () => {
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
+  const { pathname } = useLocation();
+
+  if (!pairs || !players) {
+    if (pathname === routes.pairs.path) {
+      return <Navigate to={routes[''].path} replace />;
+    }
+    return null;
+  }
 
   return (
-    pairs && players
-      ? (
-        <>
-          <MainViewSideMenu activeTab="Pairs" onChange={() => {/**/}} />
-          <SectionWithSideMenu>
-            <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-            <PairsView roundPairs={pairs} players={players.index} />
-          </SectionWithSideMenu>
-        </>
-      )
-      :
-      <p>There is no tournament open right now.
-        {' '}
-        <Link className="has-text-link" to={routes.tournaments.path}>Do you want to create one?</Link>
-      </p>
+    <>
+      <MainViewSideMenu activeTab="Pairs" onChange={() => {/**/}} />
+      <SectionWithSideMenu>
+        <NextRoundButton><strong>Start next round</strong></NextRoundButton>
+        <PairsView roundPairs={pairs} players={players.index} />
+      </SectionWithSideMenu>
+    </>
   );
 };
 
