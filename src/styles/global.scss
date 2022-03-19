@@ -22,7 +22,7 @@
 @use 'bulma/bulma' as bulma with (
   $danger: hsl(348, 80%, 54%),
 
-  $navbar-background-color: #673AB7,
+  $navbar-background-color: $navbar-color,
   $navbar-item-color: hsl(0, 0%, 98%),
   $navbar-item-hover-color: hsl(0, 0%, 98%),
   $navbar-item-hover-background-color: rgba(0, 0, 0, 20%),
@@ -31,14 +31,14 @@
   $navbar-box-shadow-size: 0 1px 1px 0,
   $navbar-box-shadow-color: hsl(0, 0%, 6%),
 
-  $modal-content-margin-mobile: 20px,
-
   $primary: $primary,
   $navbar-height: $navbar-height,
   $radius-large: $radius-large,
 
   $modal-breakpoint: $modal-breakpoint,
 );
+
+@use 'navigation-view' as navView;
 
 // Bulma monkey-patches for 0.9.3
 .pagination-previous,
