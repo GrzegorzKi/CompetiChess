@@ -25,6 +25,7 @@ import Field from '@/TournamentSettings/Field';
 import Form from '@/TournamentSettings/Form';
 
 export type IGeneralFormInputs = {
+  createdDate: number,
   tournamentName: string,
   city: string,
   federation: string,

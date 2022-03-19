@@ -75,7 +75,7 @@ export function removeFromLocalStorage(key: string): void {
   }
 }
 
-function readTournamentIndex() {
+export function readTournamentIndex() {
   return readFromLocalStorage<TournamentEntry[]>(tournamentsIndexKey);
 }
 

@@ -20,6 +20,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
+import { IFormData } from 'hooks/useTournamentFormData';
 import { cyrb53 } from 'utils/common';
 
 import BbpPairings from '#/BbpPairings/bbpPairings';
@@ -39,6 +40,8 @@ import Tournament, {
 import { evenUpGamesHistory } from '#/utils/GamesUtils';
 import { computeResult, ResultType } from '#/utils/ResultUtils';
 import {
+  createDefaultConfiguration,
+  createTournamentData,
   getPlayers,
   recalculatePlayerScores,
   recalculateScores,
@@ -183,6 +186,50 @@ export const tournamentSlice = createSlice({
         state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
       }
     },
+    createTournament: (state, { payload }: PayloadAction<IFormData>) => {
+      const { numberOfRounds, ...tournamentData } = payload.general;
+      const configurationData: Partial<Configuration> = {
+        expectedRounds: numberOfRounds,
+        tiebreakers: payload.tiebreakers
+      };
+
+      state.tournament = createTournamentData(tournamentData);
+      state.configuration = {
+        ...createDefaultConfiguration(),
+        ...configurationData
+      };
+      state.players = {
+        index: {},
+        orderById: [],
+        orderByPosition: [],
+      };
+      state.pairs = [];
+      state.view = {
+        selectedRound: 1,
+      };
+
+      state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
+    },
+    updateTournament: (state, { payload }: PayloadAction<IFormData>) => {
+      if (!state.tournament || !state.configuration) {
+        return;
+      }
+
+      const { numberOfRounds, ...tournamentData } = payload.general;
+      const configurationData: Partial<Configuration> = {
+        expectedRounds: numberOfRounds,
+        tiebreakers: payload.tiebreakers
+      };
+
+      state.tournament = Object.assign(
+        state.tournament,
+        tournamentData as Partial<Tournament>
+      );
+      state.configuration = Object.assign(
+        state.configuration,
+        configurationData
+      );
+    },
     close: (state) => {
       state.tournament = undefined;
       state.configuration = undefined;
@@ -295,7 +342,11 @@ export const tournamentSlice = createSlice({
   },
 });
 
-export const { loadNew, loadNewFromJson, close, selectNextRound, selectPrevRound, selectRound, setResult } = tournamentSlice.actions;
+export const {
+  loadNew, loadNewFromJson, createTournament, updateTournament, close,
+  selectNextRound, selectPrevRound, selectRound, setResult
+} = tournamentSlice.actions;
+
 export { createNextRound };
 
 export const selectTournament = (state: RootState) => state.tournament.tournament;

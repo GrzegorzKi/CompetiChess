@@ -29,13 +29,14 @@ export interface IFormData {
   tiebreakers: Tiebreaker[];
 }
 
-const useTournamentFormData = (): IFormData => {
+const useTournamentFormData = (loadDefault = false): IFormData => {
   const tournament = useAppSelector(selectTournament);
   const configuration = useAppSelector(selectConfiguration);
 
-  if (!tournament || !configuration) {
+  if (!tournament || !configuration || loadDefault) {
     return {
       general: {
+        createdDate: 0,
         tournamentName: '',
         city: '',
         federation: '',
@@ -50,11 +51,12 @@ const useTournamentFormData = (): IFormData => {
     };
   }
 
-  const { tournamentName, city, federation, dateOfStart, dateOfEnd, tournamentType, chiefArbiter, rateOfPlay } = tournament;
+  const { createdDate, tournamentName, city, federation, dateOfStart, dateOfEnd, tournamentType, chiefArbiter, rateOfPlay } = tournament;
   const { expectedRounds } = configuration;
 
   return {
     general: {
+      createdDate,
       tournamentName,
       city,
       federation,

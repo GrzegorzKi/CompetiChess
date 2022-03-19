@@ -17,14 +17,12 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { h } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 
 import TournamentSettings from '@/TournamentSettings';
 
-const CreateTournament = (): JSX.Element => {
-  return (
-    <TournamentSettings isCreate />
-  );
+const TournamentsSettings: FunctionalComponent = () => {
+  return <TournamentSettings />;
 };
 
-export default CreateTournament;
+export default TournamentsSettings;

@@ -20,23 +20,36 @@
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { UseFormReturn } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
+import { useAppDispatch } from 'hooks/index';
 import useTournamentFormData from 'hooks/useTournamentFormData';
+import { createTournament, updateTournament } from 'reducers/tournamentReducer';
+
+import { routes } from 'utils/index';
 
 import style from './style.scss';
 import TiebreakerForm from './TiebreakerForm';
 import TournamentForm from './TournamentForm';
 import TournamentFormSideMenu, { Tab } from './TournamentFormSideMenu';
 
-import Tiebreaker from '#/Tiebreaker/Tiebreaker';
+import { saveTournamentUnlessNotPersisted } from '@/SavedTournamentsPanel/SaveTournamentButton';
 import { waitForRehydration } from '@/store';
 
-const _TournamentSettings: FunctionalComponent = () => {
+
+interface IProps {
+  isCreate?: boolean;
+}
+
+const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
   const generalFormRef = useRef<UseFormReturn<any>>();
   const tiebreakersFormRef = useRef<HTMLSelectElement>();
   const [tab, setTab] = useState<Tab>('General');
 
-  const tournamentData = useTournamentFormData();
+  const tournamentData = useTournamentFormData(isCreate);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const onSubmit = useCallback(async () => {
     if (!generalFormRef.current || !tiebreakersFormRef.current) {
@@ -51,14 +64,22 @@ const _TournamentSettings: FunctionalComponent = () => {
 
     const selectedItems = Array
       .from(tiebreakersFormRef.current.options)
-      .map(item => item.value as unknown as Tiebreaker);
+      .map(item => Number.parseInt(item.value, 10));
 
     tournamentData.general = generalFormRef.current.getValues();
     tournamentData.tiebreakers = selectedItems;
 
-    // TODO Dispatch creating new tournament
-    console.log(tournamentData);
-  }, [tournamentData]);
+    if (isCreate) {
+      tournamentData.general.createdDate = Date.now();
+      dispatch(createTournament(tournamentData));
+      toast.success('Tournament has been created!');
+      navigate(routes.tournaments.path);
+    } else {
+      dispatch(updateTournament(tournamentData));
+      saveTournamentUnlessNotPersisted();
+      toast.info('Tournament has been updated');
+    }
+  }, [dispatch, isCreate, navigate, tournamentData]);
 
   return (
     <article class={`panel is-primary ${style.panel}`}>
@@ -74,7 +95,7 @@ const _TournamentSettings: FunctionalComponent = () => {
                         defaultValues={tournamentData.tiebreakers}
                         visible={tab === 'Tiebreakers'} />
         <section className={`buttons ${style.buttons}`}>
-          <input onClick={onSubmit} value="Create" type="submit"
+          <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"
                  className="button is-primary ml-auto" />
         </section>
       </section>
@@ -82,7 +103,7 @@ const _TournamentSettings: FunctionalComponent = () => {
   );
 };
 
-const TournamentSettings: FunctionalComponent = () => {
+const TournamentSettings: FunctionalComponent<IProps> = (props) => {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     waitForRehydration().then(() => {
@@ -91,7 +112,7 @@ const TournamentSettings: FunctionalComponent = () => {
   }, []);
 
   return ready
-    ? <_TournamentSettings />
+    ? <_TournamentSettings {...props} />
     : <p>Loading tournament data, please wait...</p>;
 };
 
