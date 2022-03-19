@@ -28,13 +28,13 @@ import {
   setResult,
 } from 'reducers/tournamentReducer';
 
+import PlayersBox from './PlayersBox';
+import SetScoreBox from './SetScoreBox';
+
 import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
 import { blankResult, ComputedResults } from '#/utils/ResultUtils';
-import Modal from '@/modals/Modal';
-import PlayersBox from '@/PairsView/PairResultModal/PlayersBox';
-import SetScoreBox from '@/PairsView/PairResultModal/SetScoreBox';
 
 function getResult(pair: Pair, players: PlayersRecord, round: number) {
   const white = players[pair.white];
@@ -45,12 +45,11 @@ function getResult(pair: Pair, players: PlayersRecord, round: number) {
 interface IProps {
   pairNo: number;
   round: number;
-  isOpen: boolean;
   onClose: () => void;
   setPairNo: (pairNo: number) => void;
 }
 
-const PairResultModal: FunctionalComponent<IProps> = ({ pairNo, round, isOpen, onClose, setPairNo }) => {
+const PairResults: FunctionalComponent<IProps> = ({ pairNo, round, onClose, setPairNo }) => {
   const configuration = useAppSelector(selectConfiguration);
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
@@ -98,11 +97,7 @@ const PairResultModal: FunctionalComponent<IProps> = ({ pairNo, round, isOpen, o
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onClose}
-      contentLabel="Edit result modal"
-    >
+    <>
       <header class="modal-card-head">
         <p class="modal-card-title">Edit result</p>
         <button class="delete" aria-label="close" onClick={onClose} />
@@ -119,8 +114,8 @@ const PairResultModal: FunctionalComponent<IProps> = ({ pairNo, round, isOpen, o
         <button class="button is-outlined is-info" disabled={pairNo >= pairsRound.length}
                 onClick={nextPairFn}>Next</button>
       </footer>
-    </Modal>
+    </>
   );
 };
 
-export default PairResultModal;
+export default PairResults;

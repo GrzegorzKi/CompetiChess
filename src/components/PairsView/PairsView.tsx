@@ -33,9 +33,10 @@ import {
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
 
+import Modal from '@/modals/Modal';
 import PaginateRound from '@/PaginateRound';
 import PairContextMenu from '@/PairsView/PairContextMenu';
-import PairResultModal from '@/PairsView/PairResultModal';
+import PairResults from '@/PairsView/PairResults';
 import PairsTable from '@/PairsView/PairsTable';
 
 export function getPairNo(element?: HTMLElement | null): number | undefined {
@@ -127,13 +128,8 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
     return () => document.removeEventListener('keydown', arrowHandling);
   }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
 
-  const selectRow = (pairNo: number) => {
-    setIdx(pairNo);
-  };
-
-  const enterRow = () => {
-    setResultsModalOpen(true);
-  };
+  const selectRow = (pairNo: number) => setIdx(pairNo);
+  const enterRow = () => setResultsModalOpen(true);
 
   const handleContextMenu = (e: JSX.TargetedMouseEvent<HTMLElement>) => {
     setAnchorPoint({ x: e.clientX, y: e.clientY });
@@ -158,13 +154,18 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                          }} />
         <PairsTable pairs={pairs} players={players} idx={idx}
                     selectedRef={setRef} onContextMenu={handleContextMenu}
-                    onRowEnter={enterRow} onRowSelect={selectRow}
+                    onRowSelect={selectRow} onRowEnter={enterRow}
         />
-        <PairResultModal pairNo={idx} round={round}
-                         isOpen={resultsModalOpen}
-                         onClose={() => setResultsModalOpen(false)}
-                         setPairNo={setIdx}
-        />
+        <Modal
+          isOpen={resultsModalOpen}
+          onRequestClose={() => setResultsModalOpen(false)}
+          contentLabel="Edit result modal"
+        >
+          <PairResults pairNo={idx} round={round}
+                       onClose={() => setResultsModalOpen(false)}
+                       setPairNo={setIdx}
+          />
+        </Modal>
       </div>
     </>
   );
