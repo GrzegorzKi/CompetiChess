@@ -29,14 +29,14 @@ const Modal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) =>
   if (typeof className === 'string') {
     modalClassName = {
       base: `modal-card ${className} ${style.modal}`,
-      afterOpen: `modal-card ${className} ${style.modalAfterOpen}`,
-      beforeClose: `modal-card ${className} ${style.modalBeforeClose}`,
+      afterOpen: style.modalAfterOpen,
+      beforeClose: style.modalBeforeClose,
     };
   } else {
     modalClassName = className ?? {
       base: `modal-card ${style.modal}`,
-      afterOpen: `modal-card ${style.modalAfterOpen}`,
-      beforeClose: `modal-card ${style.modalBeforeClose}`,
+      afterOpen: style.modalAfterOpen,
+      beforeClose: style.modalBeforeClose,
     };
   }
 

@@ -87,13 +87,13 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
         Tournament settings
       </p>
       <section class={style.content}>
-        <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <TournamentForm inputRef={generalFormRef}
                         defaultValues={tournamentData.general}
                         visible={tab === 'General'} />
         <TiebreakerForm inputRef={tiebreakersFormRef}
                         defaultValues={tournamentData.tiebreakers}
                         visible={tab === 'Tiebreakers'} />
+        <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <section className={`buttons ${style.buttons}`}>
           <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"
                  className="button is-primary ml-auto" />

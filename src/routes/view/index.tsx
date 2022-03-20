@@ -49,13 +49,13 @@ const View: FunctionalComponent = () => {
         {tournament.tournamentName}
       </p>
       <section>
-        <MainViewSideMenu />
         <SectionWithSideMenu className={style.container}>
           <div class={style.commonControls}>
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
           </div>
           <Outlet />
         </SectionWithSideMenu>
+        <MainViewSideMenu />
       </section>
     </article>
   );
