@@ -84,15 +84,15 @@ const PairsTable: FunctionalComponent<IProps> = (
   const round = pairs[0].round - 1;
 
   return (
-    <table className='table is-striped is-hoverable'>
+    <table class='table is-striped is-hoverable is-fullwidth'>
       <thead>
         <tr>
-          <th>No.</th>
-          <th>Pts</th>
+          <th style="width: 3rem; text-align: right;">No.</th>
+          <th style="width: 2.5rem;">Pts</th>
           <th>First player</th>
-          <th>Result</th>
+          <th style="width: 4.5rem;">Result</th>
           <th>Second player</th>
-          <th>Pts</th>
+          <th style="width: 2.5rem;">Pts</th>
         </tr>
       </thead>
       <tbody>
@@ -102,14 +102,14 @@ const PairsTable: FunctionalComponent<IProps> = (
               onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
               onContextMenu={menuHandler}
               tabIndex={0}
-              className={idx === pair.no ? 'is-selected' : ''}
+              class={idx === pair.no ? 'is-selected' : ''}
               ref={idx === pair.no ? selectedRef : undefined}
           >
-            <td>{pair.no}</td>
+            <td style="text-align: right;">{pair.no}</td>
             <td>{prevRoundPoints(players[pair.white], round)
               .toFixed(1)}</td>
             <td>{displayPlayer(players[pair.white])}</td>
-            <td>{getResult(pair, players, round)}</td>
+            <td style="text-align: center;">{getResult(pair, players, round)}</td>
             <td>{displayPlayer(players[pair.black])}</td>
             <td>{prevRoundPoints(players[pair.black], round)
               .toFixed(1)}</td>
