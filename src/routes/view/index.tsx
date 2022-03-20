@@ -49,9 +49,9 @@ const View: FunctionalComponent = () => {
         {tournament.tournamentName}
       </p>
       <section>
-        <MainViewSideMenu activeTab="Pairs" onChange={() => {/**/}} />
+        <MainViewSideMenu />
         <SectionWithSideMenu className={style.container}>
-          <div class={style.bordered}>
+          <div class={style.commonControls}>
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
           </div>
           <Outlet />

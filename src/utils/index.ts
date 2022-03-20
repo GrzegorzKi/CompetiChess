@@ -21,7 +21,13 @@ const constants = {
   appName: 'CompetiChess'
 };
 
-export const routes = {
+type RouteType = {
+  path: string
+  title: string,
+  parent?: string
+};
+
+export const _routes = {
   tournaments: {
     path: '/tournaments/',
     title: 'Tournaments'
@@ -40,18 +46,42 @@ export const routes = {
   },
   pairs: {
     path: '/view/pairs',
-    pathRel: 'pairs',
-    title: 'Pairs'
+    title: 'Pairs',
+    parent: '/view'
+  },
+  players: {
+    path: '/view/players',
+    title: 'Players',
+    parent: '/view'
+  },
+  tournamentTable: {
+    path: '/view/tournamentTable',
+    title: 'Tournament table',
+    parent: '/view'
   },
   '': {
     path: '/',
     title: ''
   }
-} as const;
+};
+
+type Routes = {
+  [P in keyof typeof _routes]: RouteType;
+}
+
+export const routes = _routes as Routes;
+
+type LocationsType = {
+  title: string;
+  parent?: string;
+}
 
 export const locations = Object.entries(routes).reduce(((previous, [, value]) => {
-  previous[value.path] = value.title;
+  previous[value.path] = {
+    title: value.title,
+    parent: value.parent,
+  };
   return previous;
-}), {} as Record<string, string>);
+}), {} as Partial<Record<string, LocationsType>>);
 
 export default constants;

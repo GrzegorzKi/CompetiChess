@@ -139,9 +139,11 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
 
   return (
     <>
-      <PaginateRound pageCount={roundPairs.length}
-                     page={round}
-                     onPageChange={({ selected }) => dispatch(selectRound(selected))} />
+      <div class={style.controls} >
+        <PaginateRound pageCount={roundPairs.length}
+                       page={round}
+                       onPageChange={({ selected }) => dispatch(selectRound(selected))} />
+      </div>
       <div class={`table-container ${style.table}`} >
         <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}
                          anchorPoint={anchorPoint} boundingBoxRef={scrollParent}

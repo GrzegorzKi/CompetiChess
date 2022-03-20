@@ -30,6 +30,44 @@ import {
 } from 'react-motion';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
+import { locations } from 'utils/index';
+
+export function glide(val: number): OpaqueConfig {
+  return spring(val, {
+    stiffness: 174,
+    damping: 10
+  });
+}
+
+export function fastSlide(val: number): OpaqueConfig {
+  return spring(val, {
+    stiffness: 228,
+    damping: 26
+  });
+}
+
+export function slide(val: number): OpaqueConfig {
+  return spring(val, {
+    stiffness: 95,
+    damping: 17
+  });
+}
+
+export const defaultTransitions = {
+  atEnter: {
+    offset: -50,
+    opacity: 0
+  },
+  atLeave: {
+    offset: slide(-50),
+    opacity: slide(0)
+  },
+  atActive: {
+    offset: slide(0),
+    opacity: slide(1)
+  }
+};
+
 function ensureSpring(styles: Style = {}): Style {
   const obj: Style = {};
 
@@ -64,7 +102,7 @@ interface ITransitionProps {
   atLeave: Style,
   didLeave?: ((styleThatLeft: TransitionStyle) => void),
   mapStyles?: (style: PlainStyle) => HTMLProps,
-  runOnMount: boolean,
+  runOnMount?: boolean,
   noPointerEventsOnLeave?: boolean,
   wrapperComponent?: string | false,
 }
@@ -136,37 +174,16 @@ function Transition({
   );
 }
 
-export function glide(val: number): OpaqueConfig {
-  return spring(val, {
-    stiffness: 174,
-    damping: 10
-  });
-}
-
-export function fastSlide(val: number): OpaqueConfig {
-  return spring(val, {
-    stiffness: 228,
-    damping: 26
-  });
-}
-
-export function slide(val: number): OpaqueConfig {
-  return spring(val, {
-    stiffness: 95,
-    damping: 17
-  });
-}
-
 export interface AnimatedRouteProps extends Omit<ITransitionProps, 'children'> {
   path: string,
   element?: React.ReactNode | null;
 }
 
-export function AnimatedRoute({
+export const AnimatedRoute =({
   element,
   path,
   ...routeTransitionProps
-}: AnimatedRouteProps) {
+}: AnimatedRouteProps) => {
   return (
     <Transition {...routeTransitionProps}>
       <Route
@@ -176,25 +193,30 @@ export function AnimatedRoute({
       />
     </Transition>
   );
-}
+};
 
-export interface AnimatedSwitchProps extends Omit<ITransitionProps, 'children'> {
+export interface AnimatedRoutesProps extends Omit<ITransitionProps, 'children'> {
   children: React.ComponentProps<typeof Routes>['children'],
 }
 
-export function AnimatedRoutes({
+export const AnimatedRoutes = ({
   children,
   ...routeTransitionProps
-}: AnimatedSwitchProps) {
+}: AnimatedRoutesProps) => {
   const location = useLocation();
+  const route = locations[location.pathname];
+
+  const locationForAnimation = route && route.parent
+    ? route.parent
+    : location.pathname;
 
   return (
     <Transition {...routeTransitionProps}>
-      <Routes key={location.pathname} location={location}>
+      <Routes key={locationForAnimation} location={location}>
         {children}
       </Routes>
     </Transition>
   );
-}
+};
 
 export { spring };

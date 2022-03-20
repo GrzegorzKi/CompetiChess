@@ -32,25 +32,11 @@ import TournamentsSettings from 'routes/tournaments-settings';
 import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
 
-import { AnimatedRoutes, slide } from '@/Animation';
+import { AnimatedRoutes, defaultTransitions } from '@/Animation';
 import Header from '@/Header';
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
 
-const pageTransitions = {
-  atEnter: {
-    offset: -50,
-    opacity: 0
-  },
-  atLeave: {
-    offset: slide(-50),
-    opacity: slide(0)
-  },
-  atActive: {
-    offset: slide(0),
-    opacity: slide(1)
-  }
-};
 
 function listenToSwUpdates() {
   if ('serviceWorker' in navigator) {
@@ -93,7 +79,7 @@ function listenToSwUpdates() {
 function getTitle(location: string): string {
   const routeTitle = locations[location];
   return routeTitle
-    ? `${routeTitle} | ${constants.appName}`
+    ? `${routeTitle.title} | ${constants.appName}`
     : constants.appName;
 }
 
@@ -113,8 +99,8 @@ const App: FunctionalComponent = () => {
       <Header />
       <NoScriptMessage />
       <AnimatedRoutes
-        {...pageTransitions}
-        runOnMount={true}
+        {...defaultTransitions}
+        runOnMount
         mapStyles={(styles) => ({
           transform: `translateX(${styles.offset}%)`,
           opacity: styles.opacity,
@@ -125,8 +111,10 @@ const App: FunctionalComponent = () => {
         <Route path={routes.createTournament.path} element={<CreateTournament />} />
         <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
         <Route path={routes.view.path} element={<View />}>
-          <Route index element={<Pairs />} />
-          <Route path={routes.pairs.pathRel} element={<Pairs />} />
+          <Route index element={<Pairs />}  />
+          <Route path={routes.pairs.path}  element={<Pairs />} />
+          <Route path={routes.players.path} element={<Pairs />} />
+          <Route path={routes.tournamentTable.path} element={<Pairs />} />
         </Route>
         <Route path={routes[''].path} element={<Home />} />
         <Route path="*" element={<NotFound />} />

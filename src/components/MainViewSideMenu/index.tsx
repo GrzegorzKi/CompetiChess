@@ -19,34 +19,25 @@
 
 import { faHandshake, faTableCells, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { FunctionalComponent, h } from 'preact';
-import { useCallback, useState } from 'preact/hooks';
+import { useState } from 'preact/hooks';
+
+import { routes } from 'utils/index';
 
 import Burger from '@/Burger';
-import SideMenu, { TabLink } from '@/SideMenu';
+import SideMenu, { MenuNavLink } from '@/SideMenu';
 
-type Tab = 'Pairs' | 'Players' | 'Tournament table';
 
-interface IProps<T> {
-  activeTab: T;
-  onChange: (value: T) => void;
-}
-
-const MainViewSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, onChange: _onChange }) => {
+const MainViewSideMenu: FunctionalComponent = () => {
   const [expanded, setExpanded] = useState(false);
-
-  const onChange = useCallback((tab: Tab) => {
-    setExpanded(false);
-    _onChange(tab);
-  }, [_onChange]);
 
   return (
     <SideMenu isActive={expanded}>
       <Burger isActive={expanded} onClick={() => setExpanded(s => !s)} />
       <p class="menu-label">General</p>
       <ul class="menu-list">
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Pairs' icon={faHandshake} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Players' icon={faUsers} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Tournament table' icon={faTableCells} />
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.pairs.path} tab='Pairs' icon={faHandshake} />
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.players.path} tab='Players' icon={faUsers} />
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.tournamentTable.path} tab='Tournament table' icon={faTableCells} />
       </ul>
     </SideMenu>
   );

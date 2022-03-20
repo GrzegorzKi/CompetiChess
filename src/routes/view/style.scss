@@ -29,7 +29,7 @@
 }
 
 .container {
-  max-height: calc(100vh - #{$navbar-height} - 7rem);
+  height: calc(100vh - #{$navbar-height} - 7rem);
   overflow-x: hidden;
   display: flex;
   flex-flow: column;
@@ -37,12 +37,9 @@
   & :global(.table-container) {
     overflow-y: auto;
   }
-
-  & > :not(:global(.table-container)) {
-    padding: 0.5rem 0.75rem;
-  }
 }
 
-.bordered:not(:last-child) {
+.commonControls {
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 0.75rem;
 }

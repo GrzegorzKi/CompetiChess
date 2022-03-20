@@ -20,6 +20,7 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
+import { NavLink } from 'react-router-dom';
 
 import style from './style.scss';
 
@@ -45,10 +46,28 @@ export interface ITabLinkProps<T extends string = string> {
 export function TabLink<T extends string = string>({ activeTab, onChange, tab, icon }: ITabLinkProps<T>): JSX.Element {
   return (
     <li>
-      <a class={`is-unselectable ${activeTab === tab ? 'is-active' : ''}`} onClick={() => onChange(tab)}>
+      <a class={`is-unselectable${activeTab === tab ? ' is-active' : ''}`} onClick={() => onChange(tab)}>
         {icon && <span class="icon"><Icon icon={icon} /></span>}
         <span class={style.sideNavText}>{tab}</span>
       </a>
+    </li>
+  );
+}
+
+export interface IMenuNavLinkProps<T extends string = string> {
+  to: string;
+  tab: T;
+  icon?: IconDefinition;
+  onClick?: () => void;
+}
+
+export function MenuNavLink<T extends string = string>({ tab, to, icon, onClick }: IMenuNavLinkProps<T>): JSX.Element {
+  return (
+    <li>
+      <NavLink onClick={onClick} className={({ isActive }) => `is-unselectable${isActive ? ' is-active' : ''}`} to={to}>
+        {icon && <span class="icon"><Icon icon={icon} /></span>}
+        <span class={style.sideNavText}>{tab}</span>
+      </NavLink>
     </li>
   );
 }
