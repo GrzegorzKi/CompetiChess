@@ -46,7 +46,7 @@ interface IProps {
 const TournamentForm: FunctionalComponent<IProps> = (
   { inputRef, defaultValues, visible }) => {
 
-  const onSubmit: SubmitHandler<IGeneralFormInputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<IGeneralFormInputs> = () => {/**/};
 
   return (
     <Form onSubmit={onSubmit}

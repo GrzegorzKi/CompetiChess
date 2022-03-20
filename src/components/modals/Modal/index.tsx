@@ -22,34 +22,47 @@ import ReactModal from 'react-modal';
 
 import style from '../style.scss';
 
-const Modal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) => {
-  const { children, className, overlayClassName, bodyOpenClassName, isOpen, ...aProps } = props;
-
-  let modalClassName: string | ReactModal.Classes;
+export function getModalClasses(className?: string | ReactModal.Classes): ReactModal.Classes {
   if (typeof className === 'string') {
-    modalClassName = {
+    return {
       base: `modal-card ${className} ${style.modal}`,
-      afterOpen: style.modalAfterOpen,
-      beforeClose: style.modalBeforeClose,
-    };
-  } else {
-    modalClassName = className ?? {
-      base: `modal-card ${style.modal}`,
       afterOpen: style.modalAfterOpen,
       beforeClose: style.modalBeforeClose,
     };
   }
 
+  return className ?? {
+    base: `modal-card ${style.modal}`,
+    afterOpen: style.modalAfterOpen,
+    beforeClose: style.modalBeforeClose,
+  };
+}
+
+export function getOverlayClasses(className?: string | ReactModal.Classes): ReactModal.Classes {
+  if (typeof className === 'string') {
+    return {
+      base: `${className} ${style.modalOverlay}`,
+      afterOpen: style.modalOverlayAfterOpen,
+      beforeClose: style.modalOverlayBeforeClose,
+    };
+  }
+
+  return className ?? {
+    base: style.modalOverlay,
+    afterOpen: style.modalOverlayAfterOpen,
+    beforeClose: style.modalOverlayBeforeClose,
+  };
+}
+
+const Modal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) => {
+  const { children, className, overlayClassName, bodyOpenClassName, isOpen, ...aProps } = props;
+
   return (
     <ReactModal
-      className={modalClassName}
-      overlayClassName={overlayClassName ?? {
-        base: style.modalOverlay,
-        afterOpen: style.modalOverlayAfterOpen,
-        beforeClose: style.modalOverlayBeforeClose,
-      }}
-      closeTimeoutMS={500}
+      className={getModalClasses(className)}
+      overlayClassName={getOverlayClasses(overlayClassName)}
       bodyOpenClassName={bodyOpenClassName ?? undefined}
+      closeTimeoutMS={500}
       isOpen={isOpen}
       {...aProps}
     >

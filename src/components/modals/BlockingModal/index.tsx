@@ -25,6 +25,8 @@ import { useBlocker } from 'hooks/useBlocker';
 
 import style from '../style.scss';
 
+import { getModalClasses, getOverlayClasses } from '@/modals/Modal';
+
 const BlockingModal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (props) => {
   const { children, className, overlayClassName, bodyOpenClassName, contentRef, isOpen, ...aProps } = props;
 
@@ -44,14 +46,15 @@ const BlockingModal: FunctionalComponent<ComponentProps<typeof ReactModal>> = (p
 
   return (
     <ReactModal
-      className={className ?? `modal-card ${style.modal}`}
-      overlayClassName={overlayClassName ?? style.modalOverlay}
+      className={getModalClasses(className)}
+      overlayClassName={getOverlayClasses(overlayClassName)}
       bodyOpenClassName={bodyOpenClassName ?? null}
+      closeTimeoutMS={500}
+      isOpen={isOpen}
       contentRef={(ref) => {
         modalRef.current = ref;
         contentRef && contentRef(ref);
       }}
-      isOpen={isOpen}
       {...aProps}
     >
       {children}
