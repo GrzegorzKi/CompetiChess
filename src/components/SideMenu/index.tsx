@@ -23,8 +23,14 @@ import { FunctionalComponent, h } from 'preact';
 
 import style from './style.scss';
 
-export const SectionWithSideMenu: FunctionalComponent = ({ children }) => {
-  return <div class={style.hasSideMenu}>
+interface ISectionWithSideMenuProps {
+  className?: string;
+}
+
+export const SectionWithSideMenu: FunctionalComponent<ISectionWithSideMenuProps> = ({ className, children }) => {
+  const _class = className ? ` ${className}` : '';
+
+  return <div class={`${style.hasSideMenu}${_class}`}>
     {children}
   </div>;
 };

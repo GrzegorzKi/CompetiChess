@@ -31,8 +31,9 @@ import {
   setResult,
 } from 'reducers/tournamentReducer';
 
-import { Pair, PlayersRecord } from '#/types/Tournament';
+import style from './style.scss';
 
+import { Pair, PlayersRecord } from '#/types/Tournament';
 import Modal from '@/modals/Modal';
 import PaginateRound from '@/PaginateRound';
 import PairContextMenu from '@/PairsView/PairContextMenu';
@@ -141,7 +142,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
       <PaginateRound pageCount={roundPairs.length}
                      page={round}
                      onPageChange={({ selected }) => dispatch(selectRound(selected))} />
-      <div class='table-container'>
+      <div class={`table-container ${style.table}`} >
         <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}
                          anchorPoint={anchorPoint} boundingBoxRef={scrollParent}
                          actions={{

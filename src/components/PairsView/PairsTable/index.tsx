@@ -24,6 +24,8 @@ import useContextMenuHandler from 'hooks/useContextMenuHandler';
 
 import { getPairNo } from '../PairsView';
 
+import style from './style.scss';
+
 import { Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 function prevRoundPoints(player: Player, round: number): number {
@@ -85,7 +87,7 @@ const PairsTable: FunctionalComponent<IProps> = (
 
   return (
     <table class='table is-striped is-hoverable is-fullwidth'>
-      <thead>
+      <thead class={style.fixedHead}>
         <tr>
           <th style="width: 3rem; text-align: right;">No.</th>
           <th style="width: 2.5rem;">Pts</th>

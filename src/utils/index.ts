@@ -34,8 +34,13 @@ export const routes = {
     path: '/tournaments/settings',
     title: 'Tournament settings'
   },
+  view: {
+    path: '/view',
+    title: ''
+  },
   pairs: {
     path: '/view/pairs',
+    pathRel: 'pairs',
     title: 'Pairs'
   },
   '': {

@@ -29,6 +29,7 @@ import Pairs from 'routes/pairs';
 import Tournaments from 'routes/tournaments';
 import CreateTournament from 'routes/tournaments-create';
 import TournamentsSettings from 'routes/tournaments-settings';
+import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
 
 import { AnimatedRoutes, slide } from '@/Animation';
@@ -123,7 +124,10 @@ const App: FunctionalComponent = () => {
         <Route path={routes.tournaments.path} element={<Tournaments />} />
         <Route path={routes.createTournament.path} element={<CreateTournament />} />
         <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
-        <Route path={routes.pairs.path} element={<Pairs />} />
+        <Route path={routes.view.path} element={<View />}>
+          <Route index element={<Pairs />} />
+          <Route path={routes.pairs.pathRel} element={<Pairs />} />
+        </Route>
         <Route path={routes[''].path} element={<Home />} />
         <Route path="*" element={<NotFound />} />
       </AnimatedRoutes>

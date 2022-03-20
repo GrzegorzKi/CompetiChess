@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,22 +17,32 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h } from 'preact';
+@use '/styles/variables' as *;
 
-import { useAppSelector } from 'hooks/index';
-import { selectPairs, selectPlayers } from 'reducers/tournamentReducer';
+.panel {
+  margin: 1rem auto 0;
+  max-width: 60rem;
 
-import PairsView from '@/PairsView';
+  & > section {
+    position: relative;
+  }
+}
 
-const Pairs: FunctionalComponent = () => {
-  const pairs = useAppSelector(selectPairs);
-  const players = useAppSelector(selectPlayers);
+.container {
+  max-height: calc(100vh - #{$navbar-height} - 7rem);
+  overflow-x: hidden;
+  display: flex;
+  flex-flow: column;
 
-  if (!pairs || !players) {
-    return null;
+  & :global(.table-container) {
+    overflow-y: auto;
   }
 
-  return <PairsView roundPairs={pairs} players={players.index} />;
-};
+  & > :not(:global(.table-container)) {
+    padding: 0.5rem 0.75rem;
+  }
+}
 
-export default Pairs;
+.bordered:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
