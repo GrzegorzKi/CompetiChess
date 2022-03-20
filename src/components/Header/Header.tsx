@@ -60,7 +60,7 @@ const Header: FunctionalComponent = () => {
     <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <NavigationLinks />
-        <Link className="navbar-item" to={routes[''].path}>
+        <Link className="navbar-item" to={tournament ? routes.pairs.path : routes[''].path}>
           <strong>CompetiChess</strong>
         </Link>
         <Burger isActive={active} onClick={() => setActive(!active)} />

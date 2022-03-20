@@ -17,6 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* Made by: bryc (https://stackoverflow.com/users/815680/bryc) */
 export const cyrb53 = (str: string, seed = 0): number => {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
   for (let i = 0, ch; i < str.length; i++) {
@@ -41,3 +42,14 @@ export const isInStandaloneOrFullscreenMode = (): boolean =>
     || window.matchMedia('(display-mode: fullscreen)').matches
     || ('standalone' in window.navigator)
     || document.referrer.includes('android-app://'));
+
+/**
+ * Compares two arrays if they have identical values, in order.
+ *
+ * This function only works for arrays with scalar values,
+ * or when using objects and comparing by reference.
+ */
+export const arrayEquals = <T extends unknown>(first: Array<T>, second: Array<T>): boolean => {
+  return first.length === second.length
+    && first.every((value, index) => value === second[index]);
+};
