@@ -26,7 +26,7 @@ import { selectIsModified } from 'reducers/flagsReducer';
 import { routes } from 'utils/index';
 import { blockIfModified } from 'utils/modalUtils';
 
-import { useModalContext } from '@/ModalProvider';
+import { useModalContext } from '../ModalProvider';
 
 const CreateTournamentButton: FunctionalComponent = () => {
   const navigate = useNavigate();

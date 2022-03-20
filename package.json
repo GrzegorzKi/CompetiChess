@@ -81,6 +81,7 @@
       "^@/(.*)$": "<rootDir>/src/components/$1",
       "^#/(.*)$": "<rootDir>/src/backend/$1",
       "^routes/(.*)$": "<rootDir>/src/routes/$1",
+      "^features/(.*)$": "<rootDir>/src/features/$1",
       "^hooks/(.*)$": "<rootDir>/src/hooks/$1",
       "^reducers/(.*)$": "<rootDir>/src/reducers/$1",
       "^utils/(.*)$": "<rootDir>/src/utils/$1",

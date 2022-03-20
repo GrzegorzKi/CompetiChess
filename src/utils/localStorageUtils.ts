@@ -17,10 +17,10 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { TournamentEntry } from 'features/SavedTournamentsPanel';
 import { TournamentState } from 'reducers/tournamentReducer';
 
 import Tournament from '#/types/Tournament';
-import { TournamentEntry } from '@/SavedTournamentsPanel';
 
 export const tournamentKeyPrefix = 'competichess:tournament-';
 export const tournamentsIndexKey = 'competichess:tournaments';

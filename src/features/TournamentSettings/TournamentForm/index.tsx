@@ -21,8 +21,8 @@ import { FunctionalComponent, h } from 'preact';
 import { MutableRef } from 'preact/hooks';
 import { SubmitHandler, UseFormReturn } from 'react-hook-form';
 
-import Field from '@/TournamentSettings/Field';
-import Form from '@/TournamentSettings/Form';
+import Field from '@/Field';
+import Form from '@/Form';
 
 export type IGeneralFormInputs = {
   createdDate: number,

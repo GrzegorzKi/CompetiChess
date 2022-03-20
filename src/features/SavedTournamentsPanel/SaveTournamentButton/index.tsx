@@ -24,7 +24,7 @@ import { useAppSelector } from 'hooks/index';
 import { clearIsModified } from 'reducers/flagsReducer';
 import { selectTournament } from 'reducers/tournamentReducer';
 
-import { readTournamentIndex, saveTournamentToLocalStorage } from 'utils/localStorageUtils';
+import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import { RootState, store } from '@/store';
 
@@ -40,25 +40,6 @@ export function saveTournament(): void {
       toast.warning('Nothing to save: There is no tournament active.');
     }
 
-  } catch (e) {
-    toast.error('Unable to save tournament');
-  }
-}
-
-export function saveTournamentUnlessNotPersisted(): void {
-  try {
-    const { tournament } = store.getState() as RootState;
-    const entries = readTournamentIndex() ?? [];
-
-    const id = tournament.tournament?.id;
-
-    for (const entry of entries) {
-      if (id === entry.id) {
-        saveTournamentToLocalStorage(tournament);
-        store.dispatch(clearIsModified());
-        break;
-      }
-    }
   } catch (e) {
     toast.error('Unable to save tournament');
   }

@@ -19,7 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 
-import TournamentSettings from '@/TournamentSettings';
+import TournamentSettings from 'features/TournamentSettings';
 
 const TournamentsSettings: FunctionalComponent = () => {
   return <TournamentSettings />;

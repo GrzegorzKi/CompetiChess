@@ -21,7 +21,10 @@ import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
-import { useAppDispatch, useAppSelector } from 'hooks';
+import PairContextMenu from 'features/PairsView/PairContextMenu';
+import PairResults from 'features/PairsView/PairResults';
+import PairsTable from 'features/PairsView/PairsTable';
+import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
 import {
   selectNextRound,
@@ -36,9 +39,6 @@ import style from './style.scss';
 import { Pair, PlayersRecord } from '#/types/Tournament';
 import Modal from '@/modals/Modal';
 import PaginateRound from '@/PaginateRound';
-import PairContextMenu from '@/PairsView/PairContextMenu';
-import PairResults from '@/PairsView/PairResults';
-import PairsTable from '@/PairsView/PairsTable';
 
 export function getPairNo(element?: HTMLElement | null): number | undefined {
   const index = element?.dataset['index'];

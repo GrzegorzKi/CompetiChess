@@ -26,8 +26,9 @@ import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 import { routes } from 'utils';
 
+import NavigationLinks from './NavigationLinks';
+
 import Burger from '@/Burger';
-import NavigationLinks from '@/NavigationLinks';
 
 const Header: FunctionalComponent = () => {
   const [active, setActive] = useState(false);

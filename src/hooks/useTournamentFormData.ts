@@ -17,12 +17,12 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { IGeneralFormInputs } from 'features/TournamentSettings/TournamentForm';
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectTournament } from 'reducers/tournamentReducer';
 
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
-import { IGeneralFormInputs } from '@/TournamentSettings/TournamentForm';
 
 export interface IFormData {
   general: IGeneralFormInputs;

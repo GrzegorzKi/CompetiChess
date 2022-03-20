@@ -27,8 +27,9 @@ import { loadNewFromJson } from 'reducers/tournamentReducer';
 import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
+import { useModalContext } from '../ModalProvider';
+
 import { importTournamentFromJson } from '#/JsonImport';
-import { useModalContext } from '@/ModalProvider';
 import { store } from '@/store';
 
 async function loadTournament(id: string, isModified: boolean, onModified?: () => Promise<boolean>) {

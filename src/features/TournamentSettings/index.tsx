@@ -25,18 +25,39 @@ import { toast } from 'react-toastify';
 
 import { useAppDispatch } from 'hooks/index';
 import useTournamentFormData from 'hooks/useTournamentFormData';
+import { clearIsModified } from 'reducers/flagsReducer';
 import { createTournament, updateTournament } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils/index';
+import { readTournamentIndex, saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import style from './style.scss';
+
 import TiebreakerForm from './TiebreakerForm';
 import TournamentForm from './TournamentForm';
 import TournamentFormSideMenu, { Tab } from './TournamentFormSideMenu';
 
-import { saveTournamentUnlessNotPersisted } from '@/SavedTournamentsPanel/SaveTournamentButton';
-import { waitForRehydration } from '@/store';
+import { RootState, store, waitForRehydration } from '@/store';
 
+
+function saveTournamentUnlessNotPersisted(): void {
+  try {
+    const { tournament } = store.getState() as RootState;
+    const entries = readTournamentIndex() ?? [];
+
+    const id = tournament.tournament?.id;
+
+    for (const entry of entries) {
+      if (id === entry.id) {
+        saveTournamentToLocalStorage(tournament);
+        store.dispatch(clearIsModified());
+        break;
+      }
+    }
+  } catch (e) {
+    toast.error('Unable to save tournament');
+  }
+}
 
 interface IProps {
   isCreate?: boolean;

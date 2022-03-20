@@ -27,13 +27,12 @@ import { useAppSelector } from 'hooks/index';
 import { selectTournament } from 'reducers/tournamentReducer';
 import { tournamentsIndexKey } from 'utils/localStorageUtils';
 
+import CreateTournamentButton from './CreateTournamentButton';
+import ImportTournamentButton from './ImportTournamentButton';
+import ImportTrfxTournamentButton from './ImportTrfxTournamentButton';
+import { ModalProvider } from './ModalProvider';
 import PanelBlock, { NoResultsPanelBlock, NoTournamentsBlock } from './PanelBlock';
 import style from './style.scss';
-
-import { ModalProvider } from '@/ModalProvider';
-import CreateTournamentButton from '@/SavedTournamentsPanel/CreateTournamentButton';
-import ImportTournamentButton from '@/SavedTournamentsPanel/ImportTournamentButton';
-import ImportTrfxTournamentButton from '@/SavedTournamentsPanel/ImportTrfxTournamentButton';
 
 export type TournamentEntry = {
   id: string,

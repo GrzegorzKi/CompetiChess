@@ -28,6 +28,8 @@ import { loadNew } from 'reducers/tournamentReducer';
 import { loadFile } from 'utils/fileUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
+import { useModalContext } from '../ModalProvider';
+
 import parseTrfFile, {
   isTournamentValid,
   ParsingErrors,
@@ -35,8 +37,6 @@ import parseTrfFile, {
 } from '#/TrfxParser/parseTrfFile';
 import { getMessageForWarnCode } from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
-
-import { useModalContext } from '@/ModalProvider';
 import { store } from '@/store';
 
 function createWarningMessage(successText: JSX.Element, result: ValidTrfData) {

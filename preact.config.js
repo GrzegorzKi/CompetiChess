@@ -75,6 +75,13 @@ function disableSourceMapsOnProd(config, env) {
   }
 }
 
+function includePathsForMiniCssExtractPlugin(config, paths = []) {
+  if (config.module && config.module.rules) {
+    config.module.rules[4].include.push(...paths);
+    config.module.rules[5].exclude.push(...paths);
+  }
+}
+
 export default (config, env, helpers) => {
   // Makes absolute imports possible
   config.resolve.modules.push(env.src);
@@ -83,6 +90,7 @@ export default (config, env, helpers) => {
     '@': path.resolve(__dirname, 'src/components'),
     '#': path.resolve(__dirname, 'src/backend'),
     routes: path.resolve(__dirname, 'src/routes'),
+    features: path.resolve(__dirname, 'src/features'),
     hooks: path.resolve(__dirname, 'src/hooks'),
     reducers: path.resolve(__dirname, 'src/reducers'),
     utils: path.resolve(__dirname, 'src/utils'),
@@ -105,5 +113,7 @@ export default (config, env, helpers) => {
     { from: 'public' },
     { from: 'backend/BbpPairings/bbpPairingsWasm.wasm' }
   ]);
+
+  includePathsForMiniCssExtractPlugin(config, [ path.resolve(__dirname, 'src/features') ]);
   includePurgeCss(config, env, helpers);
 };

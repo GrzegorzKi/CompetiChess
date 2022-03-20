@@ -25,7 +25,8 @@ import { toast } from 'react-toastify';
 import { close } from 'reducers/tournamentReducer';
 import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
-import { useModalContext } from '@/ModalProvider';
+import { useModalContext } from '../ModalProvider';
+
 import { store } from '@/store';
 
 async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknown>) {

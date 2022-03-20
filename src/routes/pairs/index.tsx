@@ -19,10 +19,10 @@
 
 import { FunctionalComponent, h } from 'preact';
 
+import PairsView from 'features/PairsView';
 import { useAppSelector } from 'hooks/index';
 import { selectPairs, selectPlayers } from 'reducers/tournamentReducer';
 
-import PairsView from '@/PairsView';
 
 const Pairs: FunctionalComponent = () => {
   const pairs = useAppSelector(selectPairs);

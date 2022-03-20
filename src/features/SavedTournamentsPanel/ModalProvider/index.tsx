@@ -22,8 +22,8 @@ import { useContext } from 'preact/hooks';
 
 import usePromiseModal from 'hooks/usePromiseModal';
 
-import DeleteModal from '@/modals/DeleteModal';
-import SaveConfirmationModal from '@/modals/SaveConfirmationModal';
+import DeleteModal from './DeleteModal';
+import SaveConfirmationModal from './SaveConfirmationModal';
 
 export interface IModalContext {
   onSaveGuard?: () => Promise<boolean>;

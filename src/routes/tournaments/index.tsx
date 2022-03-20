@@ -19,7 +19,7 @@
 
 import { h } from 'preact';
 
-import SavedTournamentsPanel from '@/SavedTournamentsPanel';
+import SavedTournamentsPanel from 'features/SavedTournamentsPanel';
 
 const Tournaments = (): JSX.Element => {
   return (

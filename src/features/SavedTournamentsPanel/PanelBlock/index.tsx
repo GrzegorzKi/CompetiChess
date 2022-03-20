@@ -22,13 +22,12 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 
 import { TournamentEntry } from '..';
+import DeleteTournamentButton from '../DeleteTournamentButton';
+import ExportTournamentButton from '../ExportTournamentButton';
+import LoadTournamentButton from '../LoadTournamentButton';
+import SaveTournamentButton from '../SaveTournamentButton';
 
 import style from './style.scss';
-
-import DeleteTournamentButton from '@/SavedTournamentsPanel/DeleteTournamentButton';
-import ExportTournamentButton from '@/SavedTournamentsPanel/ExportTournamentButton';
-import LoadTournamentButton from '@/SavedTournamentsPanel/LoadTournamentButton';
-import SaveTournamentButton from '@/SavedTournamentsPanel/SaveTournamentButton';
 
 interface PanelBlockProps extends TournamentEntry {
   isActive?: true,

@@ -19,8 +19,9 @@
 
 import { FunctionalComponent, h, Ref } from 'preact';
 
+import TiebreakerSelect from '../TiebreakerSelect';
+
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
-import TiebreakerSelect from '@/TournamentSettings/TiebreakerSelect';
 
 interface IProps {
   inputRef?: Ref<HTMLSelectElement | undefined>;

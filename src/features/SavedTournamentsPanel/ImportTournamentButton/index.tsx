@@ -28,9 +28,10 @@ import { loadNewFromJson } from 'reducers/tournamentReducer';
 import { loadFile } from 'utils/fileUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
+import { useModalContext } from '../ModalProvider';
+
 import { importTournamentFromJson } from '#/JsonImport';
 import FileSelector from '@/FileSelector';
-import { useModalContext } from '@/ModalProvider';
 import { store } from '@/store';
 
 function importTournament(fileList: FileList) {

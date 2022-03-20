@@ -11,6 +11,7 @@
       "@/*": ["components/*"],
       "#/*": ["backend/*"],
       "routes/*": ["routes/*"],
+      "features/*": ["features/*"],
       "hooks/*": ["hooks/*"],
       "reducers/*": ["reducers/*"],
       "utils/*": ["utils/*"]

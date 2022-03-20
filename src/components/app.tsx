@@ -24,6 +24,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
+import Header from 'features/Header';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
@@ -34,7 +35,7 @@ import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
 import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
 
-import Header from '@/Header';
+
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
 
