@@ -86,12 +86,10 @@ body {
 html, body {
   height: 100%;
   width: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  // Font family is provided by Bulma
 }
 
 #root {
-  //padding: $paddingH $paddingW 0;
   height: 100%;
   width: 100%;
 }

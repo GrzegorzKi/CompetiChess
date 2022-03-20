@@ -33,4 +33,3 @@ export const CSSFadeOnEntering = (node: HTMLElement, isAppearing: boolean) => {
   // Workaround for Preact, see https://github.com/preactjs/preact/issues/1790
   setTimeout(() => node.classList.add(isAppearing ? 'fade-appear-active' : 'fade-enter-active'), 0);
 };
-

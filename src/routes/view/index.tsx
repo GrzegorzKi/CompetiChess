@@ -20,10 +20,12 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { Outlet, useLocation, useNavigate } from 'react-router';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 import { routes } from 'utils';
+import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
 
 import style from './style.scss';
 
@@ -53,7 +55,13 @@ const View: FunctionalComponent = () => {
           <div class={style.commonControls}>
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
           </div>
-          <Outlet />
+          <TransitionGroup className={style.animatedContainer}>
+            <CSSTransition key={pathname} classNames={CSSFade} timeout={700} onEntering={CSSFadeOnEntering}>
+              <section>
+                <Outlet />
+              </section>
+            </CSSTransition>
+          </TransitionGroup>
         </SectionWithSideMenu>
         <MainViewSideMenu />
       </section>
