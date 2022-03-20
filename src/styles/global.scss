@@ -18,6 +18,7 @@
  */
 
 @use 'variables' as *;
+@use 'route-animations';
 
 @use 'bulma/bulma' as bulma with (
   $danger: hsl(348, 80%, 54%),
@@ -117,21 +118,6 @@ input[type=number]::-webkit-outer-spin-button {
 
 .trans-bg {
   transition: background-color 0.5s;
-}
-
-// Route animations classes
-.route-wrapper {
-  position: relative;
-  width: 100vw;
-  height: calc(100vh - #{$navbar-height});
-}
-
-.route-wrapper > * {
-  position: absolute;
-  padding: $innerPaddingH $innerPaddingW;
-  width: 100%;
-  height: 100%;
-  overflow-y: scroll;
 }
 
 @media (pointer: fine) {

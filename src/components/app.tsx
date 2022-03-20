@@ -20,8 +20,9 @@
 import { FunctionalComponent, h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import Modal from 'react-modal';
-import { Route, useLocation } from 'react-router';
+import { Route, Routes, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
@@ -31,8 +32,8 @@ import CreateTournament from 'routes/tournaments-create';
 import TournamentsSettings from 'routes/tournaments-settings';
 import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
+import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
 
-import { AnimatedRoutes, defaultTransitions } from '@/Animation';
 import Header from '@/Header';
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
@@ -89,36 +90,39 @@ const App: FunctionalComponent = () => {
     Modal.setAppElement('#root');
   }, []);
 
-  const { pathname } = useLocation();
+  const location = useLocation();
   useEffect(() => {
-    document.title = getTitle(pathname);
-  }, [pathname]);
+    document.title = getTitle(location.pathname);
+  }, [location.pathname]);
+
+  const route = locations[location.pathname];
+  const locationForAnimation = route && route.parent
+    ? route.parent
+    : location.pathname;
 
   return (
     <div id="root">
       <Header />
       <NoScriptMessage />
-      <AnimatedRoutes
-        {...defaultTransitions}
-        runOnMount
-        mapStyles={(styles) => ({
-          transform: `translateX(${styles.offset}%)`,
-          opacity: styles.opacity,
-        })}
-        className="route-wrapper"
-      >
-        <Route path={routes.tournaments.path} element={<Tournaments />} />
-        <Route path={routes.createTournament.path} element={<CreateTournament />} />
-        <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
-        <Route path={routes.view.path} element={<View />}>
-          <Route index element={<Pairs />}  />
-          <Route path={routes.pairs.path}  element={<Pairs />} />
-          <Route path={routes.players.path} element={<Pairs />} />
-          <Route path={routes.tournamentTable.path} element={<Pairs />} />
-        </Route>
-        <Route path={routes[''].path} element={<Home />} />
-        <Route path="*" element={<NotFound />} />
-      </AnimatedRoutes>
+      <TransitionGroup className="route-wrapper" appear>
+        <CSSTransition key={locationForAnimation} classNames={CSSFade} timeout={1000} onEntering={CSSFadeOnEntering}>
+          <main>
+            <Routes location={location}>
+              <Route path={routes.tournaments.path} element={<Tournaments />} />
+              <Route path={routes.createTournament.path} element={<CreateTournament />} />
+              <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
+              <Route path={routes.view.path} element={<View />}>
+                <Route index element={<Pairs />}  />
+                <Route path={routes.pairs.path}  element={<Pairs />} />
+                <Route path={routes.players.path} element={<Pairs />} />
+                <Route path={routes.tournamentTable.path} element={<Pairs />} />
+              </Route>
+              <Route path={routes[''].path} element={<Home />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </CSSTransition>
+      </TransitionGroup>
       <ToastHandler />
     </div>
   );
