@@ -20,20 +20,34 @@
 import { faChevronLeft, faChevronRight, faHouse } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 import { useNavigate } from 'react-router-dom';
 
 import { isInStandaloneMode } from 'utils/common';
 import { routes } from 'utils/index';
 
 const NavigationLinks: FunctionalComponent = () => {
+  const [visible, setVisible] = useState(isInStandaloneMode());
   const navigate = useNavigate();
 
-  if (!isInStandaloneMode()) {
+  useEffect(() => {
+    if (window) {
+      const listener = (ev: MediaQueryListEvent) => setVisible(ev.matches);
+      const mediaQuery = window.matchMedia('(display-mode: standalone)');
+
+      mediaQuery.addEventListener('change', listener);
+
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, []);
+
+  if (!visible) {
     return null;
   }
 
+
   return (
-    <>
+    <div style="display: flex;">
       <a role="navigation" aria-label="Go back" class="navbar-item"
        onClick={() => history.back()}>
         <Icon icon={faChevronLeft} />
@@ -50,7 +64,7 @@ const NavigationLinks: FunctionalComponent = () => {
       }}>
         <Icon icon={faHouse} />
       </a>
-    </>
+    </div>
   );
 };
 

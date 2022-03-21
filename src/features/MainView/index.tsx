@@ -18,11 +18,13 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 import { Outlet, useLocation } from 'react-router';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
+import { locations } from 'utils';
 import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
 
 import MainViewSideMenu from './MainViewSideMenu';
@@ -34,6 +36,14 @@ import { SectionWithSideMenu } from '@/SideMenu';
 const MainView: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
   const { pathname } = useLocation();
+  const [locationKey, setLocationKey] = useState(pathname);
+
+  useEffect(() => {
+    const route = locations[pathname];
+    setLocationKey(prev => route && route.parent
+      ? pathname
+      : prev);
+  }, [pathname]);
 
   if (!tournament) {
     return null;
@@ -50,7 +60,7 @@ const MainView: FunctionalComponent = () => {
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
           </div>
           <TransitionGroup className={style.animatedContainer}>
-            <CSSTransition key={pathname} classNames={CSSFade} timeout={700} onEntering={CSSFadeOnEntering}>
+            <CSSTransition key={locationKey} classNames={CSSFade} timeout={700} onEntering={CSSFadeOnEntering}>
               <section>
                 <Outlet />
               </section>

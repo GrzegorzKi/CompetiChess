@@ -21,7 +21,6 @@ import { FunctionalComponent, h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import Modal from 'react-modal';
 import { Route, Routes, useLocation } from 'react-router';
-import { toast } from 'react-toastify';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Header from 'features/Header';
@@ -33,46 +32,13 @@ import CreateTournament from 'routes/tournaments-create';
 import TournamentsSettings from 'routes/tournaments-settings';
 import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
+import { isInStandaloneMode } from 'utils/common';
+import { listenToSwUpdates } from 'utils/swUtils';
 import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
-
 
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
 
-
-function listenToSwUpdates() {
-  if ('serviceWorker' in navigator) {
-    let refreshing = false;
-
-    // This fires when the service worker controlling this page
-    // changes, eg a new worker has skipped waiting and become
-    // the new active worker.
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        window.location.reload();
-        refreshing = true;
-      }
-    });
-
-    navigator.serviceWorker.ready.then(registration => {
-      registration.addEventListener('updatefound', () => {
-        registration.installing?.addEventListener('statechange', () => {
-          const waitingWorker = registration.waiting;
-          if (waitingWorker !== null) {
-            toast.info(<p><strong>Application update is ready!</strong><br /> Ready to reload the app?</p>, {
-              autoClose: false,
-              closeOnClick: false,
-              draggable: false,
-              onClick: () => {
-                waitingWorker.postMessage('SKIP_WAITING');
-              },
-            });
-          }
-        });
-      });
-    });
-  }
-}
 
 // We have to change page title in the main component instead of
 // route components, since using animated route might not work well
@@ -80,9 +46,13 @@ function listenToSwUpdates() {
 // them back and forth)
 function getTitle(location: string): string {
   const routeTitle = locations[location];
-  return routeTitle
-    ? `${routeTitle.title} | ${constants.appName}`
-    : constants.appName;
+  if (routeTitle && routeTitle.title) {
+    if (isInStandaloneMode()) {
+      return routeTitle.title;
+    }
+    return `${routeTitle.title} | ${constants.appName}`;
+  }
+  return constants.appName;
 }
 
 const App: FunctionalComponent = () => {
