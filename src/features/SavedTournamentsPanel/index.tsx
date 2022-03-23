@@ -104,12 +104,12 @@ const SavedTournamentsPanel = (): JSX.Element => {
         </p>
         <div class="panel-block">
           <p class="control has-icons-left">
-            <span class="icon is-left">
-              <Icon icon={faSearch} />
-            </span>
             <input class="input is-primary" type="text"
                    value={query} onInput={(e) => setQuery(e.currentTarget.value)}
                    placeholder="Search" />
+            <span className="icon is-left">
+              <Icon icon={faSearch} />
+            </span>
           </p>
         </div>
         <span className={style.controlButtons}>

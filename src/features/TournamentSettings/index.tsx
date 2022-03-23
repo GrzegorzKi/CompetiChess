@@ -117,7 +117,7 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <section className={`buttons ${style.buttons}`}>
           <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"
-                 className="button is-primary ml-auto" />
+                 className="button is-success ml-auto" />
         </section>
       </section>
     </article>

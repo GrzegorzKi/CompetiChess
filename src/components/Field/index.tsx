@@ -25,6 +25,14 @@ import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 
 import style from './style.scss';
 
+const ErrorIcon = ({ errors }: { errors?: FieldError }) => {
+  return errors ? (
+    <span class={`icon ${style.isSmallTablet} is-right has-text-danger`}>
+      <Icon icon={faExclamationTriangle} />
+    </span>
+  ) : null;
+};
+
 export interface IFieldProps extends UseFormRegisterReturn {
   label: string;
   placeholder?: string;
@@ -43,9 +51,7 @@ const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, e
                placeholder={placeholder ?? label}
                aria-invalid={errors ? true : undefined}
         />
-        {errors && <span class="icon is-right has-text-danger">
-          <Icon icon={faExclamationTriangle} />
-        </span>}
+        <ErrorIcon errors={errors} />
       </div>
     </label>
     {errors && <p class="help is-danger">{errors?.message}</p>}

@@ -107,7 +107,7 @@ const PairResults: FunctionalComponent<IProps> = ({ pairNo, round, onClose, setP
         <SetScoreBox score={score} setScore={setScore} onConfirm={onConfirm} />
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-primary" onClick={() => onConfirm()}>OK</button>
+        <button class="button is-success" onClick={() => onConfirm()}>OK</button>
         <button class="button is-outlined" onClick={onClose}>Cancel</button>
         <button class="button is-outlined is-info ml-auto" disabled={pairNo <= 1}
                 onClick={prevPairFn}>Previous</button>

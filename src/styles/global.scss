@@ -21,7 +21,8 @@
 @use 'route-animations';
 
 @use 'bulma/bulma' as bulma with (
-  $danger: hsl(348, 80%, 54%),
+  $success: $success,
+  $danger: $danger,
 
   $navbar-background-color: $navbar-color,
   $navbar-item-color: hsl(0, 0%, 98%),
@@ -31,6 +32,9 @@
   $navbar-item-active-background-color: rgba(0, 0, 0, 40%),
   $navbar-box-shadow-size: 0 1px 1px 0,
   $navbar-box-shadow-color: hsl(0, 0%, 6%),
+
+  $menu-item-active-background-color: darken($primary, 15%),
+  $menu-item-hover-background-color: rgba(0, 0, 0, 8%),
 
   $primary: $primary,
   $navbar-height: $navbar-height,
@@ -51,6 +55,15 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+}
+
+.control.has-icons-left .icon,
+.control.has-icons-right .icon {
+  z-index: unset !important;
+}
+
+.modal-card {
+  max-height: calc(100vh - #{$navbar-height + 1rem + 1rem}) !important;
 }
 
 // Prevent color override on hovering
