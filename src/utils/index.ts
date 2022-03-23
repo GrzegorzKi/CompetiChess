@@ -22,9 +22,10 @@ const constants = {
 };
 
 type RouteType = {
-  path: string
-  title: string,
-  parent?: string
+  path: string;
+  pathRel: string;
+  title: string;
+  parent?: string;
 };
 
 export const _routes = {
@@ -46,16 +47,19 @@ export const _routes = {
   },
   pairs: {
     path: '/view/pairs',
+    pathRel: 'pairs',
     title: 'Pairs',
     parent: '/view'
   },
   players: {
     path: '/view/players',
+    pathRel: 'players',
     title: 'Players',
     parent: '/view'
   },
   tournamentTable: {
     path: '/view/tournamentTable',
+    pathRel: 'tournamentTable',
     title: 'Tournament table',
     parent: '/view'
   },

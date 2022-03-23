@@ -19,12 +19,14 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import { Outlet, useLocation } from 'react-router';
+import {  Route, Routes, useLocation } from 'react-router';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
-import { locations } from 'utils';
+import Pairs from 'routes/pairs';
+import Players from 'routes/players';
+import { locations, routes } from 'utils';
 import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions';
 
 import MainViewSideMenu from './MainViewSideMenu';
@@ -32,6 +34,7 @@ import style from './style.scss';
 
 import NextRoundButton from '@/NextRoundButton';
 import { SectionWithSideMenu } from '@/SideMenu';
+import SoftNavigate from '@/SoftNavigate';
 
 const MainView: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
@@ -63,7 +66,12 @@ const MainView: FunctionalComponent = () => {
             <CSSTransition key={locationKey} classNames={CSSFade} timeout={700}
                            onEntering={CSSFadeOnEntering} onEntered={CSSFadeOnEntered}>
               <section>
-                <Outlet />
+                <Routes location={locationKey}>
+                  <Route index element={<SoftNavigate from={routes.view.path} to={routes.pairs.path} replace />}  />
+                  <Route path={routes.pairs.pathRel} element={<Pairs />} />
+                  <Route path={routes.players.pathRel} element={<Players />} />
+                  <Route path={routes.tournamentTable.pathRel} element={<Pairs />} />
+                </Routes>
               </section>
             </CSSTransition>
           </TransitionGroup>
