@@ -30,7 +30,7 @@ export type IFormProps<T extends Record<string, unknown>> = {
   visible?: boolean;
 }
 
-function Form<T extends Record<string, unknown>>(
+function Form<T extends Record<string, any>>(
   { children, defaultValues, values, inputRef, onSubmit, visible }: IFormProps<T>): JSX.Element {
 
   const formMethods = useForm<T>({

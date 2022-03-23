@@ -33,24 +33,14 @@ import {
   selectViewOptions,
   setResult,
 } from 'reducers/tournamentReducer';
+import { getDataIndex } from 'utils/common';
+import { isModalOpen } from 'utils/modalUtils';
 
 import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
 import Modal from '@/modals/Modal';
 import PaginateRound from '@/PaginateRound';
-
-export function getPairNo(element?: HTMLElement | null): number | undefined {
-  const index = element?.dataset['index'];
-  if (index !== undefined) {
-    return +index;
-  }
-  return undefined;
-}
-
-function isModalOpen(className = 'ReactModal__Body--open') {
-  return document.querySelector(`body[class="${className}"]`);
-}
 
 interface IProps {
   roundPairs: Array<Pair[]>;
@@ -84,7 +74,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
       if (isModalOpen()) {
         return;
       }
-      const pairNo = getPairNo(ref.current);
+      const pairNo = getDataIndex(ref.current);
 
       switch (event.code) {
       case 'ArrowLeft':

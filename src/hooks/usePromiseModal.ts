@@ -19,18 +19,26 @@
 
 import { useCallback, useState } from 'preact/hooks';
 
-const noop: (value: boolean) => void = () => {/**/};
+const noop = () => {/**/};
+type PromiseType<T> = (value: T) => void;
+type TOrFalse<T> = T | false;
+
+interface PromiseInfoState<T> {
+  isOpen: boolean,
+  resolve: PromiseType<T | false>,
+  reject: PromiseType<false>,
+}
 
 export default function usePromiseModal(): [() => void, () => void, boolean, () => Promise<boolean>] {
   const [promiseInfo, setPromiseInfo] = useState({
     isOpen: false,
     resolve: noop,
     reject: noop
-  });
+  } as PromiseInfoState<boolean>);
 
   const openModal = useCallback(() => {
     if (promiseInfo.isOpen) {
-      return Promise.reject();
+      return Promise.reject(false);
     }
     return new Promise<boolean>((resolve, reject) => {
       setPromiseInfo({ isOpen: true, resolve, reject });
@@ -40,6 +48,39 @@ export default function usePromiseModal(): [() => void, () => void, boolean, () 
   const onConfirm = useCallback(() => {
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(true);
+      return { isOpen: false, resolve: noop, reject: noop };
+    });
+  }, []);
+
+  const onCancel = useCallback(() => {
+    setPromiseInfo(prevInfo => {
+      prevInfo.resolve(false);
+      return { isOpen: false, resolve: noop, reject: noop };
+    });
+  }, []);
+
+  return [onConfirm, onCancel, promiseInfo.isOpen, openModal];
+}
+
+export function usePromiseModalWithReturn<T>(): [(value: T) => void, () => void, boolean, () => Promise<TOrFalse<T>>] {
+  const [promiseInfo, setPromiseInfo] = useState({
+    isOpen: false,
+    resolve: noop,
+    reject: noop
+  } as PromiseInfoState<T>);
+
+  const openModal = useCallback(() => {
+    if (promiseInfo.isOpen) {
+      return Promise.reject(false);
+    }
+    return new Promise<TOrFalse<T>>((resolve, reject) => {
+      setPromiseInfo({ isOpen: true, resolve, reject });
+    });
+  }, [promiseInfo.isOpen]);
+
+  const onConfirm = useCallback((value: T) => {
+    setPromiseInfo(prevInfo => {
+      prevInfo.resolve(value);
       return { isOpen: false, resolve: noop, reject: noop };
     });
   }, []);

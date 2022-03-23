@@ -38,7 +38,7 @@ import Tournament, {
   Player,
   PlayersRecord,
 } from '#/types/Tournament';
-import { evenUpGamesHistory } from '#/utils/GamesUtils';
+import { evenUpGamesHistory, evenUpGamesHistoryPlayer } from '#/utils/GamesUtils';
 import { computeResult, ResultType } from '#/utils/ResultUtils';
 import {
   createDefaultConfiguration,
@@ -306,7 +306,71 @@ export const tournamentSlice = createSlice({
       playerArray.forEach(player => {
         recalculateTiebreakers(player, players.index, configuration, round);
       });
-    }
+    },
+    addOrUpdatePlayer: ({ players, pairs, configuration }, { payload }: PayloadAction<Player>) => {
+      if (!players || !pairs || !configuration) {
+        return;
+      }
+
+      const player = players.index[payload.id];
+
+      if (!player) {
+        const newPlayer = {
+          ...payload,
+          scores: [],
+          games: [],
+        } as Player;
+        players.index[payload.id] = newPlayer;
+        players.orderById.push(payload.id);
+        players.orderById.sort((a, b) => a - b);
+
+        players.orderByPosition.push(payload.id);
+
+        evenUpGamesHistoryPlayer(newPlayer, pairs.length);
+        recalculateScores(newPlayer, configuration);
+        recalculateTiebreakers(newPlayer, players.index, configuration);
+      } else {
+        Object.assign(players.index[payload.id], payload);
+      }
+    },
+    deletePlayer: ({ players, pairs }, { payload }: PayloadAction<{ index: number, reorderIds: boolean }>) => {
+      if (!players || !pairs) {
+        return;
+      }
+
+      delete players.index[payload.index];
+      players.orderById = players.orderById.filter(value => value !== payload.index);
+      players.orderByPosition = players.orderByPosition.filter(value => value !== payload.index);
+
+      if (payload.reorderIds) {
+        const keyValueMap = players.orderById.reduce(((keyValue, value, index) => {
+          const idx = index + 1;
+          if (idx !== players.index[value].id) {
+            players.index[value].id = idx;
+            keyValue[value] = idx;
+          }
+          return keyValue;
+        }), {} as Partial<Record<number, number>>);
+
+        // Re-map orderByPosition index
+        players.orderByPosition = players.orderByPosition.map(value => keyValueMap[value] ?? value);
+
+        // Re-map opponent IDs in players' games
+        Object.entries(players.index).forEach(([, player]) => {
+          player.games.forEach(game => {
+            if (game.opponent) {
+              game.opponent = keyValueMap[game.opponent] ?? game.opponent;
+            }
+          });
+        });
+
+        // Re-map IDs in pairs
+        pairs.forEach(pairRound => pairRound.forEach(pair => {
+          pair.white = keyValueMap[pair.white] ?? pair.white;
+          pair.black = keyValueMap[pair.black] ?? pair.black;
+        }));
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createNextRound.fulfilled, (state, { payload }) => {
@@ -357,7 +421,8 @@ export const tournamentSlice = createSlice({
 
 export const {
   loadNew, loadNewFromJson, createTournament, updateTournament, close,
-  selectNextRound, selectPrevRound, selectRound, setInitialColor, setResult
+  selectNextRound, selectPrevRound, selectRound, setInitialColor, setResult,
+  addOrUpdatePlayer, deletePlayer
 } = tournamentSlice.actions;
 
 export { createNextRound };

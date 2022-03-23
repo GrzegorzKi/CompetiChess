@@ -53,3 +53,11 @@ export const arrayEquals = <T extends unknown>(first: Array<T>, second: Array<T>
   return first.length === second.length
     && first.every((value, index) => value === second[index]);
 };
+
+export function getDataIndex(element?: HTMLElement | null): number | undefined {
+  const index = element?.dataset['index'];
+  if (index !== undefined) {
+    return +index;
+  }
+  return undefined;
+}

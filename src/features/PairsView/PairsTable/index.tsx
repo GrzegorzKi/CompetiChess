@@ -21,8 +21,7 @@ import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback } from 'preact/hooks';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
-
-import { getPairNo } from '../PairsView';
+import { getDataIndex } from 'utils/common';
 
 import style from './style.scss';
 
@@ -60,7 +59,7 @@ const PairsTable: FunctionalComponent<IProps> = (
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
       event.preventDefault();
-      const index = getPairNo(event.currentTarget);
+      const index = getDataIndex(event.currentTarget);
       if (index !== undefined) {
         onRowEnter(index);
       }
@@ -70,7 +69,7 @@ const PairsTable: FunctionalComponent<IProps> = (
   const handleKeyOnRow = useCallback((event: JSX.TargetedKeyboardEvent<HTMLElement>) => {
     if (['Enter', 'Space'].includes(event.code)) {
       event.preventDefault();
-      const index = getPairNo(event.currentTarget);
+      const index = getDataIndex(event.currentTarget);
       if (index !== undefined) {
         onRowEnter(index);
       }

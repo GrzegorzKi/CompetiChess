@@ -23,9 +23,9 @@ import ParseResult, { ErrorCode, isError } from '#/types/ParseResult';
 import { Sex, Player } from '#/types/Tournament';
 import { parseFloat, parseNumber, parsePlayerId, parseSex } from '#/utils/ParseUtils';
 
-export function createDefaultTrfPlayer(): Player {
+export function createDefaultTrfPlayer(id?: number): Player {
   return {
-    id: 0,
+    id: id ?? 0,
     name: '',
     sex: Sex.UNSPECIFIED,
     title: '',
@@ -69,22 +69,22 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
     games,
   } = match.groups;
 
-  const parsedPlayerId = parsePlayerId(startRank.trimLeft());
+  const parsedPlayerId = parsePlayerId(startRank.trimStart());
   if (isError(parsedPlayerId)) {
     return parsedPlayerId;
   }
 
-  const parsedRating = parseNumber(rating.trimLeft());
+  const parsedRating = parseNumber(rating.trimStart());
   if (isError(parsedRating)) {
     return parsedRating;
   }
 
-  const parsedFideNum = parseNumber(fideNum.trimLeft());
+  const parsedFideNum = parseNumber(fideNum.trimStart());
   if (isError(parsedFideNum)) {
     return parsedFideNum;
   }
 
-  const parsedPoints = parseFloat(points.trimLeft());
+  const parsedPoints = parseFloat(points.trimStart());
   if (isError(parsedPoints)) {
     return parsedPoints;
   }
@@ -101,7 +101,7 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
     title: title.trim(),
     rating: parsedRating,
     federation: fed.trim(),
-    fideNumber: fideNum.trimLeft(),
+    fideNumber: fideNum.trimStart(),
     birthDate: birthDate.trim(),
     rank: 0,
     games: parsedTrfGames,

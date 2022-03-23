@@ -27,3 +27,7 @@ export async function blockIfModified(isModified: boolean, onModified: () => Pro
   }
   return true;
 }
+
+export function isModalOpen(className = 'ReactModal__Body--open') {
+  return document.querySelector(`body.${className}`);
+}

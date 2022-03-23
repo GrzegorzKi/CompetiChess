@@ -152,11 +152,15 @@ export function assignByesAndLates(
   }
 }
 
+export function evenUpGamesHistoryPlayer(player: Player, upTo: number): void {
+  for (let num = player.games.length; num < upTo; ++num) {
+    player.games.push(defaultTrfGame(num));
+  }
+}
+
 export function evenUpGamesHistory(players: PlayersRecord, upTo: number): void {
   for (const [, player] of Object.entries(players)) {
-    for (let num = player.games.length; num < upTo; ++num) {
-      player.games.push(defaultTrfGame(num));
-    }
+    evenUpGamesHistoryPlayer(player, upTo);
   }
 }
 
