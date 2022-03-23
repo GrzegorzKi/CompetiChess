@@ -37,10 +37,15 @@
 @include mixins.mobile {
   .flex {
     flex-direction: column;
+    align-items: baseline;
 
     & > div:not(:last-child) {
       margin-right: 0;
       margin-bottom: 0.75rem;
+    }
+
+    & > * {
+      min-width: 100%;
     }
   }
 }

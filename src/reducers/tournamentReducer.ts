@@ -358,14 +358,18 @@ export const tournamentSlice = createSlice({
       if (payload.reorderIds) {
         const keyValueMap = players.orderById.reduce(((keyValue, value, index) => {
           const idx = index + 1;
-          if (idx !== players.index[value].id) {
-            players.index[value].id = idx;
+          const player = players.index[value];
+          if (idx !== player.id) {
+            player.id = idx;
+            delete players.index[value];
+            players.index[idx] = player;
             keyValue[value] = idx;
           }
           return keyValue;
         }), {} as Partial<Record<number, number>>);
 
-        // Re-map orderByPosition index
+        // Re-map indexes
+        players.orderById = players.orderById.map(value => keyValueMap[value] ?? value);
         players.orderByPosition = players.orderByPosition.map(value => keyValueMap[value] ?? value);
 
         // Re-map opponent IDs in players' games

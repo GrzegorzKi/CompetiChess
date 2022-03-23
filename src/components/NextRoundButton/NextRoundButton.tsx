@@ -56,7 +56,7 @@ const NextRoundButton = ({ children }: Props): JSX.Element | null => {
   }, [dispatch, openModal, pairs, players]);
 
   return <>
-    <button class="button is-success trans-bg is-block" onClick={_createNextRound}>
+    <button class="button is-success trans-bg" onClick={_createNextRound}>
       {children}
     </button>
     <InitialColorModal

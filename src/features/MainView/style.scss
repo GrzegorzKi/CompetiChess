@@ -20,7 +20,7 @@
 @use '/styles/variables' as *;
 
 .panel {
-  margin: 1rem auto 0;
+  margin: 0 auto;
   max-width: 60rem;
 
   & > section {
@@ -29,7 +29,7 @@
 }
 
 .container {
-  height: calc(100vh - #{$navbar-height} - 7rem);
+  height: calc(100vh - #{$navbar-height} - 5.5rem);
   overflow-x: hidden;
   display: flex;
   flex-flow: column;
@@ -40,8 +40,17 @@
 }
 
 .commonControls {
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding: 0.5rem 0.75rem;
+  overflow: auto hidden;
+
+  & > :global(.button):not(:last-child) {
+    margin-right: 0.5rem;
+  }
 }
 
 .animatedContainer {
