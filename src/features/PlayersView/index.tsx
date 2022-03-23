@@ -22,6 +22,7 @@ import { FunctionalComponent, h, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { toast } from 'react-toastify';
 
+import DeletePlayerModal, { DeletePlayerReturn } from 'features/PlayersView/DeletePlayerModal';
 import PlayersTable from 'features/PlayersView/PlayersTable';
 import { useAppDispatch } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
@@ -40,8 +41,6 @@ import style from './style.scss';
 
 import Modal from '@/modals/Modal';
 import { store } from '@/store';
-
-type DeletePlayerReturn = { reorderIds: boolean };
 
 export function findFreeId(playersById: number[]): number {
   let i = 1;
@@ -70,14 +69,12 @@ async function checkAndDeletePlayer(index: number, onDeleteGuard: () => Promise<
     }
   }
 
-  // const data = await onDeleteGuard();
-  // if (!data) {
-  //   return;
-  // }
+  const data = await onDeleteGuard();
+  if (!data) {
+    return;
+  }
 
-  const reorderIds = false;
-
-  dispatch(deletePlayerAction({ index, reorderIds }));
+  dispatch(deletePlayerAction({ index, reorderIds: data.reorderIds }));
 }
 
 interface IProps {
@@ -176,16 +173,16 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
           setIndex={setIdx}
           onClose={() => setPlayersModalOpen(false)} />
       </Modal>
-      {/*<Modal*/}
-      {/*  isOpen={isOpen}*/}
-      {/*  onRequestClose={onCancel}*/}
-      {/*  contentLabel="Edit player modal"*/}
-      {/*>*/}
-      {/*  <DeletePlayerConfirmation*/}
-      {/*    player={players.index[idx]}*/}
-      {/*    onCancel={onCancel}*/}
-      {/*    onConfirm={onConfirm} />*/}
-      {/*</Modal>*/}
+      <Modal
+        isOpen={isOpen}
+        onRequestClose={onCancel}
+        contentLabel="Delete player confirmation modal"
+      >
+        <DeletePlayerModal
+          player={players.index[idx]}
+          onCancel={onCancel}
+          onConfirm={onConfirm} />
+      </Modal>
     </div>
   );
 };

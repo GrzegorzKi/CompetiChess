@@ -32,6 +32,7 @@ import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions'
 import MainViewSideMenu from './MainViewSideMenu';
 import style from './style.scss';
 
+import DeleteRoundButton from '@/DeleteRoundButton';
 import NextRoundButton from '@/NextRoundButton';
 import { SectionWithSideMenu } from '@/SideMenu';
 import SoftNavigate from '@/SoftNavigate';
@@ -61,6 +62,7 @@ const MainView: FunctionalComponent = () => {
         <SectionWithSideMenu className={style.container}>
           <div class={style.commonControls}>
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
+            <DeleteRoundButton><strong>Delete round</strong></DeleteRoundButton>
           </div>
           <TransitionGroup className={style.animatedContainer}>
             <CSSTransition key={locationKey} classNames={CSSFade} timeout={700}
