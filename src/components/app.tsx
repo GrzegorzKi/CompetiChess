@@ -34,7 +34,7 @@ import View from 'routes/view';
 import constants, { locations, routes } from 'utils';
 import { isInStandaloneMode } from 'utils/common';
 import { listenToSwUpdates } from 'utils/swUtils';
-import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
+import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions';
 
 import NoScriptMessage from '@/NoScriptMessage';
 import ToastHandler from '@/ToastHandler';
@@ -76,7 +76,8 @@ const App: FunctionalComponent = () => {
       <Header />
       <NoScriptMessage />
       <TransitionGroup className="route-wrapper" appear>
-        <CSSTransition key={locationForAnimation} classNames={CSSFade} timeout={1000} onEntering={CSSFadeOnEntering}>
+        <CSSTransition key={locationForAnimation} classNames={CSSFade} timeout={1000}
+                       onEntering={CSSFadeOnEntering} onEntered={CSSFadeOnEntered}>
           <main>
             <Routes location={location}>
               <Route path={routes.tournaments.path} element={<Tournaments />} />

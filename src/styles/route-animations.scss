@@ -52,7 +52,6 @@
   &-exit {
     opacity: 1;
     transform: translate(0, 0);
-    z-index: -1;
 
     &.fade-exit-active {
       opacity: 0;

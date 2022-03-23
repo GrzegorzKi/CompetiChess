@@ -25,7 +25,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { useAppSelector } from 'hooks';
 import { selectTournament } from 'reducers/tournamentReducer';
 import { locations } from 'utils';
-import { CSSFade, CSSFadeOnEntering } from 'utils/transitions';
+import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions';
 
 import MainViewSideMenu from './MainViewSideMenu';
 import style from './style.scss';
@@ -60,7 +60,8 @@ const MainView: FunctionalComponent = () => {
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
           </div>
           <TransitionGroup className={style.animatedContainer}>
-            <CSSTransition key={locationKey} classNames={CSSFade} timeout={700} onEntering={CSSFadeOnEntering}>
+            <CSSTransition key={locationKey} classNames={CSSFade} timeout={700}
+                           onEntering={CSSFadeOnEntering} onEntered={CSSFadeOnEntered}>
               <section>
                 <Outlet />
               </section>

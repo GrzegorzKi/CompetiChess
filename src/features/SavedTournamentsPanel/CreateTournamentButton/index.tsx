@@ -41,14 +41,12 @@ const CreateTournamentButton: FunctionalComponent = () => {
   }, [isModified, navigate, onSaveGuard]);
 
   return (
-    <div class="field has-addons">
-      <p className="control">
-        <button className="button is-primary"
-                onClick={checkCurrentAndNavigate}>
-          Create tournament
-        </button>
-      </p>
-    </div>
+    <p className="control">
+      <button className="button is-primary"
+              onClick={checkCurrentAndNavigate}>
+        Create tournament
+      </button>
+    </p>
   );
 };
 
