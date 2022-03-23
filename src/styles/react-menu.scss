@@ -19,6 +19,7 @@
 
 @use '/styles/variables' as *;
 
+/*! purgecss start ignore */
 @import '@szhsin/react-menu/dist/core.css';
 
 @keyframes szh-menu-show {
@@ -85,3 +86,4 @@
     }
   }
 }
+/*! purgecss end ignore */

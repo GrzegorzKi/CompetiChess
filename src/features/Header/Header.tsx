@@ -50,8 +50,11 @@ const Header: FunctionalComponent = () => {
   useEffect(() => setActive(false), [pathname]);
 
   const tournamentInfo = tournament
-    ? <span class="navbar-item"><b>{tournament.tournamentName}</b></span>
-    : null;
+    ? (
+      <Link className="navbar-item" to={tournament ? routes.pairs.path : routes[''].path}>
+        <b>{tournament.tournamentName}</b>
+      </Link>
+    ) : null;
 
   const tournamentSettings = tournament
     ? <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournamentSettings.path}>Settings</NavLink>
