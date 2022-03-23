@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,34 +17,20 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use '/styles/variables' as *;
-@use 'bulma/sass/utilities/mixins';
-@use 'bulma/sass/utilities/controls';
+import { FunctionalComponent, h } from 'preact';
 
-@include mixins.tablet {
-  .isSmallTablet {
-    @include controls.control-small;
+import PlayersView from 'features/PlayersView';
+import { useAppSelector } from 'hooks/index';
+import { selectPlayers } from 'reducers/tournamentReducer';
+
+const Players: FunctionalComponent = () => {
+  const players = useAppSelector(selectPlayers);
+
+  if (!players) {
+    return null;
   }
-}
 
-.buttonCheckbox:checked + label {
-  background-color: $primary;
-  color: white;
-}
+  return <PlayersView players={players} />;
+};
 
-.buttonCheckbox:disabled + label {
-  background-color: hsl(0, 0%, 93%);
-  border-color: hsl(0, 0%, 86%);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-//.buttonCheckbox:checked:disabled + label {
-//  background-color: lighten($primary, 20%);
-//  box-shadow: none;
-//  cursor: not-allowed;
-//}
-
-.scrollable {
-  overflow-x: auto;
-}
+export default Players;

@@ -19,18 +19,22 @@
 
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { ComponentChildren, h } from 'preact';
+import { ComponentChildren, Fragment, h } from 'preact';
 import { forwardRef } from 'preact/compat';
 import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
 
 import style from './style.scss';
 
-const ErrorIcon = ({ errors }: { errors?: FieldError }) => {
+export const ErrorIcon = ({ errors }: { errors?: FieldError }): JSX.Element | null => {
   return errors ? (
     <span class={`icon ${style.isSmallTablet} is-right has-text-danger`}>
       <Icon icon={faExclamationTriangle} />
     </span>
   ) : null;
+};
+
+export const ErrorLabel = ({ errors }: { errors?: FieldError }): JSX.Element | null => {
+  return errors ? (<p class="help is-danger">{errors.message}</p>) : null;
 };
 
 export interface IFieldProps extends UseFormRegisterReturn {
@@ -39,10 +43,12 @@ export interface IFieldProps extends UseFormRegisterReturn {
   type?: React.HTMLInputTypeAttribute;
   errors?: FieldError;
   children?: ComponentChildren;
+  disabled?: boolean;
+  className?: string;
 }
 
-const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, errors, children, ...register }, ref) => {
-  return <div class="field">
+const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, className, errors, children, ...register }, ref) => {
+  return <div class={`field ${className ? className : ''}`}>
     <label>
       <span class={`label ${style.isSmallTablet}`}>{label}</span>
       <div class="control has-icons-right">
@@ -54,7 +60,60 @@ const Field = forwardRef<HTMLInputElement, IFieldProps>(({ label, placeholder, e
         <ErrorIcon errors={errors} />
       </div>
     </label>
-    {errors && <p class="help is-danger">{errors?.message}</p>}
+    <ErrorLabel errors={errors} />
+    {children}
+  </div>;
+});
+
+export interface ISelectProps extends UseFormRegisterReturn {
+  label: string;
+  errors?: FieldError;
+  children?: ComponentChildren;
+  disabled?: boolean;
+  className?: string;
+}
+
+export const Select = forwardRef<HTMLSelectElement, ISelectProps>(({ label, className, errors, children, ...register }, ref) => {
+  return <div class={`field ${className ? className : ''}`}>
+    <label>
+      <span class={`label ${style.isSmallTablet}`}>{label}</span>
+      <div class={`control has-icons-right select is-fullwidth ${style.isSmallTablet}`}>
+        <select {...register} ref={ref}
+                class={errors ? 'is-danger' : ''}
+                aria-invalid={errors ? true : undefined}>
+          {children}
+        </select>
+        <ErrorIcon errors={errors} />
+      </div>
+    </label>
+    <ErrorLabel errors={errors} />
+  </div>;
+});
+
+export interface ICheckboxesProps extends UseFormRegisterReturn {
+  label: string;
+  values: number[],
+  children?: ComponentChildren;
+  disabled?: boolean;
+}
+
+export const RoundCheckboxes = forwardRef<HTMLInputElement, ICheckboxesProps>(({ label, values, children, ...register }, ref) => {
+  return <div class={`field ${style.scrollable}`}>
+    <span class={`label ${style.isSmallTablet}`}>{label}</span>
+    {values.map((value) =>
+      <Fragment key={value}>
+        <input id={`notPlayed.${value}`}
+               {...register} ref={ref}
+               value={value}
+               // disabled={value <= lockedTo}
+               type="checkbox" className={`is-hidden ${style.buttonCheckbox}`}
+        />
+        <label htmlFor={`notPlayed.${value}`}
+               className={`button ${style.isSmallTablet}`}>
+          {value}
+        </label>
+      </Fragment>
+    )}
     {children}
   </div>;
 });

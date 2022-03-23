@@ -27,6 +27,7 @@ import Header from 'features/Header';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
 import Pairs from 'routes/pairs';
+import Players from 'routes/players';
 import Tournaments from 'routes/tournaments';
 import CreateTournament from 'routes/tournaments-create';
 import TournamentsSettings from 'routes/tournaments-settings';
@@ -37,6 +38,7 @@ import { listenToSwUpdates } from 'utils/swUtils';
 import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions';
 
 import NoScriptMessage from '@/NoScriptMessage';
+import SoftNavigate from '@/SoftNavigate';
 import ToastHandler from '@/ToastHandler';
 
 
@@ -84,9 +86,9 @@ const App: FunctionalComponent = () => {
               <Route path={routes.createTournament.path} element={<CreateTournament />} />
               <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
               <Route path={routes.view.path} element={<View />}>
-                <Route index element={<Pairs />}  />
-                <Route path={routes.pairs.path}  element={<Pairs />} />
-                <Route path={routes.players.path} element={<Pairs />} />
+                <Route index element={<SoftNavigate from={routes.view.path} to={routes.pairs.path} replace />}  />
+                <Route path={routes.pairs.path} element={<Pairs />} />
+                <Route path={routes.players.path} element={<Players />} />
                 <Route path={routes.tournamentTable.path} element={<Pairs />} />
               </Route>
               <Route path={routes[''].path} element={<Home />} />

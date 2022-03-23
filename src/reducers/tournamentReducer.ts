@@ -20,6 +20,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
+import { PlayerData } from 'features/PlayersView/PlayerDetails/PlayerForm';
 import { IFormData } from 'hooks/useTournamentFormData';
 import { cyrb53 } from 'utils/common';
 
@@ -51,6 +52,7 @@ import {
 
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
+
 
 const verifyNextRoundConditions = (
   playedRounds: number, { expectedRounds }: Configuration, players: PlayersRecord,
@@ -156,6 +158,12 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
     }
   }
 );
+
+function asPositiveOrUndefined(value?: number) {
+  return (!value || isNaN(value) || value <= 0)
+    ? undefined
+    : value;
+}
 
 export const tournamentSlice = createSlice({
   name: 'tournament',
@@ -307,10 +315,14 @@ export const tournamentSlice = createSlice({
         recalculateTiebreakers(player, players.index, configuration, round);
       });
     },
-    addOrUpdatePlayer: ({ players, pairs, configuration }, { payload }: PayloadAction<Player>) => {
+    addOrUpdatePlayer: ({ players, pairs, configuration }, { payload }: PayloadAction<PlayerData>) => {
       if (!players || !pairs || !configuration) {
         return;
       }
+
+      const notPlayed = payload.notPlayed.map(val => +val);
+      payload.withdrawn = asPositiveOrUndefined(payload.withdrawn);
+      payload.late = asPositiveOrUndefined(payload.late);
 
       const player = players.index[payload.id];
 
@@ -319,6 +331,7 @@ export const tournamentSlice = createSlice({
           ...payload,
           scores: [],
           games: [],
+          notPlayed,
         } as Player;
         players.index[payload.id] = newPlayer;
         players.orderById.push(payload.id);
@@ -330,7 +343,7 @@ export const tournamentSlice = createSlice({
         recalculateScores(newPlayer, configuration);
         recalculateTiebreakers(newPlayer, players.index, configuration);
       } else {
-        Object.assign(players.index[payload.id], payload);
+        Object.assign(players.index[payload.id], payload, { notPlayed });
       }
     },
     deletePlayer: ({ players, pairs }, { payload }: PayloadAction<{ index: number, reorderIds: boolean }>) => {
@@ -369,6 +382,25 @@ export const tournamentSlice = createSlice({
           pair.white = keyValueMap[pair.white] ?? pair.white;
           pair.black = keyValueMap[pair.black] ?? pair.black;
         }));
+      }
+    },
+    deleteRound: ({ pairs, players, configuration, view }) => {
+      if (!pairs || !players || !configuration) {
+        return;
+      }
+
+      const cutTo = pairs.length - 1;
+
+      pairs.splice(cutTo, 1);
+
+      Object.entries(players.index).forEach(([, player]) => {
+        player.games.splice(cutTo, 1);
+        player.scores.splice(cutTo, 1);
+      });
+      recalculatePlayerScores(players.index, configuration);
+
+      if (view.selectedRound >= pairs.length) {
+        view.selectedRound = pairs.length - 1;
       }
     },
   },
@@ -422,7 +454,7 @@ export const tournamentSlice = createSlice({
 export const {
   loadNew, loadNewFromJson, createTournament, updateTournament, close,
   selectNextRound, selectPrevRound, selectRound, setInitialColor, setResult,
-  addOrUpdatePlayer, deletePlayer
+  addOrUpdatePlayer, deletePlayer, deleteRound
 } = tournamentSlice.actions;
 
 export { createNextRound };

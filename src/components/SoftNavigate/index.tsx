@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,34 +17,25 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use '/styles/variables' as *;
-@use 'bulma/sass/utilities/mixins';
-@use 'bulma/sass/utilities/controls';
+import { FunctionalComponent, h } from 'preact';
+import { useLocation } from 'react-router';
+import { Navigate, NavigateProps } from 'react-router-dom';
 
-@include mixins.tablet {
-  .isSmallTablet {
-    @include controls.control-small;
+interface IProps extends NavigateProps {
+  from: string;
+}
+
+const SoftNavigate: FunctionalComponent<IProps> = ({ from, ...navigate }) => {
+  const { pathname } = useLocation();
+  const path = pathname[pathname.length - 1] === '/'
+    ? pathname.substring(0, pathname.length - 1)
+    : pathname;
+
+  if (path !== from) {
+    return null;
   }
-}
 
-.buttonCheckbox:checked + label {
-  background-color: $primary;
-  color: white;
-}
+  return <Navigate {...navigate} />;
+};
 
-.buttonCheckbox:disabled + label {
-  background-color: hsl(0, 0%, 93%);
-  border-color: hsl(0, 0%, 86%);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-//.buttonCheckbox:checked:disabled + label {
-//  background-color: lighten($primary, 20%);
-//  box-shadow: none;
-//  cursor: not-allowed;
-//}
-
-.scrollable {
-  overflow-x: auto;
-}
+export default SoftNavigate;

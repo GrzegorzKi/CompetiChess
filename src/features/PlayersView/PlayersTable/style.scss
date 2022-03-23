@@ -17,34 +17,20 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use '/styles/variables' as *;
-@use 'bulma/sass/utilities/mixins';
-@use 'bulma/sass/utilities/controls';
+.fixedHead {
+  position: sticky;
+  top: 0;
 
-@include mixins.tablet {
-  .isSmallTablet {
-    @include controls.control-small;
+  & td,
+  & th {
+    background-color: white;
+  }
+
+  & tr {
+    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.15), 0 1px rgba(0, 0, 0, 0.15);
   }
 }
 
-.buttonCheckbox:checked + label {
-  background-color: $primary;
-  color: white;
-}
-
-.buttonCheckbox:disabled + label {
-  background-color: hsl(0, 0%, 93%);
-  border-color: hsl(0, 0%, 86%);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-//.buttonCheckbox:checked:disabled + label {
-//  background-color: lighten($primary, 20%);
-//  box-shadow: none;
-//  cursor: not-allowed;
-//}
-
-.scrollable {
-  overflow-x: auto;
+.controls {
+  padding: 0.5rem 0.75rem;
 }
