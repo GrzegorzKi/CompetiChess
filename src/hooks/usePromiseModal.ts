@@ -38,7 +38,7 @@ export default function usePromiseModal(useLocationState?: string): [() => void,
   } as PromiseInfoState<boolean>);
 
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
 
   const openModal = useCallback(() => {
     if (promiseInfo.isOpen) {
@@ -53,20 +53,24 @@ export default function usePromiseModal(useLocationState?: string): [() => void,
   }, [navigate, pathname, promiseInfo.isOpen, useLocationState]);
 
   const onConfirm = useCallback(() => {
-    if (useLocationState !== undefined) navigate(-1);
+    if (useLocationState !== undefined && state && useLocationState in (state as any)) {
+      navigate(-1);
+    }
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(true);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, [navigate, useLocationState]);
+  }, [navigate, state, useLocationState]);
 
   const onCancel = useCallback(() => {
-    if (useLocationState !== undefined) navigate(-1);
+    if (useLocationState !== undefined && state && useLocationState in (state as any)) {
+      navigate(-1);
+    }
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(false);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, [navigate, useLocationState]);
+  }, [navigate, state, useLocationState]);
 
   return [onConfirm, onCancel, promiseInfo.isOpen, openModal];
 }

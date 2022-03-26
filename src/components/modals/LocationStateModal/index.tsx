@@ -18,24 +18,36 @@
  */
 
 import { ComponentProps, FunctionalComponent, h } from 'preact';
-import { useCallback } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import ReactModal from 'react-modal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { getModalClasses, getOverlayClasses } from '@/modals/Modal';
 
-const LocationStateModal: FunctionalComponent<Omit<ComponentProps<typeof ReactModal>, 'isOpen'> & { stateKey: string }> = (props) => {
-  const { stateKey, children, className, overlayClassName, bodyOpenClassName, onRequestClose, ...aProps } = props;
+const LocationStateModal: FunctionalComponent<Omit<ComponentProps<typeof ReactModal>, 'isOpen'> & { stateKey: string, isActive?: boolean }> = (props) => {
+  const { stateKey, isActive, children, className, overlayClassName, bodyOpenClassName, onRequestClose, ...aProps } = props;
 
+  const navigate = useNavigate();
   const { state } = useLocation();
 
-  let isOpen = false;
-  if (state && stateKey in (state as any)) {
-    isOpen = true;
-  }
-  const onClose = useCallback(() => {
-    onRequestClose?.(new MouseEvent('click') as any);
-  }, [onRequestClose]);
+  const isOpen = !!state && stateKey in (state as any);
+  const prevIsOpen = useRef(isOpen);
+
+  useEffect(() => {
+    if (prevIsOpen.current && !isOpen && (isActive === undefined || isActive === true)) {
+      onRequestClose?.(new MouseEvent('click') as any);
+    }
+    prevIsOpen.current = isOpen;
+  }, [isActive, isOpen, onRequestClose]);
+
+  useEffect(() => {
+    if (isActive === false && isOpen) {
+      navigate(-1);
+    }
+    // We don't want "isActive" to trigger.
+    // This check is designed to keep modal closed after page refresh.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, navigate]);
 
   return (
     <ReactModal
@@ -44,7 +56,7 @@ const LocationStateModal: FunctionalComponent<Omit<ComponentProps<typeof ReactMo
       bodyOpenClassName={bodyOpenClassName ?? undefined}
       closeTimeoutMS={500}
       isOpen={isOpen}
-      onRequestClose={onClose}
+      onRequestClose={onRequestClose}
       {...aProps}
     >
       {children}
