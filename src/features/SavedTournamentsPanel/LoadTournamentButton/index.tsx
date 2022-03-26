@@ -27,12 +27,10 @@ import { loadNewFromJson } from 'reducers/tournamentReducer';
 import { readTournamentJsonFromLocalStorage } from 'utils/localStorageUtils';
 import { blockIfModified } from 'utils/modalUtils';
 
-import { useModalContext } from '../ModalProvider';
-
 import { importTournamentFromJson } from '#/JsonImport';
 import { store } from '@/store';
 
-async function loadTournament(id: string, isModified: boolean, onModified?: () => Promise<boolean>) {
+export async function loadTournament(id: string, isModified: boolean, onModified?: () => Promise<boolean>): Promise<void> {
   if (onModified && !await blockIfModified(isModified, onModified)) return;
 
   try {
@@ -53,11 +51,11 @@ async function loadTournament(id: string, isModified: boolean, onModified?: () =
 
 interface Props {
   id: string;
+  onSaveGuard?: () => Promise<boolean>;
 }
 
-const LoadTournamentButton: FunctionalComponent<Props> = ({ id }) => {
+const LoadTournamentButton: FunctionalComponent<Props> = ({ id, onSaveGuard }) => {
   const isModified = useAppSelector(selectIsModified);
-  const { onSaveGuard } = useModalContext();
 
   return <>
     <button class="button" onClick={() => loadTournament(id, isModified, onSaveGuard)}>

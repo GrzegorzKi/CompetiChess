@@ -25,8 +25,6 @@ import { toast } from 'react-toastify';
 import { close } from 'reducers/tournamentReducer';
 import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
-import { useModalContext } from '../ModalProvider';
-
 import { store } from '@/store';
 
 async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknown>) {
@@ -43,11 +41,10 @@ async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknow
 
 interface Props {
   id: string;
+  onDeleteGuard?: () => Promise<boolean>;
 }
 
-const DeleteTournamentButton: FunctionalComponent<Props> = ({ id }) => {
-  const { onDeleteGuard } = useModalContext();
-
+const DeleteTournamentButton: FunctionalComponent<Props> = ({ id, onDeleteGuard }) => {
   return <>
     <button class="button is-outlined is-danger" onClick={() => deleteTournament(id, onDeleteGuard)}>
       <Icon icon={faTrash} />

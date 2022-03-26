@@ -19,26 +19,51 @@
 
 import { faBook } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { FunctionalComponent, h } from 'preact';
+import { FunctionalComponent, h, JSX } from 'preact';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
+
+import { useModalContext } from 'features/SavedTournamentsPanel/ModalProvider';
+import { routes } from 'utils/index';
 
 import { TournamentEntry } from '..';
 import DeleteTournamentButton from '../DeleteTournamentButton';
 import ExportTournamentButton from '../ExportTournamentButton';
-import LoadTournamentButton from '../LoadTournamentButton';
+import LoadTournamentButton, { loadTournament } from '../LoadTournamentButton';
+
 import SaveTournamentButton from '../SaveTournamentButton';
 
 import style from './style.scss';
+
+import { store } from '@/store';
 
 interface PanelBlockProps extends TournamentEntry {
   isActive?: true,
 }
 
+async function loadOrEnterTournament(event: JSX.TargetedMouseEvent<HTMLAnchorElement>, id: string,
+  navigate: NavigateFunction, isActive?: boolean, onSaveGuard?: () => Promise<boolean>) {
+  if (event.detail > 1 /* Double click */ && event.button === 0 /* Main button */) {
+    event.preventDefault();
+    const isModified = store.getState().flags.isModified;
+    if (!isActive) {
+      await loadTournament(id, isModified, onSaveGuard);
+    } else {
+      navigate(routes.pairs.path);
+    }
+  }
+}
+
 const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, updated, isActive }) => {
+  const { onSaveGuard, onDeleteGuard } = useModalContext();
+  const navigate = useNavigate();
+
   const createdDate = new Date(created).toLocaleString();
   const updatedDate = updated && new Date(updated).toLocaleString();
 
   return (
-    <a tabIndex={0} class={`panel-block trans-bg ${style.panelBlock}${isActive ? ' is-active' : ''}`}>
+    <a tabIndex={0} class={`panel-block trans-bg ${style.panelBlock}${isActive ? ' is-active' : ''}`}
+       onClick={(e) => loadOrEnterTournament(e, id, navigate, isActive, onSaveGuard)}
+    >
       <span class="panel-icon">
         <Icon icon={faBook} />
       </span>
@@ -50,9 +75,9 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
       <div class={style.panelButtons}>
         {isActive
           ? <SaveTournamentButton />
-          : <LoadTournamentButton id={id} />}
+          : <LoadTournamentButton id={id} onSaveGuard={onSaveGuard} />}
         <ExportTournamentButton id={id} />
-        <DeleteTournamentButton id={id} />
+        <DeleteTournamentButton id={id} onDeleteGuard={onDeleteGuard} />
       </div>
     </a>
   );
