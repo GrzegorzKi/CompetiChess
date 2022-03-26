@@ -21,13 +21,13 @@ import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useReactToPrint } from 'react-to-print';
 
 import PairContextMenu from 'features/PairsView/PairContextMenu';
 import PairResultsModal from 'features/PairsView/PairResults';
 import PairsTable from 'features/PairsView/PairsTable';
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
+import usePrint from 'hooks/usePrint';
 import {
   selectNextRound,
   selectPrevRound,
@@ -65,11 +65,9 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
   const componentRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    pageStyle: '.print-only { display: unset !important; }',
+  const handlePrint = usePrint({
     documentTitle: `Pairs for round ${round + 1}`,
-    removeAfterPrint: true,
+    componentRef,
   });
 
   const pairs: Pair[] = roundPairs[round];
