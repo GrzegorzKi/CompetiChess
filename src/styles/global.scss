@@ -80,6 +80,10 @@ label.panel-block {
   }
 }
 
+.panel-heading {
+  overflow-x: hidden;
+}
+
 // Replacement for .is-static if we also want colors on a button
 .button.non-interactive {
   pointer-events: none;

@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2021-2022  Grzegorz Kita
+/*!
+ * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -16,29 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
+@use '/styles/variables' as *;
 
-$primary: #429cee;
-$secondary: #844FCB;
+.name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-$success: #8ebf42;
-$danger: hsl(348, 80%, 54%);
-$hover: #00ab97;
-
-$navbar-color: #673AB7;
-$navbar-height: 3.25rem;
-
-$radius-large: 6px;
-$modal-card-foot-radius: $radius-large;
-$modal-card-head-radius: $radius-large;
-
-$mobile: 768px;
-$tablet: $mobile + 1px;
-$desktop: 1024px;
-$modal-breakpoint: $tablet;
-
-$innerPaddingH: 1rem;
-$innerPaddingW: 1rem;
-$scrollbarSize: 8px;
-
-$sideNavWidth: 188px;
-$sideNavWidthCollapsed: 64px;
+@media screen and (min-width: $desktop) {
+  .name {
+    max-width: 512px;
+  }
+}

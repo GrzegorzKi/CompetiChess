@@ -27,6 +27,7 @@ import { selectTournament } from 'reducers/tournamentReducer';
 import { routes } from 'utils';
 
 import NavigationLinks from './NavigationLinks';
+import style from './style.scss';
 
 import Burger from '@/Burger';
 
@@ -51,7 +52,7 @@ const Header: FunctionalComponent = () => {
 
   const tournamentInfo = tournament
     ? (
-      <Link className="navbar-item" to={tournament ? routes.pairs.path : routes[''].path}>
+      <Link className={`navbar-item ${style.name}`} to={tournament ? routes.pairs.path : routes[''].path}>
         <b>{tournament.tournamentName}</b>
       </Link>
     ) : null;

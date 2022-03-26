@@ -56,6 +56,13 @@
   }
 }
 
+.name {
+  margin-right: 0.25em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .subText {
   font-size: 0.75em;
   color: dimgrey;

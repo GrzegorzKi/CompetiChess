@@ -42,7 +42,7 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
       <span class="panel-icon">
         <Icon icon={faBook} />
       </span>
-      <span style="margin-right: 0.25em">{name}</span>
+      <span class={style.name}>{name}</span>
       <span class={style.subText}>({id})</span>
       <span style="width: 100%" />
       <span class={style.subText} style="margin-right: 0.75em">Created:{' '}<strong>{createdDate}</strong></span>
