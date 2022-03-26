@@ -20,19 +20,41 @@
 .panel {
   margin: 0 auto;
   min-height: 600px;
-  min-width: 512px;
   max-width: 50rem;
 
   position: relative;
+
+  overflow-x: hidden;
+
+  &:before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 4rem;
+    left: 50%;
+    margin-left: -256px;
+
+    z-index: -1;
+
+    width: 512px;
+    height: 512px;
+    opacity: 0.2;
+    background-image: url('assets/icons/android-chrome-512x512.png');
+    background-repeat: no-repeat;
+  }
 }
 
 .bg {
   position: absolute;
+
   z-index: -1;
   top: 4rem;
   left: 50%;
   margin-left: -256px;
-  height: auto;
+
+  width: 512px;
+  height: 512px;
+
   opacity: 0.2;
 }
 

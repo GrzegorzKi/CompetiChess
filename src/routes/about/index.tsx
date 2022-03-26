@@ -28,7 +28,6 @@ const About: FunctionalComponent = () => {
         CompetiChess
       </p>
       <section class={`panel-block content ${style.centered}`}>
-        <img class={style.bg} src="assets/icons/android-chrome-512x512.png" title="Application logo" alt="Application logo" />
         <p><b>CompetiChess</b> - simple chess tournament manager, written with Preact, TypeScript and a bit of C++.</p>
         <p>
           It is a response for the already existing tournament managers. Some of them lack readability, many aren't
