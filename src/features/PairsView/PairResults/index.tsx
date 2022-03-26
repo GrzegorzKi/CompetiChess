@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import {
@@ -35,6 +36,7 @@ import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
 import { blankResult, ComputedResults } from '#/utils/ResultUtils';
+import Modal from '@/modals/Modal';
 
 function getResult(pair: Pair, players: PlayersRecord, round: number) {
   const white = players[pair.white];
@@ -118,4 +120,35 @@ const PairResults: FunctionalComponent<IProps> = ({ pairNo, round, onClose, setP
   );
 };
 
-export default PairResults;
+interface IModalProps {
+  pairNo: number;
+  round: number;
+  setPairNo: (pairNo: number) => void;
+}
+
+const PairResultsModal: FunctionalComponent<IModalProps> = ({ pairNo, round, setPairNo }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as any;
+
+  let isOpen = false;
+  if (state && 'selectedPair' in state) {
+    isOpen = true;
+  }
+  const onClose = () => navigate(-1);
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Edit result modal"
+    >
+      <PairResults pairNo={pairNo} round={round}
+                   onClose={onClose}
+                   setPairNo={setPairNo}
+      />
+    </Modal>
+  );
+};
+
+export default PairResultsModal;

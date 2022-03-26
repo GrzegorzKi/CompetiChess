@@ -20,16 +20,16 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import PairContextMenu from 'features/PairsView/PairContextMenu';
-import PairResults from 'features/PairsView/PairResults';
+import PairResultsModal from 'features/PairsView/PairResults';
 import PairsTable from 'features/PairsView/PairsTable';
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
 import {
   selectNextRound,
-  selectPrevRound,
-  selectRound,
+  selectPrevRound, selectRound,
   selectViewOptions,
   setResult,
 } from 'reducers/tournamentReducer';
@@ -39,7 +39,6 @@ import { isModalOpen } from 'utils/modalUtils';
 import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
-import Modal from '@/modals/Modal';
 import PaginateRound from '@/PaginateRound';
 
 interface IProps {
@@ -50,18 +49,28 @@ interface IProps {
 const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [idx, setIdx] = useState(0);
   const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({});
+  const [idx, setIdx] = useState(() => {
+    const state = location.state as any;
+    if (state && 'selectedPair' in state && typeof state.selectedPair === 'number') {
+      return state.selectedPair;
+    }
+    return 1;
+  });
 
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
-  const [resultsModalOpen, setResultsModalOpen] = useState(false);
-
   const pairs: Pair[] = roundPairs[round];
 
   useEffect(() => {
+    if (isModalOpen()) {
+      return;
+    }
+
     setIdx(1);
     if (ref.current === document.activeElement) {
       focusOnFirst();
@@ -120,7 +129,9 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
 
   const selectRow = (pairNo: number) => setIdx(pairNo);
-  const enterRow = () => setResultsModalOpen(true);
+  const enterRow = () => {
+    navigate(location.pathname, { state: { selectedPair: idx } });
+  };
 
   const handleContextMenu = (e: JSX.TargetedMouseEvent<HTMLElement>) => {
     setAnchorPoint({ x: e.clientX, y: e.clientY });
@@ -149,16 +160,9 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                     selectedRef={setRef} onContextMenu={handleContextMenu}
                     onRowSelect={selectRow} onRowEnter={enterRow}
         />
-        <Modal
-          isOpen={resultsModalOpen}
-          onRequestClose={() => setResultsModalOpen(false)}
-          contentLabel="Edit result modal"
-        >
-          <PairResults pairNo={idx} round={round}
-                       onClose={() => setResultsModalOpen(false)}
-                       setPairNo={setIdx}
-          />
-        </Modal>
+        <PairResultsModal pairNo={idx} round={round}
+                          setPairNo={setIdx}
+        />
       </div>
     </>
   );
