@@ -20,6 +20,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { FunctionalComponent, h, JSX } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import DeletePlayerModal, { DeletePlayerReturn } from 'features/PlayersView/DeletePlayerModal';
@@ -35,11 +36,11 @@ import {
 } from 'reducers/tournamentReducer';
 import { isModalOpen } from 'utils/modalUtils';
 
-import PlayerDetails from './PlayerDetails';
+import PlayerDetailsModal from './PlayerDetails';
 import PlayersContextMenu from './PlayersContextMenu';
 import style from './style.scss';
 
-import Modal from '@/modals/Modal';
+import LocationStateModal from '@/modals/LocationStateModal';
 import { store } from '@/store';
 
 export function findFreeId(playersById: number[]): number {
@@ -83,20 +84,30 @@ interface IProps {
 
 const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [idx, setIdx] = useState(0);
+  const [idx, setIdx] = useState(() => {
+    const state = location.state as any;
+    if (state && 'selectedPlayer' in state && typeof state.selectedPlayer === 'number') {
+      return state.selectedPlayer as number;
+    }
+    return 1;
+  });
+
   const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({});
 
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
-  const [playersModalOpen, setPlayersModalOpen] = useState(false);
-  const [onConfirm, onCancel, isOpen, openDeleteModal] = usePromiseModalWithReturn<DeletePlayerReturn>();
+  const [onConfirm, onCancel, isOpen, openDeleteModal] = usePromiseModalWithReturn<DeletePlayerReturn>('deleteModal');
 
   useEffect(() => {
-    setIdx(1);
-    if (ref.current === document.activeElement) {
-      focusOnFirst();
+    if (!isModalOpen()) {
+      setIdx(1);
+      if (ref.current === document.activeElement) {
+        focusOnFirst();
+      }
     }
   }, [ref, focusOnFirst]);
 
@@ -136,11 +147,11 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
   }
 
   const selectRow = (playerId: number) => setIdx(playerId);
-  const editPlayer = () => setPlayersModalOpen(true);
+  const editPlayer = () => navigate(location.pathname, { state: { selectedPlayer: idx } });
   const addPlayer = () => {
     // For adding players, let's find the nearest free id
     setIdx(findFreeId(players.orderById));
-    setPlayersModalOpen(true);
+    editPlayer();
   };
   const deletePlayer = () => checkAndDeletePlayer(idx, openDeleteModal);
 
@@ -163,26 +174,22 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
                   selectedRef={setRef} onContextMenu={handleContextMenu}
                   onRowSelect={selectRow} onRowEnter={editPlayer}
       />
-      <Modal
-        isOpen={playersModalOpen}
-        onRequestClose={() => setPlayersModalOpen(false)}
-        contentLabel="Edit player modal"
-      >
-        <PlayerDetails
-          playerId={idx}
-          setIndex={setIdx}
-          onClose={() => setPlayersModalOpen(false)} />
-      </Modal>
-      <Modal
-        isOpen={isOpen}
+      <PlayerDetailsModal
+        playerId={idx}
+        setIndex={setIdx}
+      />
+      <LocationStateModal
+        stateKey="deleteModal"
+        isActive={isOpen}
         onRequestClose={onCancel}
         contentLabel="Delete player confirmation modal"
       >
         <DeletePlayerModal
           player={players.index[idx]}
           onCancel={onCancel}
-          onConfirm={onConfirm} />
-      </Modal>
+          onConfirm={onConfirm}
+        />
+      </LocationStateModal>
     </div>
   );
 };

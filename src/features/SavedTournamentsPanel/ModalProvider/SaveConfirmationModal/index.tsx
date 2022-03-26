@@ -24,16 +24,17 @@ import { useAppDispatch } from 'hooks/index';
 import { clearIsModified } from 'reducers/flagsReducer';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
-import Modal from '@/modals/Modal';
+import LocationStateModal from '@/modals/LocationStateModal';
 import { RootState, store } from '@/store';
 
-interface Props {
-  isOpen: boolean,
-  onCancel: () => void,
-  onConfirm: () => void,
+interface IProps {
+  stateKey: string;
+  isActive: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
 }
 
-const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, onConfirm }) => {
+const SaveConfirmationModal: FunctionalComponent<IProps> = ({ stateKey, isActive, onCancel, onConfirm }) => {
   const dispatch = useAppDispatch();
   const saveAndConfirm = useCallback(() => {
     const storeState = store.getState() as RootState;
@@ -44,8 +45,9 @@ const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, o
   }, [dispatch, onConfirm]);
 
   return (
-    <Modal
-      isOpen={isOpen}
+    <LocationStateModal
+      stateKey={stateKey}
+      isActive={isActive}
       onRequestClose={onCancel}
       contentLabel="Save tournament confirmation modal"
     >
@@ -61,7 +63,7 @@ const SaveConfirmationModal: FunctionalComponent<Props> = ({ isOpen, onCancel, o
         <button class="button is-outlined is-danger" onClick={onConfirm}>Don't save</button>
         <button class="button is-outlined ml-auto" onClick={onCancel}>Cancel</button>
       </footer>
-    </Modal>
+    </LocationStateModal>
   );
 };
 

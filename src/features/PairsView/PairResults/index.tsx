@@ -128,14 +128,11 @@ interface IModalProps {
 
 const PairResultsModal: FunctionalComponent<IModalProps> = ({ pairNo, round, setPairNo }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const state = location.state as any;
+  const { state } = useLocation();
 
-  let isOpen = false;
-  if (state && 'selectedPair' in state) {
-    isOpen = true;
-  }
-  const onClose = () => navigate(-1);
+  const isOpen = !!state && 'selectedPair' in (state as any);
+
+  const onClose = () => isOpen && navigate(-1);
 
   return (
     <Modal

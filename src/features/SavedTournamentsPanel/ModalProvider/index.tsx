@@ -35,8 +35,8 @@ export const ModalContext = createContext<IModalContext>({});
 export const useModalContext = () => useContext(ModalContext);
 
 export const ModalProvider: FunctionalComponent = ({ children }) => {
-  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
-  const [onConfirmDelete, onCancelDelete, isOpenDelete, openModalDelete] = usePromiseModal();
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal('saveModal');
+  const [onConfirmDelete, onCancelDelete, isOpenDelete, openModalDelete] = usePromiseModal('deleteModal');
 
   return (
     <>
@@ -44,12 +44,14 @@ export const ModalProvider: FunctionalComponent = ({ children }) => {
         {children}
       </ModalContext.Provider>
       <SaveConfirmationModal
-        isOpen={isOpen}
+        stateKey="saveModal"
+        isActive={isOpen}
         onConfirm={onConfirm}
         onCancel={onCancel}
       />
       <DeleteModal
-        isOpen={isOpenDelete}
+        stateKey="deleteModal"
+        isActive={isOpenDelete}
         onConfirm={onConfirmDelete}
         onCancel={onCancelDelete}
       />

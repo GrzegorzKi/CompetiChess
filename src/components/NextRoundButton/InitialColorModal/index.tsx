@@ -26,7 +26,7 @@ import { setInitialColor } from 'reducers/tournamentReducer';
 import style from './style.scss';
 
 import { Color } from '#/types/Tournament';
-import Modal from '@/modals/Modal';
+import LocationStateModal from '@/modals/LocationStateModal';
 
 
 interface IContentProps {
@@ -95,15 +95,17 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
 };
 
 interface IProps {
-  isOpen: boolean,
-  onCancel: () => void,
-  onConfirm: () => void,
+  stateKey: string;
+  isActive: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
 }
 
-const InitialColorModal: FunctionalComponent<IProps> = ({ isOpen, onCancel, onConfirm }) => {
+const InitialColorModal: FunctionalComponent<IProps> = ({ stateKey, isActive, onCancel, onConfirm }) => {
   return (
-    <Modal
-      isOpen={isOpen}
+    <LocationStateModal
+      stateKey={stateKey}
+      isActive={isActive}
       onRequestClose={onCancel}
       contentLabel="Select color for the first player"
       style={{
@@ -114,7 +116,7 @@ const InitialColorModal: FunctionalComponent<IProps> = ({ isOpen, onCancel, onCo
       }}
     >
       <InitialColorModalContent onCancel={onCancel} onConfirm={onConfirm} />
-    </Modal>
+    </LocationStateModal>
   );
 };
 

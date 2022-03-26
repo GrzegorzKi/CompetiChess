@@ -21,6 +21,7 @@ import clone from 'just-clone';
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useMemo, useRef } from 'preact/hooks';
 import { UseFormReturn } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { findFreeId } from 'features/PlayersView';
 import { useAppDispatch, useAppSelector } from 'hooks/index';
@@ -33,6 +34,7 @@ import {
 import PlayerForm, { PlayerData } from './PlayerForm';
 
 import { createDefaultTrfPlayer } from '#/TrfxParser/parseTrfPlayer';
+import Modal from '@/modals/Modal';
 
 
 function getPlayerOrCreateNew(players: PlayersState | undefined, playerId: number): PlayerData {
@@ -131,4 +133,30 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
   );
 };
 
-export default PlayerDetails;
+interface IModalProps {
+  playerId: number;
+  setIndex: (index: number) => void;
+}
+
+const PlayerDetailsModal: FunctionalComponent<IModalProps> = ({ playerId, setIndex }) => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const isOpen = !!state && 'selectedPlayer' in (state as any);
+
+  const onClose = () => isOpen && navigate(-1);
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      contentLabel="Edit player modal"
+    >
+      <PlayerDetails
+        playerId={playerId}
+        setIndex={setIndex}
+        onClose={onClose} />
+    </Modal>
+  );
+};
+
+export default PlayerDetailsModal;

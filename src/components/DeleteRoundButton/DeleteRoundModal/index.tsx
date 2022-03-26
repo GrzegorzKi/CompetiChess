@@ -19,18 +19,19 @@
 
 import { FunctionalComponent, h } from 'preact';
 
-import Modal from '@/modals/Modal';
+import LocationStateModal from '@/modals/LocationStateModal';
 
 interface IProps {
-  isOpen: boolean,
-  onCancel: () => void,
-  onConfirm: () => void,
+  isActive: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
 }
 
-const DeleteRoundModal: FunctionalComponent<IProps> = ({ isOpen, onCancel, onConfirm }) => {
+const DeleteRoundModal: FunctionalComponent<IProps> = ({ isActive, onCancel, onConfirm }) => {
   return (
-    <Modal
-      isOpen={isOpen}
+    <LocationStateModal
+      stateKey="deleteRound"
+      isActive={isActive}
       onRequestClose={onCancel}
       contentLabel="Delete round confirmation modal"
     >
@@ -45,7 +46,7 @@ const DeleteRoundModal: FunctionalComponent<IProps> = ({ isOpen, onCancel, onCon
         <button class="button is-danger" onClick={onConfirm}>Yes</button>
         <button class="button is-outlined" onClick={onCancel}>No</button>
       </footer>
-    </Modal>
+    </LocationStateModal>
   );
 };
 

@@ -19,18 +19,20 @@
 
 import { FunctionalComponent, h } from 'preact';
 
-import Modal from '@/modals/Modal';
+import LocationStateModal from '@/modals/LocationStateModal';
 
-interface Props {
-  isOpen: boolean,
-  onCancel: () => void,
-  onConfirm: () => void,
+interface IProps {
+  stateKey: string;
+  isActive: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
 }
 
-const DeleteModal: FunctionalComponent<Props> = ({ isOpen, onCancel, onConfirm }) => {
+const DeleteModal: FunctionalComponent<IProps> = ({ stateKey, isActive, onCancel, onConfirm }) => {
   return (
-    <Modal
-      isOpen={isOpen}
+    <LocationStateModal
+      isActive={isActive}
+      stateKey={stateKey}
       onRequestClose={onCancel}
       contentLabel="Delete tournament confirmation modal"
     >
@@ -45,7 +47,7 @@ const DeleteModal: FunctionalComponent<Props> = ({ isOpen, onCancel, onConfirm }
         <button class="button is-danger" onClick={onConfirm}>Yes</button>
         <button class="button is-outlined" onClick={onCancel}>No</button>
       </footer>
-    </Modal>
+    </LocationStateModal>
   );
 };
 

@@ -35,7 +35,7 @@ const DeleteRoundButton: FunctionalComponent<IProps> = ({ children }) => {
   const { selectedRound } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
 
-  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal('deleteRound');
 
   const _deleteRound = useCallback(async () => {
     if (!await openModal()) {
@@ -53,7 +53,7 @@ const DeleteRoundButton: FunctionalComponent<IProps> = ({ children }) => {
       {children}
     </button>
     <DeleteRoundModal
-      isOpen={isOpen}
+      isActive={isOpen}
       onConfirm={onConfirm}
       onCancel={onCancel}
     />

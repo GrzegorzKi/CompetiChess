@@ -36,7 +36,7 @@ const NextRoundButton = ({ children }: Props): JSX.Element | null => {
   const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
 
-  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal();
+  const [onConfirm, onCancel, isOpen, openModal] = usePromiseModal('initialColorModal');
 
   const _createNextRound = useCallback(async () => {
     const pairsLength = pairs?.length || 0;
@@ -60,7 +60,8 @@ const NextRoundButton = ({ children }: Props): JSX.Element | null => {
       {children}
     </button>
     <InitialColorModal
-      isOpen={isOpen}
+      stateKey="initialColorModal"
+      isActive={isOpen}
       onConfirm={onConfirm}
       onCancel={onCancel}
     />
