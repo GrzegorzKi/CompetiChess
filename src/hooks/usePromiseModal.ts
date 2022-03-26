@@ -18,6 +18,7 @@
  */
 
 import { useCallback, useState } from 'preact/hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const noop = () => {/**/};
 type PromiseType<T> = (value: T) => void;
@@ -29,68 +30,84 @@ interface PromiseInfoState<T> {
   reject: PromiseType<false>,
 }
 
-export default function usePromiseModal(): [() => void, () => void, boolean, () => Promise<boolean>] {
+export default function usePromiseModal(useLocationState?: string): [() => void, () => void, boolean, () => Promise<boolean>] {
   const [promiseInfo, setPromiseInfo] = useState({
     isOpen: false,
     resolve: noop,
     reject: noop
   } as PromiseInfoState<boolean>);
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const openModal = useCallback(() => {
     if (promiseInfo.isOpen) {
       return Promise.reject(false);
     }
+    if (useLocationState !== undefined) {
+      navigate(pathname, { state: { [useLocationState]: true } });
+    }
     return new Promise<boolean>((resolve, reject) => {
       setPromiseInfo({ isOpen: true, resolve, reject });
     });
-  }, [promiseInfo.isOpen]);
+  }, [navigate, pathname, promiseInfo.isOpen, useLocationState]);
 
   const onConfirm = useCallback(() => {
+    if (useLocationState !== undefined) navigate(-1);
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(true);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, []);
+  }, [navigate, useLocationState]);
 
   const onCancel = useCallback(() => {
+    if (useLocationState !== undefined) navigate(-1);
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(false);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, []);
+  }, [navigate, useLocationState]);
 
   return [onConfirm, onCancel, promiseInfo.isOpen, openModal];
 }
 
-export function usePromiseModalWithReturn<T>(): [(value: T) => void, () => void, boolean, () => Promise<TOrFalse<T>>] {
+export function usePromiseModalWithReturn<T>(useLocationState?: string): [(value: T) => void, () => void, boolean, () => Promise<TOrFalse<T>>] {
   const [promiseInfo, setPromiseInfo] = useState({
     isOpen: false,
     resolve: noop,
     reject: noop
   } as PromiseInfoState<T>);
 
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
   const openModal = useCallback(() => {
     if (promiseInfo.isOpen) {
       return Promise.reject(false);
     }
+    if (useLocationState !== undefined) {
+      navigate(pathname, { state: { [useLocationState]: true } });
+    }
     return new Promise<TOrFalse<T>>((resolve, reject) => {
       setPromiseInfo({ isOpen: true, resolve, reject });
     });
-  }, [promiseInfo.isOpen]);
+  }, [navigate, pathname, promiseInfo.isOpen, useLocationState]);
 
   const onConfirm = useCallback((value: T) => {
+    if (useLocationState !== undefined) navigate(-1);
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(value);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, []);
+  }, [navigate, useLocationState]);
 
   const onCancel = useCallback(() => {
+    if (useLocationState !== undefined) navigate(-1);
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(false);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, []);
+  }, [navigate, useLocationState]);
 
   return [onConfirm, onCancel, promiseInfo.isOpen, openModal];
 }
