@@ -19,8 +19,9 @@
 
 import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useReactToPrint } from 'react-to-print';
 
 import PairContextMenu from 'features/PairsView/PairContextMenu';
 import PairResultsModal from 'features/PairsView/PairResults';
@@ -29,7 +30,7 @@ import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
 import {
   selectNextRound,
-  selectPrevRound, selectRound,
+  selectPrevRound,
   selectViewOptions,
   setResult,
 } from 'reducers/tournamentReducer';
@@ -39,7 +40,6 @@ import { isModalOpen } from 'utils/modalUtils';
 import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
-import PaginateRound from '@/PaginateRound';
 
 interface IProps {
   roundPairs: Array<Pair[]>;
@@ -64,16 +64,22 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
+  const componentRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    content: () => componentRef.current,
+    pageStyle: '.print-only { display: unset !important; }',
+    documentTitle: `Pairs for round ${round + 1}`,
+    removeAfterPrint: true,
+  });
+
   const pairs: Pair[] = roundPairs[round];
 
   useEffect(() => {
-    if (isModalOpen()) {
-      return;
-    }
-
-    setIdx(1);
-    if (ref.current === document.activeElement) {
-      focusOnFirst();
+    if (!isModalOpen()) {
+      setIdx(1);
+      if (ref.current === document.activeElement) {
+        focusOnFirst();
+      }
     }
   }, [round, ref, focusOnFirst]);
 
@@ -141,9 +147,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   return (
     <>
       <div class={style.controls} >
-        <PaginateRound pageCount={roundPairs.length}
-                       page={round}
-                       onPageChange={({ selected }) => dispatch(selectRound(selected))} />
+        <button class="button is-info" onClick={handlePrint}>Print pairs</button>
       </div>
       <div class={`table-container ${style.table}`} >
         <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}
@@ -156,7 +160,8 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                            editResult: enterRow,
                            editPairing: () => {/**/},
                          }} />
-        <PairsTable pairs={pairs} players={players} idx={idx}
+        <PairsTable ref={componentRef}
+                    pairs={pairs} players={players} idx={idx}
                     selectedRef={setRef} onContextMenu={handleContextMenu}
                     onRowSelect={selectRow} onRowEnter={enterRow}
         />

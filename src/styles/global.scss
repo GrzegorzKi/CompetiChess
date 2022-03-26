@@ -43,6 +43,8 @@
   $modal-breakpoint: $modal-breakpoint,
 );
 
+@use 'printing';
+
 // Bulma monkey-patches for 0.9.3
 .pagination-previous,
 .pagination-next,
@@ -92,8 +94,8 @@ html {
   overflow-y: auto !important;
 }
 
-body {
-  padding-top: $navbar-height !important;
+#root {
+  padding-top: $navbar-height;
 }
 
 html, body {

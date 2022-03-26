@@ -17,7 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h, JSX, Ref } from 'preact';
+import { h, JSX, Ref } from 'preact';
+import { forwardRef } from 'preact/compat';
 import { useCallback } from 'preact/hooks';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
@@ -53,8 +54,7 @@ interface IProps {
   onContextMenu: JSX.MouseEventHandler<HTMLElement>;
 }
 
-const PairsTable: FunctionalComponent<IProps> = (
-  { pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
+const PairsTable = forwardRef<HTMLDivElement, IProps>(({ pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }, ref) => {
 
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
@@ -79,46 +79,51 @@ const PairsTable: FunctionalComponent<IProps> = (
   const menuHandler = useContextMenuHandler(onContextMenu);
 
   if (!pairs || pairs.length === 0) {
-    return <div>No pairs defined for selected round</div>;
+    return <div ref={ref}>No pairs defined for selected round</div>;
   }
 
   const round = pairs[0].round - 1;
 
   return (
-    <table class='table is-striped is-hoverable is-fullwidth'>
-      <thead class={style.fixedHead}>
-        <tr>
-          <th style="width: 3rem; text-align: right;">No.</th>
-          <th style="width: 2.5rem;">Pts</th>
-          <th>First player</th>
-          <th style="width: 4.5rem;">Result</th>
-          <th>Second player</th>
-          <th style="width: 2.5rem;">Pts</th>
-        </tr>
-      </thead>
-      <tbody>
-        {pairs.map((pair) =>
-          <tr key={pair.no} data-index={pair.no}
-              onClick={() => onRowSelect(pair.no)} onFocus={() => onRowSelect(pair.no)}
-              onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
-              onContextMenu={menuHandler}
-              tabIndex={0}
-              class={idx === pair.no ? 'is-selected' : ''}
-              ref={idx === pair.no ? selectedRef : undefined}
-          >
-            <td style="text-align: right;">{pair.no}</td>
-            <td>{prevRoundPoints(players[pair.white], round)
-              .toFixed(1)}</td>
-            <td>{displayPlayer(players[pair.white])}</td>
-            <td style="text-align: center;">{getResult(pair, players, round)}</td>
-            <td>{displayPlayer(players[pair.black])}</td>
-            <td>{prevRoundPoints(players[pair.black], round)
-              .toFixed(1)}</td>
+    <div ref={ref}>
+      <div class="print-only">
+        CompetiChess - Round {round + 1}
+      </div>
+      <table class="table is-striped is-hoverable is-fullwidth">
+        <thead class={style.fixedHead}>
+          <tr>
+            <th style="width: 3rem; text-align: right;">No.</th>
+            <th style="width: 2.5rem;">Pts</th>
+            <th>First player</th>
+            <th style="width: 4.5rem;">Result</th>
+            <th>Second player</th>
+            <th style="width: 2.5rem;">Pts</th>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {pairs.map((pair) =>
+            <tr key={pair.no} data-index={pair.no}
+                onClick={() => onRowSelect(pair.no)} onFocus={() => onRowSelect(pair.no)}
+                onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
+                onContextMenu={menuHandler}
+                tabIndex={0}
+                class={idx === pair.no ? 'is-selected' : ''}
+                ref={idx === pair.no ? selectedRef : undefined}
+            >
+              <td style="text-align: right;">{pair.no}</td>
+              <td>{prevRoundPoints(players[pair.white], round)
+                .toFixed(1)}</td>
+              <td>{displayPlayer(players[pair.white])}</td>
+              <td style="text-align: center;">{getResult(pair, players, round)}</td>
+              <td>{displayPlayer(players[pair.black])}</td>
+              <td>{prevRoundPoints(players[pair.black], round)
+                .toFixed(1)}</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
-};
+});
 
 export default PairsTable;
