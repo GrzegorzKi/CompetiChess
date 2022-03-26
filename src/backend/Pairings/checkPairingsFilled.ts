@@ -39,6 +39,10 @@
 import { GameResult, PlayersRecord } from '#/types/Tournament';
 
 export default function checkPairingsFilled(players: PlayersRecord, round: number): boolean {
+  if (round <= 0) {
+    return true;
+  }
+
   for (const [, player] of Object.entries(players)) {
     if (player.games[round - 1].result === GameResult.UNASSIGNED) {
       return false;

@@ -24,7 +24,7 @@ import { PlayerData } from 'features/PlayersView/PlayerDetails/PlayerForm';
 import { IFormData } from 'hooks/useTournamentFormData';
 import { cyrb53 } from 'utils/common';
 
-import BbpPairings from '#/BbpPairings/bbpPairings';
+import BbpPairings, { StatusCode } from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
 import { TournamentStateJson } from '#/JsonImport';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
@@ -52,7 +52,6 @@ import {
 
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
-
 
 const verifyNextRoundConditions = (
   playedRounds: number, { expectedRounds }: Configuration, players: PlayersRecord,
@@ -147,7 +146,13 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
       const bbpInstance = await BbpPairings.getInstance();
       const bbpOutput = bbpInstance.invoke(trfOutput);
       if (bbpOutput.statusCode !== 0) {
-        return thunkAPI.rejectWithValue({ reason: bbpOutput.errorOutput.join('\n'), toastId });
+        let reason: string;
+        if (bbpOutput.statusCode === StatusCode.NoValidPairing) {
+          reason = 'No valid pairing exists: The players could not be simultaneously matched while satisfying all absolute criteria.';
+        } else {
+          reason = bbpOutput.errorOutput.join('\n');
+        }
+        return thunkAPI.rejectWithValue({ reason, toastId });
       }
       return {
         data: bbpOutput.data,

@@ -89,11 +89,11 @@ export default function useElementFocus<H extends HTMLElement = HTMLElement>({
 
   const scrollParent = useRef<Element | null>(ref.current ? getScrollParent(ref.current) : null);
   const setRef = useCallback((node: H | null) => {
+    ref.current = node;
+
     if (ref.current && !scrollParent.current) {
       scrollParent.current = getScrollParent(ref.current);
     }
-
-    ref.current = node;
   }, []);
 
   const focusOnNext: FocusOnNextCallback = useCallback(() => {

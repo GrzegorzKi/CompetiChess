@@ -22,8 +22,13 @@ import { useEffect, useState } from 'preact/hooks';
 import {  Route, Routes, useLocation } from 'react-router';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
-import { useAppSelector } from 'hooks';
-import { selectTournament } from 'reducers/tournamentReducer';
+import { useAppDispatch, useAppSelector } from 'hooks';
+import {
+  selectPairs,
+  selectRound,
+  selectTournament,
+  selectViewOptions,
+} from 'reducers/tournamentReducer';
 import Pairs from 'routes/pairs';
 import Players from 'routes/players';
 import { locations, routes } from 'utils';
@@ -34,11 +39,16 @@ import style from './style.scss';
 
 import DeleteRoundButton from '@/DeleteRoundButton';
 import NextRoundButton from '@/NextRoundButton';
+import PaginateRound from '@/PaginateRound';
 import { SectionWithSideMenu } from '@/SideMenu';
 import SoftNavigate from '@/SoftNavigate';
 
 const MainView: FunctionalComponent = () => {
   const tournament = useAppSelector(selectTournament);
+  const pairs = useAppSelector(selectPairs);
+  const { selectedRound: round } = useAppSelector(selectViewOptions);
+  const dispatch = useAppDispatch();
+
   const { pathname } = useLocation();
   const [locationKey, setLocationKey] = useState(pathname);
 
@@ -49,7 +59,7 @@ const MainView: FunctionalComponent = () => {
       : prev);
   }, [pathname]);
 
-  if (!tournament) {
+  if (!tournament || !pairs) {
     return null;
   }
 
@@ -63,6 +73,11 @@ const MainView: FunctionalComponent = () => {
           <div class={style.commonControls}>
             <NextRoundButton><strong>Start next round</strong></NextRoundButton>
             <DeleteRoundButton><strong>Delete round</strong></DeleteRoundButton>
+          </div>
+          <div className={style.commonControls}>
+            <PaginateRound pageCount={pairs.length}
+                           page={round}
+                           onPageChange={({ selected }) => dispatch(selectRound(selected))} />
           </div>
           <TransitionGroup className={style.animatedContainer}>
             <CSSTransition key={locationKey} classNames={CSSFade} timeout={700}
