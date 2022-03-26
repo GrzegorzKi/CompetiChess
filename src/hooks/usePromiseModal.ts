@@ -83,7 +83,7 @@ export function usePromiseModalWithReturn<T>(useLocationState?: string): [(value
   } as PromiseInfoState<T>);
 
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
 
   const openModal = useCallback(() => {
     if (promiseInfo.isOpen) {
@@ -98,20 +98,24 @@ export function usePromiseModalWithReturn<T>(useLocationState?: string): [(value
   }, [navigate, pathname, promiseInfo.isOpen, useLocationState]);
 
   const onConfirm = useCallback((value: T) => {
-    if (useLocationState !== undefined) navigate(-1);
+    if (useLocationState !== undefined && state && useLocationState in (state as any)) {
+      navigate(-1);
+    }
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(value);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, [navigate, useLocationState]);
+  }, [navigate, state, useLocationState]);
 
   const onCancel = useCallback(() => {
-    if (useLocationState !== undefined) navigate(-1);
+    if (useLocationState !== undefined && state && useLocationState in (state as any)) {
+      navigate(-1);
+    }
     setPromiseInfo(prevInfo => {
       prevInfo.resolve(false);
       return { isOpen: false, resolve: noop, reject: noop };
     });
-  }, [navigate, useLocationState]);
+  }, [navigate, state, useLocationState]);
 
   return [onConfirm, onCancel, promiseInfo.isOpen, openModal];
 }
