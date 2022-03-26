@@ -24,6 +24,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Header from 'features/Header';
+import About from 'routes/about';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
 import Tournaments from 'routes/tournaments';
@@ -84,6 +85,7 @@ const App: FunctionalComponent = () => {
               <Route path={routes.tournamentSettings.path} element={<TournamentsSettings />} />
               <Route path={`${routes.view.path}/*`} element={<View />} />
               <Route path={routes[''].path} element={<Home />} />
+              <Route path={routes.about.path} element={<About />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

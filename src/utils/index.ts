@@ -63,6 +63,10 @@ export const _routes = {
     title: 'Tournament table',
     parent: '/view'
   },
+  about: {
+    path: '/about',
+    title: 'About'
+  },
   '': {
     path: '/',
     title: ''
