@@ -17,8 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { h, JSX, Ref } from 'preact';
-import { forwardRef } from 'preact/compat';
+import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback } from 'preact/hooks';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
@@ -48,13 +47,15 @@ interface IProps {
   pairs: Pair[] | undefined;
   players: PlayersRecord;
   idx: number;
+  tableRef: Ref<HTMLDivElement>;
   selectedRef?: Ref<HTMLTableRowElement>;
   onRowEnter: (index: number) => void;
   onRowSelect: (index: number) => void;
   onContextMenu: JSX.MouseEventHandler<HTMLElement>;
 }
 
-const PairsTable = forwardRef<HTMLDivElement, IProps>(({ pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }, ref) => {
+const PairsTable: FunctionalComponent<IProps> = (
+  { tableRef, pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
 
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
@@ -79,13 +80,13 @@ const PairsTable = forwardRef<HTMLDivElement, IProps>(({ pairs, players, idx, se
   const menuHandler = useContextMenuHandler(onContextMenu);
 
   if (!pairs || pairs.length === 0) {
-    return <div ref={ref}>No pairs defined for selected round</div>;
+    return <div ref={tableRef}>No pairs defined for selected round</div>;
   }
 
   const round = pairs[0].round - 1;
 
   return (
-    <div ref={ref}>
+    <div ref={tableRef}>
       <div class="print-only">
         CompetiChess - Round {round + 1}
       </div>
@@ -124,6 +125,6 @@ const PairsTable = forwardRef<HTMLDivElement, IProps>(({ pairs, players, idx, se
       </table>
     </div>
   );
-});
+};
 
 export default PairsTable;

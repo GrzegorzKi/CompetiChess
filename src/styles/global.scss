@@ -100,17 +100,14 @@ html {
 
 #root {
   padding-top: $navbar-height;
+  height: 100%;
+  width: 100%;
 }
 
 html, body {
   height: 100%;
   width: 100%;
   // Font family is provided by Bulma
-}
-
-#root {
-  height: 100%;
-  width: 100%;
 }
 
 a {
@@ -135,6 +132,17 @@ input[type=number]::-webkit-outer-spin-button {
 
 .trans-bg {
   transition: background-color 0.5s;
+}
+
+.controls {
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  overflow: auto hidden;
+  height: 4rem;
+
+  & > :not(:last-child) {
+    margin-right: 0.5rem;
+  }
 }
 
 @media (pointer: fine) {

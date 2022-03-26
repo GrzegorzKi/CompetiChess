@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,7 +17,21 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.table {
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
+import { faPrint } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
+import { h } from 'preact';
+
+interface IProps {
+  handlePrint: () => void;
 }
+
+const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
+  return (
+    <button className="button is-info icon-text" onClick={handlePrint}>
+      <span className="icon"><Icon icon={faPrint} /></span>
+      <span>Print</span>
+    </button>
+  );
+};
+
+export default PrintButton;

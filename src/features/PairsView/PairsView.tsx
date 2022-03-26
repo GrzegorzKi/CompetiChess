@@ -40,6 +40,7 @@ import { isModalOpen } from 'utils/modalUtils';
 import style from './style.scss';
 
 import { Pair, PlayersRecord } from '#/types/Tournament';
+import PrintButton from '@/PrintButton';
 
 interface IProps {
   roundPairs: Array<Pair[]>;
@@ -144,8 +145,9 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
 
   return (
     <>
-      <div class={style.controls} >
-        <button class="button is-info" onClick={handlePrint}>Print pairs</button>
+      <div class="controls">
+        <PrintButton handlePrint={handlePrint} />
+        <button class="button is-outlined" onClick={enterRow}>Edit result</button>
       </div>
       <div class={`table-container ${style.table}`} >
         <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}
@@ -158,7 +160,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
                            editResult: enterRow,
                            editPairing: () => {/**/},
                          }} />
-        <PairsTable ref={componentRef}
+        <PairsTable tableRef={componentRef}
                     pairs={pairs} players={players} idx={idx}
                     selectedRef={setRef} onContextMenu={handleContextMenu}
                     onRowSelect={selectRow} onRowEnter={enterRow}

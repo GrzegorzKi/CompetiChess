@@ -30,6 +30,7 @@ import style from './style.scss';
 interface IProps {
   players: PlayersState;
   idx: number;
+  tableRef: Ref<HTMLDivElement>;
   selectedRef?: Ref<HTMLTableRowElement>;
   onRowEnter: (index: number) => void;
   onRowSelect: (index: number) => void;
@@ -37,7 +38,7 @@ interface IProps {
 }
 
 const PlayersTable: FunctionalComponent<IProps> = (
-  { players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
+  { tableRef, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
 
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
@@ -64,37 +65,39 @@ const PlayersTable: FunctionalComponent<IProps> = (
   const playersByPosition = players.orderByPosition.map(p => players.index[p]);
 
   if (playersByPosition.length === 0) {
-    return <div class={style.controls}>No players currently in the tournament. <a onClick={() => onRowEnter(1)}>Let's create one!</a></div>;
+    return <div ref={tableRef} class="controls">No players currently in the tournament. <a onClick={() => onRowEnter(1)}>Let's create one!</a></div>;
   }
 
   return (
-    <table class='table is-striped is-hoverable is-fullwidth'>
-      <thead class={style.fixedHead}>
-        <tr>
-          <th style="width: 3rem; text-align: right;">No.</th>
-          <th>Player name</th>
-          <th style="width: 10rem;">Birth date</th>
-          <th style="width: 10rem;">Rating</th>
-        </tr>
-      </thead>
-      <tbody>
-        {playersByPosition.map((player) =>
-          <tr key={player.id} data-index={player.id}
-            onClick={() => onRowSelect(player.id)} onFocus={() => onRowSelect(player.id)}
-            onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
-            onContextMenu={menuHandler}
-            tabIndex={0}
-            class={idx === player.id ? 'is-selected' : ''}
-            ref={idx === player.id ? selectedRef : undefined}
-          >
-            <td style="text-align: right;">{player.id}</td>
-            <td>{player.name}</td>
-            <td>{player.birthDate}</td>
-            <td>{player.rating}</td>
+    <div ref={tableRef}>
+      <table class='table is-striped is-hoverable is-fullwidth'>
+        <thead class={style.fixedHead}>
+          <tr>
+            <th style="width: 3rem; text-align: right;">No.</th>
+            <th>Player name</th>
+            <th style="width: 10rem;">Birth date</th>
+            <th style="width: 10rem;">Rating</th>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {playersByPosition.map((player) =>
+            <tr key={player.id} data-index={player.id}
+              onClick={() => onRowSelect(player.id)} onFocus={() => onRowSelect(player.id)}
+              onMouseDown={handleDoubleClick} onKeyPress={handleKeyOnRow}
+              onContextMenu={menuHandler}
+              tabIndex={0}
+              class={idx === player.id ? 'is-selected' : ''}
+              ref={idx === player.id ? selectedRef : undefined}
+            >
+              <td style="text-align: right;">{player.id}</td>
+              <td>{player.name}</td>
+              <td>{player.birthDate}</td>
+              <td>{player.rating}</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

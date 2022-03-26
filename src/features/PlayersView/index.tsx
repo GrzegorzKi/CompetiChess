@@ -19,7 +19,7 @@
 
 import { useMenuState } from '@szhsin/react-menu';
 import { FunctionalComponent, h, JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -27,6 +27,7 @@ import DeletePlayerModal, { DeletePlayerReturn } from 'features/PlayersView/Dele
 import PlayersTable from 'features/PlayersView/PlayersTable';
 import { useAppDispatch } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
+import usePrint from 'hooks/usePrint';
 import { usePromiseModalWithReturn } from 'hooks/usePromiseModal';
 import {
   deletePlayer as deletePlayerAction,
@@ -41,6 +42,7 @@ import PlayersContextMenu from './PlayersContextMenu';
 import style from './style.scss';
 
 import LocationStateModal from '@/modals/LocationStateModal';
+import PrintButton from '@/PrintButton';
 import { store } from '@/store';
 
 export function findFreeId(playersById: number[]): number {
@@ -111,6 +113,12 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
     }
   }, [ref, focusOnFirst]);
 
+  const componentRef = useRef<HTMLDivElement>(null);
+  const handlePrint = usePrint({
+    documentTitle: 'Players',
+    componentRef,
+  });
+
   // Register keys handler
   useEffect(() => {
     const arrowHandling = (event: JSX.TargetedKeyboardEvent<any>) => {
@@ -161,36 +169,45 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
   };
 
   return (
-    <div class={`table-container ${style.table}`} >
-      <PlayersContextMenu menuState={menuState} toggleMenu={toggleMenu}
-                          anchorPoint={anchorPoint} boundingBoxRef={scrollParent}
-                          actions={{
-                            editPlayer,
-                            addPlayer,
-                            deletePlayer,
-                            sortList: () => {/**/},
-                          }} />
-      <PlayersTable players={players} idx={idx}
-                  selectedRef={setRef} onContextMenu={handleContextMenu}
-                  onRowSelect={selectRow} onRowEnter={editPlayer}
-      />
-      <PlayerDetailsModal
-        playerId={idx}
-        setIndex={setIdx}
-      />
-      <LocationStateModal
-        stateKey="deleteModal"
-        isActive={isOpen}
-        onRequestClose={onCancel}
-        contentLabel="Delete player confirmation modal"
-      >
-        <DeletePlayerModal
-          player={players.index[idx]}
-          onCancel={onCancel}
-          onConfirm={onConfirm}
+    <>
+      <div className="controls">
+        <PrintButton handlePrint={handlePrint} />
+        <button className="button is-success" onClick={addPlayer}>Add player</button>
+        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={editPlayer}>Edit player</button>
+        <button className="button is-danger is-outlined" disabled={idx > players.orderById.length} onClick={deletePlayer}>Delete player</button>
+      </div>
+      <div class={`table-container ${style.table}`} >
+        <PlayersContextMenu menuState={menuState} toggleMenu={toggleMenu}
+                            anchorPoint={anchorPoint} boundingBoxRef={scrollParent}
+                            actions={{
+                              editPlayer,
+                              addPlayer,
+                              deletePlayer,
+                              sortList: () => {/**/},
+                            }} />
+        <PlayersTable tableRef={componentRef}
+                      players={players} idx={idx}
+                      selectedRef={setRef} onContextMenu={handleContextMenu}
+                      onRowSelect={selectRow} onRowEnter={editPlayer}
         />
-      </LocationStateModal>
-    </div>
+        <PlayerDetailsModal
+          playerId={idx}
+          setIndex={setIdx}
+        />
+        <LocationStateModal
+          stateKey="deleteModal"
+          isActive={isOpen}
+          onRequestClose={onCancel}
+          contentLabel="Delete player confirmation modal"
+        >
+          <DeletePlayerModal
+            player={players.index[idx]}
+            onCancel={onCancel}
+            onConfirm={onConfirm}
+          />
+        </LocationStateModal>
+      </div>
+    </>
   );
 };
 
