@@ -31,6 +31,7 @@ import {
 } from 'reducers/tournamentReducer';
 import Pairs from 'routes/pairs';
 import Players from 'routes/players';
+import TournamentTable from 'routes/tournamentTable';
 import { locations, routes } from 'utils';
 import { CSSFade, CSSFadeOnEntered, CSSFadeOnEntering } from 'utils/transitions';
 
@@ -87,7 +88,7 @@ const MainView: FunctionalComponent = () => {
                   <Route index element={<SoftNavigate from={routes.view.path} to={routes.pairs.path} replace />}  />
                   <Route path={routes.pairs.pathRel} element={<Pairs />} />
                   <Route path={routes.players.pathRel} element={<Players />} />
-                  <Route path={routes.tournamentTable.pathRel} element={<Pairs />} />
+                  <Route path={routes.tournamentTable.pathRel} element={<TournamentTable />} />
                 </Routes>
               </section>
             </CSSTransition>

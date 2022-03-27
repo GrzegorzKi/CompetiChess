@@ -20,7 +20,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
-import { PlayerData } from 'features/PlayersView/PlayerDetails/PlayerForm';
 import { IFormData } from 'hooks/useTournamentFormData';
 import { cyrb53 } from 'utils/common';
 
@@ -49,6 +48,7 @@ import {
   recalculateScores,
   recalculateTiebreakers,
 } from '#/utils/TournamentUtils';
+import { PlayerData } from '@/PlayerDetails/PlayerForm';
 
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';

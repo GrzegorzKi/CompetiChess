@@ -37,11 +37,11 @@ import {
 } from 'reducers/tournamentReducer';
 import { isModalOpen } from 'utils/modalUtils';
 
-import PlayerDetailsModal from './PlayerDetails';
 import PlayersContextMenu from './PlayersContextMenu';
 import style from './style.scss';
 
 import LocationStateModal from '@/modals/LocationStateModal';
+import PlayerDetailsModal from '@/PlayerDetails';
 import PrintButton from '@/PrintButton';
 import { store } from '@/store';
 
