@@ -53,7 +53,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({});
+  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({ offset: { top: 42, bottom: 0 } });
   const [idx, setIdx] = useState(() => {
     const state = location.state as any;
     if (state && 'selectedPair' in state && typeof state.selectedPair === 'number') {
