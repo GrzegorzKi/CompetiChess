@@ -46,8 +46,8 @@ const DeletePlayerModal: FunctionalComponent<IProps> = ({ player, onCancel, onCo
       <section className="modal-card-body">
         <div>Are you sure you want to delete player {player.name}?</div>
         <hr class={style.hr} />
-        <label class={`checkbox ${style.checkbox}`}>
-          <input class="checkbox" type="checkbox"
+        <label class="checkbox">
+          <input class="mr-1" type="checkbox"
                  checked={reorderIds} onClick={() => setReorderIds(s => !s)} />
           Reorder players' IDs after deletion
         </label>

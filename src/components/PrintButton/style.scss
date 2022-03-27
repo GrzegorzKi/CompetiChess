@@ -17,28 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use '/styles/variables' as *;
-@use 'bulma/sass/utilities/mixins';
-@use 'bulma/sass/utilities/controls';
-
-@include mixins.tablet {
-  .isSmallTablet {
-    @include controls.control-small;
-  }
-}
-
-.buttonCheckbox:checked + label {
-  background-color: $primary;
-  color: white;
-}
-
-.buttonCheckbox:disabled + label {
-  background-color: hsl(0, 0%, 93%);
-  border-color: hsl(0, 0%, 86%);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-.scrollable {
-  overflow-x: auto;
+.nowrap {
+  flex-wrap: nowrap;
 }

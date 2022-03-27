@@ -135,10 +135,12 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .controls {
+  display: flex;
+  align-items: center;
+
   padding: 0.5rem 0.75rem;
   white-space: nowrap;
   overflow: auto hidden;
-  height: 4rem;
 
   & > :not(:last-child) {
     margin-right: 0.5rem;

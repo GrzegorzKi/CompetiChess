@@ -21,14 +21,17 @@ import { faPrint } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { h } from 'preact';
 
+import style from './style.scss';
+
+
 interface IProps {
   handlePrint: () => void;
 }
 
 const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
   return (
-    <button className="button is-info icon-text" onClick={handlePrint}>
-      <span className="icon"><Icon icon={faPrint} /></span>
+    <button class={`button is-info icon-text ${style.nowrap}`} onClick={handlePrint}>
+      <span class="icon"><Icon icon={faPrint} /></span>
       <span>Print</span>
     </button>
   );

@@ -127,8 +127,8 @@ export interface ICheckboxProps extends UseFormRegisterReturn {
 
 export const Checkbox = forwardRef<HTMLInputElement, ICheckboxProps>(({ label, className, errors, disabled, ...register }, ref) => {
   return <div class={`field ${className ? className : ''}`}>
-    <label class={`checkbox ${style.checkbox} ${style.isSmallTablet}`} disabled={disabled}>
-      <input type="checkbox" class={style.isSmallTablet}
+    <label class={`checkbox ${style.isSmallTablet}`} disabled={disabled}>
+      <input type="checkbox" class={`mr-1 ${style.isSmallTablet}`}
              {...register} ref={ref} disabled={disabled}
              aria-invalid={errors ? true : undefined} />
       {label}

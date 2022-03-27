@@ -75,8 +75,8 @@ const PlayersTable: FunctionalComponent<IProps> = (
           <tr>
             <th style="width: 3rem; text-align: right;">No.</th>
             <th>Player name</th>
-            <th style="width: 10rem;">Birth date</th>
-            <th style="width: 10rem;">Rating</th>
+            <th style="width: 7rem;">Birth date</th>
+            <th style="width: 5rem;">Rating</th>
           </tr>
         </thead>
         <tbody>
