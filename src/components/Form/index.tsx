@@ -28,10 +28,11 @@ export type IFormProps<T extends Record<string, unknown>> = {
   children: (formMethods: UseFormReturn<T>) => ComponentChildren;
   inputRef?: MutableRef<UseFormReturn<T> | undefined>;
   visible?: boolean;
+  disabled?: boolean;
 }
 
 function Form<T extends Record<string, any>>(
-  { children, defaultValues, values, inputRef, onSubmit, visible }: IFormProps<T>): JSX.Element {
+  { children, defaultValues, values, inputRef, onSubmit, visible, disabled }: IFormProps<T>): JSX.Element {
 
   const formMethods = useForm<T>({
     mode: 'onTouched',
@@ -50,11 +51,13 @@ function Form<T extends Record<string, any>>(
   }, [reset, values]);
 
   return (
-    <form style={visible === false ? 'display: none;' : ''}
-          onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
-          noValidate>
-      {children(formMethods)}
-    </form>
+    <fieldset disabled={disabled}>
+      <form style={visible === false ? 'display: none;' : ''}
+            onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
+            noValidate>
+        {children(formMethods)}
+      </form>
+    </fieldset>
   );
 }
 

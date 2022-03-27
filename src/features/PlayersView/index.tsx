@@ -97,21 +97,12 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
     return 1;
   });
 
-  const [ref, setRef, focusOnNext, focusOnPrev, focusOnFirst, scrollParent] = useElementFocus<HTMLTableRowElement>({});
+  const [ref, setRef, focusOnNext, focusOnPrev, , scrollParent] = useElementFocus<HTMLTableRowElement>({});
 
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
 
   const [onConfirm, onCancel, isOpen, openDeleteModal] = usePromiseModalWithReturn<DeletePlayerReturn>('deleteModal');
-
-  useEffect(() => {
-    if (!isModalOpen()) {
-      setIdx(1);
-      if (ref.current === document.activeElement) {
-        focusOnFirst();
-      }
-    }
-  }, [ref, focusOnFirst]);
 
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = usePrint({
@@ -129,11 +120,9 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
       switch (event.code) {
       case 'ArrowLeft':
         dispatch(selectPrevRound());
-        toggleMenu(false);
         break;
       case 'ArrowRight':
         dispatch(selectNextRound());
-        toggleMenu(false);
         break;
       case 'ArrowUp':
         focusOnPrev() && event.preventDefault();

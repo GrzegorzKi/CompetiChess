@@ -59,9 +59,18 @@ interface IProps {
   playerId: number,
   onClose: () => void;
   setIndex: (playerId: number) => void;
+  readonly?: boolean;
 }
 
-const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClose }) => {
+function getModalTitle(index: number, readonly?: boolean) {
+  if (readonly)
+    return 'Player details';
+  if (index !== -1)
+    return 'Edit player';
+  return 'Add player';
+}
+
+const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClose, readonly }) => {
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
@@ -69,7 +78,7 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
   const formRef = useRef<UseFormReturn<PlayerData>>();
 
   let index = players ? players.orderByPosition.findIndex(id => id === playerId) : -1;
-  const title = index !== -1 ? 'Edit player' : 'Add player';
+  const title = getModalTitle(index, readonly);
 
   index = (players && index === -1) ? players.orderByPosition.length : index;
 
@@ -77,35 +86,35 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
 
   const onApply = useCallback(async () => {
     if (formRef.current && await formRef.current.trigger()) {
-      dispatch(addOrUpdatePlayer(formRef.current.getValues()));
+      !readonly && dispatch(addOrUpdatePlayer(formRef.current.getValues()));
       onClose();
     }
-  }, [dispatch, onClose]);
+  }, [dispatch, onClose, readonly]);
 
   const prevPlayerFn = useCallback(async () => {
     if (players && index > 0) {
       if (formRef.current && await formRef.current.trigger()) {
-        dispatch(addOrUpdatePlayer(formRef.current.getValues()));
+        !readonly && dispatch(addOrUpdatePlayer(formRef.current.getValues()));
         setIndex(players.orderByPosition[index - 1]);
       }
     }
-  }, [dispatch, index, players, setIndex]);
+  }, [dispatch, index, players, readonly, setIndex]);
 
   const nextPlayerFn = useCallback(async () => {
     if (players && index < players.orderByPosition.length - 1) {
       if (formRef.current && await formRef.current.trigger()) {
-        dispatch(addOrUpdatePlayer(formRef.current.getValues()));
+        !readonly && dispatch(addOrUpdatePlayer(formRef.current.getValues()));
         setIndex(players.orderByPosition[index + 1]);
       }
     }
-  }, [dispatch, index, players, setIndex]);
+  }, [dispatch, index, players, readonly, setIndex]);
 
   const newPlayerFn = useCallback(async () => {
     if (players && formRef.current && await formRef.current.trigger()) {
-      dispatch(addOrUpdatePlayer(formRef.current.getValues()));
+      !readonly && dispatch(addOrUpdatePlayer(formRef.current.getValues()));
       setIndex(-1);
     }
-  }, [dispatch, players, setIndex]);
+  }, [dispatch, players, readonly, setIndex]);
 
   if (!pairs || !players) {
     return null;
@@ -118,7 +127,7 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
         <button class="delete" aria-label="close" onClick={onClose} />
       </header>
       <section class="modal-card-body">
-        <PlayerForm inputRef={formRef} defaultValues={player} values={player} />
+        <PlayerForm inputRef={formRef} defaultValues={player} values={player} readonly={readonly} />
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
         <button class="button is-success" onClick={() => onApply()}>OK</button>
@@ -127,7 +136,7 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
                 onClick={prevPlayerFn}>Previous</button>
         {index < players.orderByPosition.length - 1
           ? <button class="button is-outlined is-info" onClick={nextPlayerFn}>Next</button>
-          : <button class="button is-outlined is-success" onClick={newPlayerFn}>New</button>}
+          : <button class="button is-outlined is-success" disabled={readonly} onClick={newPlayerFn}>New</button>}
       </footer>
     </>
   );
@@ -136,9 +145,10 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
 interface IModalProps {
   playerId: number;
   setIndex: (index: number) => void;
+  readonly?: boolean;
 }
 
-const PlayerDetailsModal: FunctionalComponent<IModalProps> = ({ playerId, setIndex }) => {
+const PlayerDetailsModal: FunctionalComponent<IModalProps> = ({ playerId, setIndex, readonly }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const isOpen = !!state && 'selectedPlayer' in (state as any);
@@ -154,7 +164,8 @@ const PlayerDetailsModal: FunctionalComponent<IModalProps> = ({ playerId, setInd
       <PlayerDetails
         playerId={playerId}
         setIndex={setIndex}
-        onClose={onClose} />
+        onClose={onClose}
+        readonly={readonly} />
     </Modal>
   );
 };

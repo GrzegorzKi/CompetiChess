@@ -34,12 +34,6 @@ export interface PlayerData extends Omit<Player, 'notPlayed'> {
   notPlayed: string[];
 }
 
-interface IProps {
-  defaultValues: PlayerData;
-  values?: PlayerData;
-  inputRef?: MutableRef<UseFormReturn<PlayerData> | undefined>;
-}
-
 function range(to: number) {
   const values: number[] = [];
   for (let i = 1; i <= to; i++) {
@@ -48,7 +42,14 @@ function range(to: number) {
   return values;
 }
 
-const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputRef }) => {
+interface IProps {
+  defaultValues: PlayerData;
+  values?: PlayerData;
+  inputRef?: MutableRef<UseFormReturn<PlayerData> | undefined>;
+  readonly?: boolean;
+}
+
+const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputRef, readonly }) => {
   const configuration = useAppSelector(selectConfiguration);
   const pairs = useAppSelector(selectPairs);
 
@@ -63,7 +64,9 @@ const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputR
     <Form onSubmit={() => {/**/}}
           inputRef={inputRef}
           defaultValues={defaultValues}
-          values={values}>
+          values={values}
+          disabled={readonly}
+    >
       {({ register, formState: { errors } }) => (<>
         <div class="field field-body is-horizontal">
           <Field label="No."
