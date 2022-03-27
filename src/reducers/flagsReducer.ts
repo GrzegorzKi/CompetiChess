@@ -35,29 +35,19 @@ export const flags = createSlice({
   name: tournamentSlice.name, // The same name as in `tournamentReducer.ts`
   initialState,
   reducers: {
-    loadNew: () => {
-      return { isModified: true };
-    },
-    loadNewFromJson: () => {
-      return { isModified: true };
-    },
-    createTournament: () => {
-      return { isModified: true };
-    },
-    clearIsModified: () => {
-      return { isModified: false };
-    },
-    close: () => {
-      return { isModified: false };
-    },
-    setResult: () => {
-      return { isModified: true };
-    }
+    loadNew: () => ({ isModified: true }),
+    loadNewFromJson: () => ({ isModified: true }),
+    createTournament: () => ({ isModified: true }),
+    clearIsModified: () => ({ isModified: false }),
+    close: () => ({ isModified: false }),
+    setInitialColor: () => ({ isModified: true }),
+    setResult: () => ({ isModified: true }),
+    addOrUpdatePlayer: () => ({ isModified: true }),
+    deletePlayer: () => ({ isModified: true }),
+    deleteRound: () => ({ isModified: true }),
   },
   extraReducers: (builder) => {
-    builder.addCase(createNextRound.fulfilled, () => {
-      return { isModified: true };
-    });
+    builder.addCase(createNextRound.fulfilled, () => ({ isModified: true }));
   },
 });
 
