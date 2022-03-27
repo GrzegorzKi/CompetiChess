@@ -17,16 +17,19 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { IMatchmakingFormInputs } from 'features/TournamentSettings/MatchmakingForm';
 import { IGeneralFormInputs } from 'features/TournamentSettings/TournamentForm';
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectTournament } from 'reducers/tournamentReducer';
 
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
+import { Color } from '#/types/Tournament';
 
 
 export interface IFormData {
   general: IGeneralFormInputs;
   tiebreakers: Tiebreaker[];
+  matchmaking: IMatchmakingFormInputs;
 }
 
 const useTournamentFormData = (loadDefault = false): IFormData => {
@@ -48,11 +51,15 @@ const useTournamentFormData = (loadDefault = false): IFormData => {
         numberOfRounds: 9,
       },
       tiebreakers: [],
+      matchmaking: {
+        initialColor: Color.NONE,
+        useBakuAcceleration: false,
+      }
     };
   }
 
   const { createdDate, tournamentName, city, federation, dateOfStart, dateOfEnd, tournamentType, chiefArbiter, rateOfPlay } = tournament;
-  const { expectedRounds } = configuration;
+  const { expectedRounds, tiebreakers, useBakuAcceleration, initialColor } = configuration;
 
   return {
     general: {
@@ -67,7 +74,11 @@ const useTournamentFormData = (loadDefault = false): IFormData => {
       rateOfPlay,
       numberOfRounds: expectedRounds,
     },
-    tiebreakers: configuration.tiebreakers,
+    tiebreakers,
+    matchmaking: {
+      initialColor,
+      useBakuAcceleration: useBakuAcceleration ?? false,
+    }
   };
 };
 

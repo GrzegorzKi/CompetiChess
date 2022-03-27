@@ -99,6 +99,10 @@ export interface Configuration {
 
   // Defines tiebreakers used by the tournament
   tiebreakers: Tiebreaker[];
+
+  // Specify whether to use Baku Acceleration as defined in FIDE Handbook C.04.5.1
+  useBakuAcceleration?: boolean;
+  bakuAccelerationLastGAPlayer?: number;
 }
 
 export type XXScoringField =

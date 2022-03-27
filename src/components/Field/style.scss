@@ -39,11 +39,11 @@
   cursor: not-allowed;
 }
 
-//.buttonCheckbox:checked:disabled + label {
-//  background-color: lighten($primary, 20%);
-//  box-shadow: none;
-//  cursor: not-allowed;
-//}
+.checkbox {
+  & input {
+    margin-right: 0.25rem;
+  }
+}
 
 .scrollable {
   overflow-x: auto;

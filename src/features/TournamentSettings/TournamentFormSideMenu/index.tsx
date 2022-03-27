@@ -17,14 +17,14 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faArrowDown19, faForwardFast, faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
+import { faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
 import { FunctionalComponent,h  } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
+import { Tab } from '..';
+
 import Burger from '@/Burger';
 import SideMenu, { TabLink } from '@/SideMenu';
-
-export type Tab = 'General' | 'Tiebreakers' | 'Accelerations' | 'Sorting criteria' | 'Matchmaking';
 
 interface IProps<T> {
   activeTab: T;
@@ -46,11 +46,6 @@ const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, o
       <ul class="menu-list">
         <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList} />
         <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Accelerations' icon={faForwardFast} />
-      </ul>
-      <p class="menu-label">Players & rounds</p>
-      <ul class="menu-list">
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Sorting criteria' icon={faArrowDown19} />
         <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip} />
       </ul>
     </SideMenu>

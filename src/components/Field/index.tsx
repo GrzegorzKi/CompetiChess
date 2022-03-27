@@ -118,4 +118,23 @@ export const RoundCheckboxes = forwardRef<HTMLInputElement, ICheckboxesProps>(({
   </div>;
 });
 
+export interface ICheckboxProps extends UseFormRegisterReturn {
+  label: string | JSX.Element;
+  errors?: FieldError;
+  disabled?: boolean;
+  className?: string;
+}
+
+export const Checkbox = forwardRef<HTMLInputElement, ICheckboxProps>(({ label, className, errors, disabled, ...register }, ref) => {
+  return <div class={`field ${className ? className : ''}`}>
+    <label class={`checkbox ${style.checkbox} ${style.isSmallTablet}`} disabled={disabled}>
+      <input type="checkbox" class={style.isSmallTablet}
+             {...register} ref={ref} disabled={disabled}
+             aria-invalid={errors ? true : undefined} />
+      {label}
+    </label>
+    <ErrorLabel errors={errors} />
+  </div>;
+});
+
 export default Field;

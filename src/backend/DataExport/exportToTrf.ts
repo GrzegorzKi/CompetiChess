@@ -88,6 +88,23 @@ function stringifyAccelerations(accelerations: number[]): string {
   return string;
 }
 
+function stringifyBakuAccelerations(round: number, expectedRounds: number): string {
+  let string = '';
+
+  // Bump round by one (we need one-indexed round here)
+  round = round + 1;
+
+  const halfUp = Math.ceil(expectedRounds / 2);
+  const quarterUp = Math.ceil(halfUp / 2);
+
+  for (let i = 1; i <= round; i++) {
+    const points = (i <= quarterUp) ? 1.0 : 0.5;
+    string += ` ${points.toFixed(1).padStart(4)}`;
+  }
+
+  return string;
+}
+
 function exportTournamentInfo(tournament: Tournament): string {
   let string = '';
 
@@ -198,6 +215,42 @@ function getConfigurationsString(configuration: Configuration, pointsModFormat: 
   return confStr;
 }
 
+function calculateAccelerations(configuration: Configuration, players: Player[], forRound: number) {
+  let resultString = '';
+
+  if (configuration.useBakuAcceleration) {
+    let lastGA = configuration.bakuAccelerationLastGAPlayer;
+    if (configuration.bakuAccelerationLastGAPlayer === undefined || forRound === 0) {
+      const lastGAPos = Math.ceil(players.length / 4) * 2;
+      lastGA = players[lastGAPos - 1].id;
+    }
+
+    const accelerations = stringifyBakuAccelerations(forRound, configuration.expectedRounds);
+
+    for (const player of players) {
+      resultString += `XXA ${player.id.toString()
+        .padStart(4)}${accelerations}\n`;
+
+      if (player.id === lastGA) {
+        break;
+      }
+    }
+  } else {
+    for (const player of players) {
+      if (player.accelerations.length !== 0) {
+        const {
+          id,
+          accelerations,
+        } = player;
+        const acc = stringifyAccelerations(accelerations);
+        resultString += `XXA ${id.toString()
+          .padStart(4)}${acc}\n`;
+      }
+    }
+  }
+  return resultString;
+}
+
 export default function exportToTrf({
   tournament,
   players,
@@ -246,14 +299,7 @@ export default function exportToTrf({
     resultString += `${stringifyGames(player, forRound, exportForPairing)}\n`;
   }
 
-  for (const player of players) {
-    if (player.accelerations.length !== 0) {
-      const { id, accelerations } = player;
-      const acc = stringifyAccelerations(accelerations);
-      resultString += `XXA ${id.toString().padStart(4)}${acc}\n`;
-    }
-  }
-
+  resultString += calculateAccelerations(configuration, players, forRound);
   resultString += getConfigurationsString(configuration, pointsModFormat);
 
   return resultString;

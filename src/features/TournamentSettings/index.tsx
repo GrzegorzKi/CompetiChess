@@ -23,22 +23,23 @@ import { UseFormReturn } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { useAppDispatch } from 'hooks/index';
+import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useTournamentFormData from 'hooks/useTournamentFormData';
 import { clearIsModified } from 'reducers/flagsReducer';
-import { createTournament, updateTournament } from 'reducers/tournamentReducer';
+import { createTournament, selectPairs, updateTournament } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils/index';
 import { readTournamentIndex, saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
+import MatchmakingForm from './MatchmakingForm';
 import style from './style.scss';
-
 import TiebreakerForm from './TiebreakerForm';
 import TournamentForm from './TournamentForm';
-import TournamentFormSideMenu, { Tab } from './TournamentFormSideMenu';
+import TournamentFormSideMenu from './TournamentFormSideMenu';
 
 import { RootState, store, waitForRehydration } from '@/store';
 
+export type Tab = 'General' | 'Tiebreakers' | 'Accelerations' | 'Sorting criteria' | 'Matchmaking';
 
 function saveTournamentUnlessNotPersisted(): void {
   try {
@@ -66,22 +67,26 @@ interface IProps {
 const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
   const generalFormRef = useRef<UseFormReturn<any>>();
   const tiebreakersFormRef = useRef<HTMLSelectElement>();
+  const matchmakingFormRef = useRef<UseFormReturn<any>>();
   const [tab, setTab] = useState<Tab>('General');
 
+  const pairs = useAppSelector(selectPairs);
   const tournamentData = useTournamentFormData(isCreate);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const onSubmit = useCallback(async () => {
-    if (!generalFormRef.current || !tiebreakersFormRef.current) {
+    if (!generalFormRef.current
+      || !tiebreakersFormRef.current
+      || !matchmakingFormRef.current) {
       return;
     }
 
-    const isValid = await generalFormRef.current.trigger();
-    if (!isValid) {
-      setTab('General');
-      return;
-    }
+    const isGeneralValid = await generalFormRef.current.trigger();
+    if (!isGeneralValid) { setTab('General'); return; }
+
+    const isMatchmakingValid = await matchmakingFormRef.current.trigger();
+    if (!isMatchmakingValid) { setTab('Matchmaking'); return; }
 
     const selectedItems = Array
       .from(tiebreakersFormRef.current.options)
@@ -89,9 +94,11 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
 
     tournamentData.general = generalFormRef.current.getValues();
     tournamentData.tiebreakers = selectedItems;
+    tournamentData.matchmaking = matchmakingFormRef.current.getValues();
 
     if (isCreate) {
       tournamentData.general.createdDate = Date.now();
+
       dispatch(createTournament(tournamentData));
       toast.success('Tournament has been created!');
       navigate(routes.tournaments.path);
@@ -114,6 +121,11 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
         <TiebreakerForm inputRef={tiebreakersFormRef}
                         defaultValues={tournamentData.tiebreakers}
                         visible={tab === 'Tiebreakers'} />
+        <MatchmakingForm inputRef={matchmakingFormRef}
+                         defaultValues={tournamentData.matchmaking}
+                         visible={tab === 'Matchmaking'}
+                         afterFirst={!isCreate && !!pairs && pairs.length > 0}
+        />
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <section className={`buttons ${style.buttons}`}>
           <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"

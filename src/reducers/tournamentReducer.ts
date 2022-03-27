@@ -204,7 +204,9 @@ export const tournamentSlice = createSlice({
       const { numberOfRounds, ...tournamentData } = payload.general;
       const configurationData: Partial<Configuration> = {
         expectedRounds: numberOfRounds,
-        tiebreakers: payload.tiebreakers
+        tiebreakers: payload.tiebreakers,
+        initialColor: payload.matchmaking.initialColor,
+        useBakuAcceleration: payload.matchmaking.useBakuAcceleration,
       };
 
       state.tournament = createTournamentData(tournamentData);
@@ -232,7 +234,9 @@ export const tournamentSlice = createSlice({
       const { numberOfRounds, ...tournamentData } = payload.general;
       const configurationData: Partial<Configuration> = {
         expectedRounds: numberOfRounds,
-        tiebreakers: payload.tiebreakers
+        tiebreakers: payload.tiebreakers,
+        initialColor: payload.matchmaking.initialColor,
+        useBakuAcceleration: payload.matchmaking.useBakuAcceleration,
       };
 
       state.tournament = Object.assign(
@@ -421,6 +425,17 @@ export const tournamentSlice = createSlice({
 
       if (!tournament || !players || !pairs || !configuration) {
         return;
+      }
+
+      // Determine last player in upper bracket for Baku Acceleration, for future pairings
+      if (configuration.useBakuAcceleration) {
+        if (configuration.bakuAccelerationLastGAPlayer === undefined) {
+          const playersToIter = getPlayers(players.index,
+            players.orderById, players.orderByPosition, configuration.matchByRank);
+
+          const lastGA = Math.ceil(playersToIter.length / 4) * 2;
+          configuration.bakuAccelerationLastGAPlayer = playersToIter[lastGA].id;
+        }
       }
 
       const pairsParser = readPairs({
