@@ -20,7 +20,6 @@
 import { MenuItem, ControlledMenu, MenuState, MenuGroup, MenuDivider } from '@szhsin/react-menu';
 import { ComponentProps, FunctionalComponent, h } from 'preact';
 
-import '/styles/react-menu.scss';
 import { ResultType } from '#/utils/ResultUtils';
 
 interface IProps {

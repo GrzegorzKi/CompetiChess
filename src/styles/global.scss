@@ -19,6 +19,7 @@
 
 @use 'variables' as *;
 @use 'route-animations';
+@use 'react-menu';
 
 @use 'bulma/bulma' as bulma with (
   $success: $success,

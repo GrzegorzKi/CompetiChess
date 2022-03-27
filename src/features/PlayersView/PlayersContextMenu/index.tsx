@@ -20,8 +20,6 @@
 import { MenuItem, ControlledMenu, MenuState, MenuDivider } from '@szhsin/react-menu';
 import { ComponentProps, FunctionalComponent, h } from 'preact';
 
-import '/styles/react-menu.scss';
-
 interface IProps {
   menuState: { state?: MenuState, endTransition: () => void };
   toggleMenu: (open?: boolean) => void;
