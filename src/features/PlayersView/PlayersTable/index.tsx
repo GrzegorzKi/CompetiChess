@@ -65,7 +65,7 @@ const PlayersTable: FunctionalComponent<IProps> = (
   const playersByPosition = players.orderByPosition.map(p => players.index[p]);
 
   if (playersByPosition.length === 0) {
-    return <div ref={tableRef} class="controls">No players currently in the tournament. <a onClick={() => onRowEnter(1)}>Let's create one!</a></div>;
+    return <div ref={tableRef} class="controls">No players currently in the tournament.&nbsp;<a onClick={() => onRowEnter(1)}>Let's create one!</a></div>;
   }
 
   return (

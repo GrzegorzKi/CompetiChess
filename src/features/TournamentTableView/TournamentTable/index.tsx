@@ -55,13 +55,17 @@ function sortPlayersByPoints(players: PlayersState, configuration: Configuration
   return sortedPlayers;
 }
 
+function wasAnyGamePlayed(players: Player[]) {
+  return players.length !== 0 && players[0].scores.length !== 0;
+}
+
 function getPlaces(players: Player[], round: number, exactPlaces: boolean): string[] {
   if (exactPlaces) {
     return players.map((_, index) => (index + 1).toString());
   }
 
   // Otherwise, calculate ranges of places
-  if (round < 0) {
+  if (round < 0 || !wasAnyGamePlayed(players)) {
     return [];
   }
 
@@ -157,7 +161,7 @@ const TournamentTable: FunctionalComponent<IProps> = (
 
   if (playersByPosition.length === 0 || !configuration) {
     return <div ref={tableRef} class="controls">No players currently in the tournament.</div>;
-  } else if (round < 0) {
+  } else if (round < 0 || !wasAnyGamePlayed(sortedPlayers)) {
     return <div ref={tableRef} class="controls">No games played so far, nothing to display.</div>;
   }
 
