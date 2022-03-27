@@ -80,7 +80,10 @@ const About: FunctionalComponent = () => {
             </a>
             {' '}- a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform. Without it, integration with bbpPairings wouldn't be possible. Thanks a ton!
           </p>
-          <a class="has-text-link" href="https://www.flaticon.com/free-icons/chess" title="chess icons">Chess icons created by Freepik - Flaticon</a>
+          <a class="has-text-link" rel="noopener noreferrer"
+             href="https://www.flaticon.com/free-icons/chess">
+            Chess icons created by Freepik - Flaticon
+          </a>
         </section>
         <p class={style.footer}>
           Made with ❤️ by Grzegorz Kita. Copyright © 2021-2022

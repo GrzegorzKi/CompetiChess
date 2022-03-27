@@ -35,6 +35,7 @@ export function parseJSON<T>(value: string | null): T | undefined {
 
 export function readRawFromLocalStorage(key: string): string | null | undefined {
   if (typeof window === 'undefined') {
+    // eslint-disable-next-line no-console
     console.warn(`Tried reading localStorage key "${key}" in non-client environment`);
     return undefined;
   }
@@ -57,6 +58,7 @@ export function saveToLocalStorage<T>(value: T, key: string): T {
   if (typeof window !== 'undefined') {
     window.localStorage.setItem(key, JSON.stringify(value));
   } else {
+    // eslint-disable-next-line no-console
     console.warn(`Tried setting localStorage key "${key}" in non-client environment`);
   }
 
@@ -71,6 +73,7 @@ export function removeFromLocalStorage(key: string): void {
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(key);
   } else {
+    // eslint-disable-next-line no-console
     console.warn(`Tried removing localStorage key "${key}" in non-client environment`);
   }
 }

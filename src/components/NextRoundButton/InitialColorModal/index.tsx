@@ -20,8 +20,8 @@
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
-import { useAppDispatch } from 'hooks/index';
-import { setInitialColor } from 'reducers/tournamentReducer';
+import { useAppDispatch, useAppSelector } from 'hooks/index';
+import { selectConfiguration, setInitialColor } from 'reducers/tournamentReducer';
 
 import style from './style.scss';
 
@@ -35,8 +35,10 @@ interface IContentProps {
 }
 
 const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel, onConfirm }) => {
-  const [color, setColor] = useState(Color.WHITE);
+  const configuration = useAppSelector(selectConfiguration);
   const dispatch = useAppDispatch();
+
+  const [color, setColor] = useState(() => configuration?.initialColor ?? Color.WHITE);
 
   const setColorAndConfirm = useCallback(() => {
     dispatch(setInitialColor(color));
@@ -57,6 +59,7 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
               <input
                 type="radio"
                 name="color"
+                checked={color === Color.WHITE ? true : undefined}
                 onChange={() => setColor(Color.WHITE)}
               />
               White
@@ -68,6 +71,7 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
               <input
                 type="radio"
                 name="color"
+                checked={color === Color.BLACK ? true : undefined}
                 onChange={() => setColor(Color.BLACK)}
               />
               Black
@@ -79,9 +83,10 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
               <input
                 type="radio"
                 name="color"
+                checked={color === Color.NONE ? true : undefined}
                 onChange={() => setColor(Color.NONE)}
               />
-              Random
+              Select randomly
             </label>
           </p>
         </fieldset>

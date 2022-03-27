@@ -464,7 +464,12 @@ export const tournamentSlice = createSlice({
     builder.addCase(createNextRound.rejected, (state, action) => {
       action.payload?.toastId && dismissDelayedToast(action.payload.toastId);
 
-      const reason = action.payload?.reason ?? 'Unknown error occurred';
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.error('An error has occurred during next round creation. Error details:', action.error);
+      }
+
+      const reason = action.payload?.reason ?? 'An unknown error has occurred';
 
       if (action.payload?.isValidationError) {
         toast.warning(reason);
