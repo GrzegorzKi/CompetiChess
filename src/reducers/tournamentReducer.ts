@@ -21,7 +21,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
 import { IFormData } from 'hooks/useTournamentFormData';
-import { cyrb53 } from 'utils/common';
+import { arrayEquals, cyrb53 } from 'utils/common';
 
 import BbpPairings, { StatusCode } from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
@@ -45,6 +45,7 @@ import {
   createTournamentData,
   getPlayers,
   recalculatePlayerScores,
+  recalculatePlayerTiebreakers,
   recalculateScores,
   recalculateTiebreakers,
 } from '#/utils/TournamentUtils';
@@ -227,10 +228,11 @@ export const tournamentSlice = createSlice({
       state.tournament.id = cyrb53(JSON.stringify(state), Date.now()).toString(16);
     },
     updateTournament: (state, { payload }: PayloadAction<IFormData>) => {
-      if (!state.tournament || !state.configuration) {
+      if (!state.tournament || !state.configuration || !state.players) {
         return;
       }
 
+      const tiebreakersChanged = !arrayEquals(state.configuration.tiebreakers, payload.tiebreakers);
       const { numberOfRounds, ...tournamentData } = payload.general;
       const configurationData: Partial<Configuration> = {
         expectedRounds: numberOfRounds,
@@ -247,6 +249,11 @@ export const tournamentSlice = createSlice({
         state.configuration,
         configurationData
       );
+
+      if (tiebreakersChanged) {
+        const players = state.players;
+        recalculatePlayerTiebreakers(players.index, state.configuration);
+      }
     },
     close: (state) => {
       state.tournament = undefined;
@@ -319,10 +326,7 @@ export const tournamentSlice = createSlice({
       recalculateScores(white, configuration, round);
       recalculateScores(black, configuration, round);
 
-      const playerArray = players.orderById.map(i => players.index[i]);
-      playerArray.forEach(player => {
-        recalculateTiebreakers(player, players.index, configuration, round);
-      });
+      recalculatePlayerTiebreakers(players.index, configuration, round);
     },
     addOrUpdatePlayer: ({ players, pairs, configuration }, { payload }: PayloadAction<PlayerData>) => {
       if (!players || !pairs || !configuration) {

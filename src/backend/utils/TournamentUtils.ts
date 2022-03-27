@@ -30,7 +30,6 @@ import Tournament, {
 
 import { readPairs } from '#/Pairings/Pairings';
 import Tiebreaker, { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
-// import { FideSwissRatingsNotConsistent } from '#/Tiebreaker/TiebreakerSets';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
 import { gameWasPlayed, invertColor, participatedInPairing } from '#/utils/GamesUtils';
 import { createComparator, sortByScore, sortByTiebreaker } from '#/utils/SortUtils';
@@ -261,6 +260,19 @@ export const recalculatePlayerScores = (
   playersArr.forEach(player => {
     recalculateScores(player, configuration, fromRound, toRound);
   });
+  playersArr.forEach(player => {
+    recalculateTiebreakers(player, players, configuration, fromRound, toRound);
+  });
+};
+
+export const recalculatePlayerTiebreakers = (
+  players: PlayersRecord,
+  configuration: Configuration,
+  fromRound?: number,
+  toRound?: number
+): void => {
+  const playersArr = normalizeToArray(players);
+
   playersArr.forEach(player => {
     recalculateTiebreakers(player, players, configuration, fromRound, toRound);
   });

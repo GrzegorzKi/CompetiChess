@@ -104,8 +104,9 @@ function getTiebreakerValues(sortedPlayers: Player[], _tiebreakers: Tiebreaker[]
 
   return sortedPlayers.map(player => {
     return _tiebreakers.map(tb => {
+      const tiebreaker = tiebreakers[tb];
       if (tb !== Tiebreaker.DIRECT_ENCOUNTER) {
-        return <td key={tb}>{player.scores[round].tiebreakers[tb]}</td>;
+        return <td key={tb}>{player.scores[round].tiebreakers[tb]?.toFixed(tiebreaker.decimalPlaces ?? 1)}</td>;
       }
     });
   });
