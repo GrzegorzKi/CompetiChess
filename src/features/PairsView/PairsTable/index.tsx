@@ -20,12 +20,14 @@
 import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback } from 'preact/hooks';
 
+import { useAppSelector } from 'hooks/index';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
+import { selectConfiguration } from 'reducers/tournamentReducer';
 import { getDataIndex } from 'utils/common';
 
 import style from './style.scss';
 
-import { Pair, Player, PlayersRecord } from '#/types/Tournament';
+import { GameResult, Pair, Player, PlayersRecord } from '#/types/Tournament';
 
 function prevRoundPoints(player: Player, round: number): number {
   return (round <= 0)
@@ -57,6 +59,8 @@ interface IProps {
 const PairsTable: FunctionalComponent<IProps> = (
   { tableRef, pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
 
+  const configuration = useAppSelector(selectConfiguration);
+
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
       event.preventDefault();
@@ -79,11 +83,14 @@ const PairsTable: FunctionalComponent<IProps> = (
 
   const menuHandler = useContextMenuHandler(onContextMenu);
 
-  if (!pairs || pairs.length === 0) {
+  if (!pairs || pairs.length === 0 || !configuration) {
     return <div ref={tableRef}>No pairs defined for selected round</div>;
   }
 
   const round = pairs[0].round - 1;
+
+  const pausingPlayer = Object.entries(players)
+    .find(([, current]) => current.games[round].result === GameResult.PAIRING_ALLOCATED_BYE);
 
   return (
     <div ref={tableRef}>
@@ -123,6 +130,11 @@ const PairsTable: FunctionalComponent<IProps> = (
           )}
         </tbody>
       </table>
+      {pausingPlayer &&
+      <p class={style.padded}>
+        Player pausing: <b>{displayPlayer(pausingPlayer[1])}</b> <i>(+{configuration.pointsForPairingAllocatedBye.toFixed(1)} pts)</i>
+      </p>
+      }
     </div>
   );
 };
