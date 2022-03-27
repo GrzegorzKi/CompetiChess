@@ -118,18 +118,17 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
         <TournamentForm inputRef={generalFormRef}
                         defaultValues={tournamentData.general}
                         visible={tab === 'General'} />
-        <TiebreakerForm inputRef={tiebreakersFormRef}
-                        defaultValues={tournamentData.tiebreakers}
-                        visible={tab === 'Tiebreakers'} />
         <MatchmakingForm inputRef={matchmakingFormRef}
                          defaultValues={tournamentData.matchmaking}
                          visible={tab === 'Matchmaking'}
-                         afterFirst={!isCreate && !!pairs && pairs.length > 0}
-        />
+                         afterFirst={!isCreate && !!pairs && pairs.length > 0} />
+        <TiebreakerForm inputRef={tiebreakersFormRef}
+                        defaultValues={tournamentData.tiebreakers}
+                        visible={tab === 'Tiebreakers'} />
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
-        <section className={`buttons ${style.buttons}`}>
+        <section class={`buttons ${style.buttons}`}>
           <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"
-                 className="button is-success ml-auto" />
+                 class="button is-success ml-auto" />
         </section>
       </section>
     </article>

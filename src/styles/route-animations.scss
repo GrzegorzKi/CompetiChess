@@ -56,6 +56,7 @@
     &.fade-exit-active {
       opacity: 0;
       transform: translate(-60%, 0);
+      pointer-events: none;
 
       transition: opacity 600ms ease-out, transform 700ms ease;
     }

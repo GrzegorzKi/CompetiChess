@@ -74,9 +74,9 @@ const Header: FunctionalComponent = () => {
       <div class={`navbar-menu${active ? ' is-active' : ''}`} >
         <div class="navbar-end">
           {tournamentInfo}
+          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.about.path}>About</NavLink>
           <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournaments.path}>Manage tournaments</NavLink>
           {tournamentSettings}
-          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.about.path}>About</NavLink>
         </div>
       </div>
     </nav>

@@ -23,6 +23,10 @@
 
 @import 'react-dual-listbox/src/scss/react-dual-listbox.scss';
 
+.rdl-control-container {
+  height: 14rem;
+}
+
 @include bulma.mobile {
   .react-dual-listbox {
     flex-flow: row wrap;
@@ -32,10 +36,6 @@
   .rdl-list-box {
     flex-grow: 1;
     flex-basis: 50%;
-  }
-
-  .rdl-control-container {
-    height: 9rem;
   }
 
   .rdl-selected {

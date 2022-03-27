@@ -20,6 +20,7 @@
 .print-only {
   display: none;
 }
+
 @page {
   size: auto;
   margin: 10mm;
@@ -49,5 +50,10 @@
 
   .table.is-striped tbody tr:nth-child(2n) {
     background-color: #fafafa !important;
+  }
+
+  abbr[title] {
+    border: none;
+    text-decoration: none;
   }
 }

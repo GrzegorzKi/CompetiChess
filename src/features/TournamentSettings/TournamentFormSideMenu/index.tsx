@@ -45,8 +45,8 @@ const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, o
       <p class="menu-label">General</p>
       <ul class="menu-list">
         <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors} />
         <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip} />
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors} />
       </ul>
     </SideMenu>
   );
