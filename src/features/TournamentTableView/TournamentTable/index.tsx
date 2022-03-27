@@ -61,6 +61,10 @@ function getPlaces(players: Player[], round: number, exactPlaces: boolean): stri
   }
 
   // Otherwise, calculate ranges of places
+  if (round < 0) {
+    return [];
+  }
+
   const breakpoints = players.reduceRight((breakpoint, player, index, _players) => {
     if (index > 0 && player.scores[round].points !== _players[index - 1].scores[round].points) {
       breakpoint.push(index + 1);
@@ -153,6 +157,8 @@ const TournamentTable: FunctionalComponent<IProps> = (
 
   if (playersByPosition.length === 0 || !configuration) {
     return <div ref={tableRef} class="controls">No players currently in the tournament.</div>;
+  } else if (round < 0) {
+    return <div ref={tableRef} class="controls">No games played so far, nothing to display.</div>;
   }
 
   return (

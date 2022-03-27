@@ -84,7 +84,7 @@ const PairsTable: FunctionalComponent<IProps> = (
   const menuHandler = useContextMenuHandler(onContextMenu);
 
   if (!pairs || pairs.length === 0 || !configuration) {
-    return <div ref={tableRef}>No pairs defined for selected round</div>;
+    return <div ref={tableRef}>No pairs defined for selected round.</div>;
   }
 
   const round = pairs[0].round - 1;
