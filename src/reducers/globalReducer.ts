@@ -23,11 +23,11 @@ import { createNextRound, tournamentSlice } from './tournamentReducer';
 
 import { RootState } from '@/store';
 
-export interface IsModifiedState {
+export interface GlobalState {
   isModified: boolean,
 }
 
-const initialState: IsModifiedState = {
+const initialState: GlobalState = {
   isModified: false,
 };
 

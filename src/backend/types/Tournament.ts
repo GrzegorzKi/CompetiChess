@@ -37,7 +37,7 @@ Tournament section:
  */
 import Tiebreaker from '#/Tiebreaker/Tiebreaker';
 
-interface Tournament {
+export interface Tournament {
   id: string;
   createdDate: number;
 
@@ -203,6 +203,8 @@ export interface Score {
   points: number;
   tiebreakers: TiebreakersPoints;
 }
+
+export type PairsRound = Pair[];
 
 export type Pair = {
   round: number,

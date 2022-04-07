@@ -25,7 +25,7 @@ import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useTournamentFormData from 'hooks/useTournamentFormData';
-import { clearIsModified } from 'reducers/flagsReducer';
+import { clearIsModified } from 'reducers/globalReducer';
 import { createTournament, selectPairs, updateTournament } from 'reducers/tournamentReducer';
 
 import { routes } from 'utils/index';

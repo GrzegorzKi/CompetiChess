@@ -22,7 +22,7 @@ import { useCallback } from 'preact/hooks';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
-import { selectIsModified } from 'reducers/flagsReducer';
+import { selectIsModified } from 'reducers/globalReducer';
 import { loadNewFromJson } from 'reducers/tournamentReducer';
 
 import { loadFile } from 'utils/fileUtils';

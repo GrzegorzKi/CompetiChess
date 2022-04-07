@@ -22,7 +22,7 @@ import { useCallback } from 'preact/hooks';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks/index';
-import { selectIsModified } from 'reducers/flagsReducer';
+import { selectIsModified } from 'reducers/globalReducer';
 import { routes } from 'utils/index';
 import { blockIfModified } from 'utils/modalUtils';
 

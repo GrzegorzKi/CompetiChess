@@ -34,7 +34,7 @@ import Tournament, {
   Color,
   Configuration,
   GameResult,
-  Pair,
+  PairsRound,
   Player,
   PlayersRecord,
 } from '#/types/Tournament';
@@ -81,7 +81,7 @@ export interface TournamentState {
   tournament?: Tournament,
   configuration?: Configuration,
   players?: PlayersState,
-  pairs?: Array<Pair[]>,
+  pairs?: Array<PairsRound>,
   view: ViewState,
 }
 

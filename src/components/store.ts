@@ -21,7 +21,7 @@ import { Action, combineReducers, configureStore, ThunkAction } from '@reduxjs/t
 import { FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import flagsReducer from 'reducers/flagsReducer';
+import flagsReducer from 'reducers/globalReducer';
 import tournamentReducer from 'reducers/tournamentReducer';
 
 const rootReducer = combineReducers({

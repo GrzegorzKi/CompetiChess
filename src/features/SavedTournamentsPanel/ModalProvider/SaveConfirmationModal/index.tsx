@@ -21,7 +21,7 @@ import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
 
 import { useAppDispatch } from 'hooks/index';
-import { clearIsModified } from 'reducers/flagsReducer';
+import { clearIsModified } from 'reducers/globalReducer';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import LocationStateModal from '@/modals/LocationStateModal';
