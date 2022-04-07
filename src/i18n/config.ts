@@ -5,6 +5,11 @@ import { initReactI18next } from 'react-i18next';
 import translationEn from './en/translation.json';
 import translationPl from './pl/translation.json';
 
+export const resources = {
+  en: { translation: translationEn },
+  pl: { translation: translationPl },
+};
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -14,10 +19,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
-    resources: {
-      en: { translation: translationEn },
-      pl: { translation: translationPl },
-    }
+    resources
   });
 
 export default i18n;

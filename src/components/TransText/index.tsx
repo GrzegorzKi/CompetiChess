@@ -17,11 +17,19 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import 'react-i18next';
-import { resources } from '../i18n/config';
+import { FunctionalComponent, h } from 'preact';
+import { Normalize, useTranslation } from 'react-i18next';
 
-declare module 'react-i18next' {
- interface CustomTypeOptions {
-   resources: typeof resources['en']
- }
+import { resources } from '../../i18n/config';
+
+interface IProps {
+  i18nKey: Normalize<typeof resources['en']['translation']>;
 }
+
+const TransText: FunctionalComponent<IProps> = ({ i18nKey }) => {
+  const { t } = useTranslation();
+
+  return <>{t(i18nKey)}</>;
+};
+
+export default TransText;
