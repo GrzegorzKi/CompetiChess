@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -32,6 +33,8 @@ import style from './style.scss';
 import Burger from '@/Burger';
 
 const Header: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const [active, setActive] = useState(false);
   const { pathname } = useLocation();
   const tournament = useAppSelector(selectTournament);
@@ -58,11 +61,14 @@ const Header: FunctionalComponent = () => {
     ) : null;
 
   const tournamentSettings = tournament
-    ? <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournamentSettings.path}>Settings</NavLink>
-    : null;
+    ? (
+      <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournamentSettings.path}>
+        {t('Settings')}
+      </NavLink>
+    ) : null;
 
   return (
-    <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-fixed-top has-shadow" role="navigation" aria-label={t('Navigation bar')}>
       <div class="navbar-brand">
         <NavigationLinks />
         <Link className="navbar-item" to={tournament ? routes.pairs.path : routes[''].path}>
@@ -74,8 +80,12 @@ const Header: FunctionalComponent = () => {
       <div class={`navbar-menu${active ? ' is-active' : ''}`} >
         <div class="navbar-end">
           {tournamentInfo}
-          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.about.path}>About</NavLink>
-          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournaments.path}>Manage tournaments</NavLink>
+          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.about.path}>
+            {t('About')}
+          </NavLink>
+          <NavLink className={({ isActive }) => `navbar-item${isActive ? ' is-active' : ''}`} to={routes.tournaments.path}>
+            {t('Manage tournaments')}
+          </NavLink>
           {tournamentSettings}
         </div>
       </div>

@@ -20,6 +20,7 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
+import { Trans } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { close } from 'reducers/tournamentReducer';
@@ -36,7 +37,7 @@ async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknow
     store.dispatch(close());
   }
 
-  toast.info('Tournament has been deleted');
+  toast.info(<Trans i18nKey='Tournament deleted' />);
 }
 
 interface Props {

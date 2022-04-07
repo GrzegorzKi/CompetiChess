@@ -19,6 +19,7 @@
 
 import clone from 'just-clone';
 import { FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 import { TournamentState } from 'reducers/tournamentReducer';
 import { downloadFile } from 'utils/fileUtils';
@@ -61,8 +62,10 @@ interface Props {
 }
 
 const ExportTournamentButton: FunctionalComponent<Props> = ({ id }) => {
+  const { t } = useTranslation();
+  
   return <button class="button" onClick={() => exportTournament(id)}>
-    Export
+    {t('Export')}
   </button>;
 };
 

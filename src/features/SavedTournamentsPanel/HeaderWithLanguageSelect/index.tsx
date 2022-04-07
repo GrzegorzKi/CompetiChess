@@ -17,35 +17,25 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import './styles/global.scss';
-import { h } from 'preact';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
-import { StaticRouter } from 'react-router-dom/server';
+import { FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
-import App from '@/app';
-import initStore from '@/store';
+import style from './style.scss';
 
-import './i18n/config';
+const HeaderWithLanguageSelect: FunctionalComponent = () => {
+  const { t, i18n } = useTranslation();
 
-const { store } = initStore();
-
-const Main = (props: { url: string }): JSX.Element => {
-  return typeof window === 'undefined'
-    ? (
-      <StaticRouter location={props.url}>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </StaticRouter>
-    )
-    : (
-      <BrowserRouter>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </BrowserRouter>
-    );
+  return (
+    <div class="panel-heading">
+      {t('Tournaments')}
+      <div class={`control select ${style.langSelect}`}>
+        <select value={i18n.language} onChange={(e) => i18n.changeLanguage(e.currentTarget.value)}>
+          <option value="en">English</option>
+          <option value="pl">Polski</option>
+        </select>
+      </div>
+    </div>
+  );
 };
 
-export default Main;
+export default HeaderWithLanguageSelect;

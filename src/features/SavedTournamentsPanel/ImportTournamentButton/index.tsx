@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation, Trans } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -47,11 +48,13 @@ function importTournament(fileList: FileList) {
       toast.success(successText);
     })
     .catch(() => {
-      toast.error('Provided invalid file or file content is not a JSON object');
+      toast.error(<Trans i18nKey='Invalid file' />);
     });
 }
 
 const ImportTournamentButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const isModified = useAppSelector(selectIsModified);
   const { onSaveGuard } = useModalContext();
 
@@ -63,7 +66,7 @@ const ImportTournamentButton: FunctionalComponent = () => {
 
   return (
     <FileSelector fileHandler={checkCurrentAndImportTournament} className="button">
-      Import from JSON
+      {t('Import JSON file')}
     </FileSelector>
   );
 };

@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks/index';
@@ -29,6 +30,8 @@ import { blockIfModified } from 'utils/modalUtils';
 import { useModalContext } from '../ModalProvider';
 
 const CreateTournamentButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
 
   const isModified = useAppSelector(selectIsModified);
@@ -44,7 +47,7 @@ const CreateTournamentButton: FunctionalComponent = () => {
     <p className="control">
       <button className="button is-primary"
               onClick={checkCurrentAndNavigate}>
-        Create tournament
+        {t('Create tournament')}
       </button>
     </p>
   );
