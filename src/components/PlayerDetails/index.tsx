@@ -21,6 +21,7 @@ import clone from 'just-clone';
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useMemo, useRef } from 'preact/hooks';
 import { UseFormReturn } from 'react-hook-form';
+import { TFunction, useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { findFreeId } from 'features/PlayersView';
@@ -35,6 +36,7 @@ import PlayerForm, { PlayerData } from './PlayerForm';
 
 import { createDefaultTrfPlayer } from '#/TrfxParser/parseTrfPlayer';
 import Modal from '@/modals/Modal';
+
 
 
 function getPlayerOrCreateNew(players: PlayersState | undefined, playerId: number): PlayerData {
@@ -62,15 +64,17 @@ interface IProps {
   readonly?: boolean;
 }
 
-function getModalTitle(index: number, readonly?: boolean) {
+function getModalTitle(index: number, readonly: boolean | undefined, t: TFunction) {
   if (readonly)
-    return 'Player details';
+    return t('Player details');
   if (index !== -1)
-    return 'Edit player';
-  return 'Add player';
+    return t('Edit player');
+  return t('Add player');
 }
 
 const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClose, readonly }) => {
+  const { t } = useTranslation();
+
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
@@ -78,7 +82,7 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
   const formRef = useRef<UseFormReturn<PlayerData>>();
 
   let index = players ? players.orderByPosition.findIndex(id => id === playerId) : -1;
-  const title = getModalTitle(index, readonly);
+  const title = getModalTitle(index, readonly, t);
 
   index = (players && index === -1) ? players.orderByPosition.length : index;
 
@@ -130,13 +134,13 @@ const PlayerDetails: FunctionalComponent<IProps> = ({ playerId, setIndex, onClos
         <PlayerForm inputRef={formRef} defaultValues={player} values={player} readonly={readonly} />
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-success" onClick={() => onApply()}>OK</button>
-        <button class="button is-outlined" onClick={onClose}>Cancel</button>
+        <button class="button is-success" onClick={() => onApply()}>{t('OK')}</button>
+        <button class="button is-outlined" onClick={onClose}>{t('Cancel')}</button>
         <button class="button is-outlined is-info ml-auto" disabled={index < 1}
-                onClick={prevPlayerFn}>Previous</button>
+                onClick={prevPlayerFn}>{t('Previous')}</button>
         {index < players.orderByPosition.length - 1
-          ? <button class="button is-outlined is-info" onClick={nextPlayerFn}>Next</button>
-          : <button class="button is-outlined is-success" disabled={readonly} onClick={newPlayerFn}>New</button>}
+          ? <button class="button is-outlined is-info" onClick={nextPlayerFn}>{t('Next')}</button>
+          : <button class="button is-outlined is-success" disabled={readonly} onClick={newPlayerFn}>{t('New')}</button>}
       </footer>
     </>
   );

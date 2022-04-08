@@ -21,14 +21,26 @@
   "Create tournament": "Utwórz turniej",
   "Import JSON file": "Importuj plik JSON",
   "Import TRFx file": "Importuj plik TRFx",
+
   "Confirm": "Potwierdź",
+  "OK": "OK",
   "Cancel": "Anuluj",
   "Yes": "Tak",
   "No": "Nie",
+  "Previous": "Poprzedni",
+  "Next": "Następny",
+  "New": "Nowy",
+  "Print": "Drukuj",
 
   "Save tournament prompt": "Czy chcesz zapisać turniej?",
   "Confirm deletion": "Potwierdź usunięcie",
   "Delete tournament prompt": "Czy na pewno chcesz usunąć turniej?",
+
+  "Select initial color": "Wybierz kolor początkowy",
+  "Select color prompt": "Wybierz kolor dla pierwszego gracza:",
+  "White": "Białe",
+  "Black": "Czarne",
+  "Select randomly": "Wybierz losowo",
 
   "Tournament loaded": "Turniej <1>{{name}}</1> załadowano pomyślnie!",
   "Warnings were generated:": "Zostały wygenerowane ostrzeżenia:",
@@ -37,6 +49,29 @@
   "Tournament saved!": "Turniej zapisano!",
   "Nothing to save": "Nic do zapisania: Nie jest aktywny żaden turniej.",
   "Unable to save": "Nie udało się zapisać turnieju",
-  "Tournament deleted": "Turniej został usunięty."
+  "Tournament deleted": "Turniej został usunięty.",
+  "Too few players": "Potrzeba przynajmniej trzech zawodników do rozpoczęcia kolejnej rundy.",
 
+  "PreviousR": "Poprzednia",
+  "NextR": "Następna",
+  "Next round": "Następna runda",
+  "Previous round": "Poprzednia runda",
+
+  "Add player": "Dodaj zawodnika",
+  "Edit player": "Edytuj zawodnika",
+  "Player details": "Dane o zawodniku",
+  "Required": "Pole \"{{field}}\" jest wymagane",
+  "Id": "Id",
+  "No.": "Nr",
+  "Player name": "Nazwa gracza",
+  "Sex": "Płeć",
+  "Rating": "Ranking",
+  "FIDE Number": "Numer FIDE",
+  "Federation": "Federacja",
+  "Birth date": "Data urodzenia",
+  "Late": "Spóźniony - gra w rundzie",
+  "Withdrawn": "Wycofany w rundzie",
+  "Not played rounds": "Niegrane rundy",
+  "Male": "Mężczyzna",
+  "Female": "Kobieta"
 }

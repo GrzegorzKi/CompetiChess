@@ -20,6 +20,7 @@
 import { faPrint } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 import style from './style.scss';
 
@@ -29,10 +30,12 @@ interface IProps {
 }
 
 const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <button class={`button is-info icon-text ${style.nowrap}`} onClick={handlePrint}>
       <span class="icon"><Icon icon={faPrint} /></span>
-      <span>Print</span>
+      <span>{t('Print')}</span>
     </button>
   );
 };

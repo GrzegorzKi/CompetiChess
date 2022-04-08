@@ -18,12 +18,12 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { Normalize, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
-import { resources } from '../../i18n/config';
+import { I18nKey } from '../../types/react-i18next';
 
 interface IProps {
-  i18nKey: Normalize<typeof resources['en']['translation']>;
+  i18nKey: I18nKey;
 }
 
 const TransText: FunctionalComponent<IProps> = ({ i18nKey }) => {

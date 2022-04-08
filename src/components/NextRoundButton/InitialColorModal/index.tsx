@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import { selectConfiguration, setInitialColor } from 'reducers/tournamentReducer';
@@ -35,6 +36,8 @@ interface IContentProps {
 }
 
 const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
   const configuration = useAppSelector(selectConfiguration);
   const dispatch = useAppDispatch();
 
@@ -48,12 +51,12 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
   return (
     <>
       <header class="modal-card-head">
-        <p class="modal-card-title">Select initial color</p>
+        <p class="modal-card-title">{t('Select initial color')}</p>
         <button class="delete" aria-label="close" onClick={onCancel} />
       </header>
       <section class="modal-card-body">
         <fieldset class={`control ${style.radioGroup}`}>
-          <legend>Select color for the first player:</legend>
+          <legend>{t('Select color prompt')}</legend>
           <p>
             <label class="radio">
               <input
@@ -62,7 +65,7 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
                 checked={color === Color.WHITE ? true : undefined}
                 onChange={() => setColor(Color.WHITE)}
               />
-              White
+              {t('White')}
             </label>
           </p>
 
@@ -74,7 +77,7 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
                 checked={color === Color.BLACK ? true : undefined}
                 onChange={() => setColor(Color.BLACK)}
               />
-              Black
+              {t('Black')}
             </label>
           </p>
 
@@ -86,14 +89,14 @@ const InitialColorModalContent: FunctionalComponent<IContentProps> = ({ onCancel
                 checked={color === Color.NONE ? true : undefined}
                 onChange={() => setColor(Color.NONE)}
               />
-              Select randomly
+              {t('Select randomly')}
             </label>
           </p>
         </fieldset>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-success" onClick={setColorAndConfirm}>OK</button>
-        <button class="button is-outlined ml-auto" onClick={onCancel}>Cancel</button>
+        <button class="button is-success" onClick={setColorAndConfirm}>{t('OK')}</button>
+        <button class="button is-outlined ml-auto" onClick={onCancel}>{t('Cancel')}</button>
       </footer>
     </>
   );
