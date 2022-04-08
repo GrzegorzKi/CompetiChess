@@ -20,13 +20,13 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
-import { Trans } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { close } from 'reducers/tournamentReducer';
 import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
 import { store } from '@/store';
+import TransText from '@/TransText';
 
 async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknown>) {
   if (onDeleteGuard && !await onDeleteGuard()) return;
@@ -37,7 +37,7 @@ async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknow
     store.dispatch(close());
   }
 
-  toast.info(<Trans i18nKey='Tournament deleted' />);
+  toast.info(<TransText i18nKey='Tournament deleted' />);
 }
 
 interface Props {

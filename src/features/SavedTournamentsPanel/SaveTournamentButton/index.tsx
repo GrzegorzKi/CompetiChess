@@ -18,7 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -28,6 +28,7 @@ import { selectTournament } from 'reducers/tournamentReducer';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import { RootState, store } from '@/store';
+import TransText from '@/TransText';
 
 export function saveTournament(): void {
   try {
@@ -36,13 +37,13 @@ export function saveTournament(): void {
     const saved = saveTournamentToLocalStorage(storeState.tournament);
     if (saved) {
       store.dispatch(clearIsModified());
-      toast.success(<Trans i18nKey='Tournament saved!' />);
+      toast.success(<TransText i18nKey='Tournament saved!' />);
     } else {
-      toast.warning(<Trans i18nKey='Nothing to save' />);
+      toast.warning(<TransText i18nKey='Nothing to save' />);
     }
 
   } catch (e) {
-    toast.error(<Trans i18nKey='Unable to save' />);
+    toast.error(<TransText i18nKey='Unable to save' />);
   }
 }
 

@@ -18,7 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
-import { useTranslation, Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -30,6 +30,7 @@ import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
 import { store } from '@/store';
+import TransText from '@/TransText';
 
 export async function loadTournament(
   id: string,
@@ -45,13 +46,14 @@ export async function loadTournament(
       store.dispatch(loadNewFromJson(data));
       store.dispatch(clearIsModified());
 
-      const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
-      toast.success(successText);
+      toast.success(<Trans i18nKey="Tournament loaded">
+        Tournament <strong>{{ name: data.tournament.tournamentName }}</strong> loaded successfully!
+      </Trans>);
       return;
     }
   } catch (e) { /* Pass-through */ }
 
-  toast.error(<Trans i18nKey='Invalid file' />);
+  toast.error(<TransText i18nKey='Invalid file' />);
 }
 
 interface Props {
@@ -61,7 +63,7 @@ interface Props {
 
 const LoadTournamentButton: FunctionalComponent<Props> = ({ id, onSaveGuard }) => {
   const { t } = useTranslation();
-  
+
   const isModified = useAppSelector(selectIsModified);
 
   return <>

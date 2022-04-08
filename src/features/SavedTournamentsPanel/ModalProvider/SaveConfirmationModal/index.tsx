@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch } from 'hooks/index';
 import { clearIsModified } from 'reducers/flagsReducer';
@@ -35,6 +36,8 @@ interface IProps {
 }
 
 const SaveConfirmationModal: FunctionalComponent<IProps> = ({ stateKey, isActive, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
   const dispatch = useAppDispatch();
   const saveAndConfirm = useCallback(() => {
     const storeState = store.getState() as RootState;
@@ -52,16 +55,16 @@ const SaveConfirmationModal: FunctionalComponent<IProps> = ({ stateKey, isActive
       contentLabel="Save tournament confirmation modal"
     >
       <header class="modal-card-head">
-        <p class="modal-card-title">Confirm</p>
+        <p class="modal-card-title">{t('Confirm')}</p>
         <button class="delete" aria-label="close" onClick={onCancel} />
       </header>
       <section className="modal-card-body">
-        <div>Do you want to save tournament?</div>
+        <div>{t('Save tournament prompt')}</div>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-success" onClick={saveAndConfirm}>Save</button>
-        <button class="button is-outlined is-danger" onClick={onConfirm}>Don't save</button>
-        <button class="button is-outlined ml-auto" onClick={onCancel}>Cancel</button>
+        <button class="button is-success" onClick={saveAndConfirm}>{t('Save')}</button>
+        <button class="button is-outlined is-danger" onClick={onConfirm}>{t('Don\'t save')}</button>
+        <button class="button is-outlined ml-auto" onClick={onCancel}>{t('Cancel')}</button>
       </footer>
     </LocationStateModal>
   );

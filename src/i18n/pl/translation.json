@@ -16,14 +16,27 @@
   "No tournaments": "Brak zapisanych turniejów",
   "Load": "Załaduj",
   "Save": "Zapisz",
+  "Don't save": "Nie zapisuj",
   "Export": "Eksportuj",
   "Create tournament": "Utwórz turniej",
   "Import JSON file": "Importuj plik JSON",
   "Import TRFx file": "Importuj plik TRFx",
+  "Confirm": "Potwierdź",
+  "Cancel": "Anuluj",
+  "Yes": "Tak",
+  "No": "Nie",
+
+  "Save tournament prompt": "Czy chcesz zapisać turniej?",
+  "Confirm deletion": "Potwierdź usunięcie",
+  "Delete tournament prompt": "Czy na pewno chcesz usunąć turniej?",
+
+  "Tournament loaded": "Turniej <1>{{name}}</1> załadowano pomyślnie!",
+  "Warnings were generated:": "Zostały wygenerowane ostrzeżenia:",
   "Invalid file": "Załadowano nieprawidłowy plik lub zawartość pliku nie jest obiektem JSON",
   "Unable to load TRFx": "Nie udało się załadować pliku TRFx.",
   "Tournament saved!": "Turniej zapisano!",
   "Nothing to save": "Nic do zapisania: Nie jest aktywny żaden turniej.",
   "Unable to save": "Nie udało się zapisać turnieju",
   "Tournament deleted": "Turniej został usunięty."
+
 }

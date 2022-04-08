@@ -19,7 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
-import { useTranslation, Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -39,19 +39,18 @@ import parseTrfFile, {
 import { getMessageForWarnCode } from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
 import { store } from '@/store';
+import TransText from '@/TransText';
 
 interface ILoadedMessageProps {
   result: ValidTrfData;
 }
 
 const LoadedMessage = ({ result }: ILoadedMessageProps) => {
-  const successText = (
-    <>
-      Tournament{' '}
-      <strong>{result.tournament.tournamentName}</strong>
-      {' '}loaded successfully!
-    </>
-  );
+  const { t } = useTranslation();
+
+  const successText = (<Trans i18nKey="Tournament loaded">
+    Tournament <strong>{{ name: result.tournament.tournamentName }}</strong> loaded successfully!
+  </Trans>);
 
   if (result.warnings.length === 0) {
     return successText;
@@ -60,7 +59,7 @@ const LoadedMessage = ({ result }: ILoadedMessageProps) => {
   return <>
     {successText}
     <hr />
-    Warnings were generated:
+    {t('Warnings were generated:')}
     <ul class="ul">
       {result.warnings.map((value, index) => (
         <li key={index}>{getMessageForWarnCode(value)}</li>
@@ -102,7 +101,7 @@ function loadTrfxTournament(files: FileList) {
       }
     })
     .catch(() => {
-      toast.error(<Trans i18nkey='Unable to load TRFx' />);
+      toast.error(<TransText i18nKey='Unable to load TRFx' />);
     });
 }
 
