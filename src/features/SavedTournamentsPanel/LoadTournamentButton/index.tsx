@@ -49,11 +49,12 @@ export async function loadTournament(
       toast.success(<Trans i18nKey="Tournament loaded">
         Tournament <strong>{{ name: data.tournament.tournamentName }}</strong> loaded successfully!
       </Trans>);
-      return;
+    } else {
+      toast.error(<TransText i18nKey='Tournament entry missing' />);
     }
-  } catch (e) { /* Pass-through */ }
-
-  toast.error(<TransText i18nKey='Invalid file' />);
+  } catch (e) {
+    toast.error(<TransText i18nKey='Invalid file' />);
+  }
 }
 
 interface Props {

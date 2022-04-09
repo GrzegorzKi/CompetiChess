@@ -16,6 +16,7 @@ i18n
   .init({
     debug: process.env.NODE_ENV !== 'production',
     fallbackLng: 'en',
+    keySeparator: false,
     interpolation: {
       escapeValue: false,
     },

@@ -29,7 +29,7 @@ const HeaderWithLanguageSelect: FunctionalComponent = () => {
     <div class="panel-heading">
       {t('Tournaments')}
       <div class={`control select ${style.langSelect}`}>
-        <select value={i18n.language} onChange={(e) => i18n.changeLanguage(e.currentTarget.value)}>
+        <select value={i18n.language.split('-')[0]} onChange={(e) => i18n.changeLanguage(e.currentTarget.value)}>
           <option value="en">English</option>
           <option value="pl">Polski</option>
         </select>
