@@ -65,11 +65,11 @@
   "Pairings done": "Next round pairings are ready!",
   "Not filled results error": "Cannot start new round. Not all pairings' results have been entered.",
   "All rounds played error": "All the rounds in the tournament have been played. Cannot start new round.",
-  "BbpPairings export error": "Unable to generate output for BbpPairings engine.",
+  "BbpPairings export error": "Unable to generate input file for BbpPairings engine.",
   "No valid pairings error": "No valid pairing exists: The players could not be simultaneously matched while satisfying all absolute criteria.",
   "Initialization error": "Application has encountered an error while initializing BbpPairings engine. If the problem persists, please clear cache and restart the app.",
   "Unknown error": "An unknown error has occurred",
-  "No tournament active": "There is no tournament active. Cannot start new round.",
+  "No tournament active error": "There is no tournament active. Cannot start new round.",
   "Error on line": "Error on line {{ num }} - {{ details }}",
   "Processing stopped error": "Processing stopped due to multiple errors found",
 
@@ -144,5 +144,17 @@
 
   "Printing in progress": "Printing in progress",
   "Printing error": "An error occurred while printing. Please try again.",
-  "Printing not supported": "Your browser doesn't support printing (e.g. Firefox for Android). Please use compatible browser to print."
+  "Printing not supported": "Your browser doesn't support printing (e.g. Firefox for Android). Please use compatible browser to print.",
+
+  "No tournament active": "There is no tournament open right now. <2>Do you want to create one?</2>",
+
+  "About 1": "{{ appName }} - simple chess tournament manager, written with Preact, TypeScript and a bit of C++.",
+  "About 2": "It is a response for the already existing tournament managers. Some of them lack readability, many aren't cross-platform due to being a standalone desktop application. And most of them require registration.",
+  "About 3": "{{ appName }} aims to fix all these issues while remaining as simple as possible. Doing what it should exactly do - managing a tournament and pairing players against each other. All from the browser, with offline capabilities.",
+  "About 4": "Application is actively evolving. With time, it might gain more features to provide better overall experience!",
+  "Core libraries used": "Core libraries used:",
+  "About bbpPairings": "<0>bbpPairings</0> - Swiss system pairing engine by Jeremy Bierema, licensed under Apache 2.0.",
+  "About Emscripten": "<0>Emscripten</0> - a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform. Without it, integration with bbpPairings wouldn't be possible. Thanks a ton!",
+  "About icons": "Chess icons created by Freepik - Flaticon",
+  "About - Made with love": "Made with ❤️ by Grzegorz Kita."
 }

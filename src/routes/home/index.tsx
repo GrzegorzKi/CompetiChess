@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { Trans } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { Link, Navigate } from 'react-router-dom';
 
@@ -37,9 +38,12 @@ const Home: FunctionalComponent = () => {
   }
 
   return (
-    <p>There is no tournament open right now.
-      {' '}
-      <Link className="has-text-link" to={routes.tournaments.path}>Do you want to create one?</Link>
+    <p>
+      <Trans i18nKey="No tournament active">
+        There is no tournament active right now.
+        {' '}
+        <Link className="has-text-link" to={routes.tournaments.path}>Go to tournaments management</Link>.
+      </Trans>
     </p>
   );};
 

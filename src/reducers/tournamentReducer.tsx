@@ -119,7 +119,7 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
     const { tournament, configuration, pairs, players } = thunkAPI.getState().tournament;
 
     if (!tournament || !players || !pairs || !configuration) {
-      return thunkAPI.rejectWithValue({ reason: 'No tournament active' });
+      return thunkAPI.rejectWithValue({ reason: 'No tournament active error' });
     }
 
     const playedRounds = pairs.length;

@@ -18,38 +18,37 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { Trans, useTranslation } from 'react-i18next';
+
+import constants from 'utils/index';
 
 import style from './style.scss';
 
 const About: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   return (
     <article class={`panel is-primary ${style.panel}`}>
       <p class="panel-heading">
-        CompetiChess
+        {constants.appName}
       </p>
-      <section class={`panel-block content ${style.centered}`}>
-        <p><b>CompetiChess</b> - simple chess tournament manager, written with Preact, TypeScript and a bit of C++.</p>
-        <p>
-          It is a response for the already existing tournament managers. Some of them lack readability, many aren't
-          cross-platform due to being a standalone desktop application. And most of them require registration.
-        </p>
-        <p>
-          CompetiChess aims to fix all these issues while remaining as simple as possible. Doing what it should exactly do -
-          managing a tournament and pairing players against each other. All from the browser, with offline capabilities.
-        </p>
-        <p>Application is actively evolving. With time, it might gain more features to provide better overall experience!</p>
-        <p><strong>Core libraries used:</strong></p>
+      <section class={`panel-block content centered ${style.padded}`}>
+        <p>{t('About 1', { appName: constants.appName })}</p>
+        <p>{t('About 2')}</p>
+        <p>{t('About 3', { appName: constants.appName })}</p>
+        <p>{t('About 4')}</p>
+        <p><strong>{t('Core libraries used')}</strong></p>
         <section class={style.thanksSection}>
           <div>
-            <a href="https://preactjs.com/" rel="noopener noreferrer">
+            <a href="https://preactjs.com/">
               <img
                 src="assets/PreactLogo.webp"
-                alt="Made with Bulma"
+                alt="Preact.js"
                 width="250"
                 height="75"
               />
             </a>
-            <a href="https://bulma.io" rel="noopener noreferrer">
+            <a href="https://bulma.io">
               <img
                 src="https://bulma.io/images/made-with-bulma--semiblack.png"
                 alt="Made with Bulma"
@@ -57,7 +56,7 @@ const About: FunctionalComponent = () => {
                 height="48"
               />
             </a>
-            <a href="https://www.typescriptlang.org" rel="noopener noreferrer">
+            <a href="https://www.typescriptlang.org">
               <img
                 src="assets/TypeScript.svg"
                 alt="TypeScript"
@@ -67,26 +66,26 @@ const About: FunctionalComponent = () => {
             </a>
           </div>
           <p>
-            <a class="has-text-link" rel="noopener noreferrer"
-               href="https://github.com/BieremaBoyzProgramming/bbpPairings">
-              bbpPairings
-            </a>
-            {' '}- Swiss pairing engine by Bierema Boyz Programming, licensed under Apache 2.0.
+            <Trans i18nKey="About bbpPairings">
+              <a class="has-text-link" href="https://github.com/BieremaBoyzProgramming/bbpPairings">
+                bbpPairings
+              </a>
+            </Trans>
           </p>
           <p>
-            <a class="has-text-link" rel="noopener noreferrer"
-               href="https://emscripten.org">
-              Emscripten
-            </a>
-            {' '}- a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform. Without it, integration with bbpPairings wouldn't be possible. Thanks a ton!
+            <Trans i18nKey="About Emscripten">
+              <a class="has-text-link" href="https://emscripten.org">
+                Emscripten
+              </a>
+            </Trans>
           </p>
-          <a class="has-text-link" rel="noopener noreferrer"
-             href="https://www.flaticon.com/free-icons/chess">
-            Chess icons created by Freepik - Flaticon
+          <a class="has-text-link" href="https://www.flaticon.com/free-icons/chess">
+            {t('About icons')}
           </a>
         </section>
         <p class={style.footer}>
-          Made with ❤️ by Grzegorz Kita. Copyright © 2021-2022
+          {t('About - Made with love')}
+          {' '}Copyright © 2021-2022
         </p>
       </section>
     </article>
