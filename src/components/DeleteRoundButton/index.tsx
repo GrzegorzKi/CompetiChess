@@ -17,8 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ComponentChildren, FunctionalComponent, h } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
 import usePromiseModal from 'hooks/usePromiseModal';
@@ -26,11 +27,9 @@ import { deleteRound, selectPairs, selectViewOptions } from 'reducers/tournament
 
 import DeleteRoundModal from '@/DeleteRoundButton/DeleteRoundModal';
 
-interface IProps {
-  children: ComponentChildren;
-}
+const DeleteRoundButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
 
-const DeleteRoundButton: FunctionalComponent<IProps> = ({ children }) => {
   const pairs = useAppSelector(selectPairs);
   const { selectedRound } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
@@ -50,7 +49,7 @@ const DeleteRoundButton: FunctionalComponent<IProps> = ({ children }) => {
             onClick={_deleteRound}
             disabled={!pairs || pairs.length === 0 || selectedRound !== pairs.length - 1}
     >
-      {children}
+      <strong>{t('Delete round')}</strong>
     </button>
     <DeleteRoundModal
       isActive={isOpen}

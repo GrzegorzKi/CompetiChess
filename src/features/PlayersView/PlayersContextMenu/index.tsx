@@ -19,6 +19,7 @@
 
 import { MenuItem, ControlledMenu, MenuState, MenuDivider } from '@szhsin/react-menu';
 import { ComponentProps, FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 interface IProps {
   menuState: { state?: MenuState, endTransition: () => void };
@@ -35,15 +36,16 @@ interface IProps {
 
 const PlayersContextMenu: FunctionalComponent<IProps> = (
   { menuState, toggleMenu, anchorPoint, boundingBoxRef, actions: { editPlayer, addPlayer, deletePlayer, sortList } }) => {
+  const { t } = useTranslation();
 
   return (
     <ControlledMenu {...menuState} anchorPoint={anchorPoint} boundingBoxRef={boundingBoxRef}
                     onClose={() => toggleMenu(false)}>
-      <MenuItem onClick={editPlayer}>Edit player</MenuItem>
-      <MenuItem onClick={addPlayer}>Add player</MenuItem>
-      <MenuItem onClick={deletePlayer}>Delete player</MenuItem>
+      <MenuItem onClick={editPlayer}>{t('Edit player')}</MenuItem>
+      <MenuItem onClick={addPlayer}>{t('Add player')}</MenuItem>
+      <MenuItem onClick={deletePlayer}>{t('Delete player')}</MenuItem>
       <MenuDivider />
-      <MenuItem onClick={sortList}>Sort...</MenuItem>
+      <MenuItem onClick={sortList}>{t('Sort...')}</MenuItem>
     </ControlledMenu>
   );
 };

@@ -20,6 +20,7 @@
 import { faHandshake, faTableCells, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { FunctionalComponent, h } from 'preact';
 import { useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { routes } from 'utils/index';
 
@@ -28,16 +29,18 @@ import SideMenu, { MenuNavLink } from '@/SideMenu';
 
 
 const MainViewSideMenu: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const [expanded, setExpanded] = useState(false);
 
   return (
     <SideMenu isActive={expanded}>
       <Burger isActive={expanded} onClick={() => setExpanded(s => !s)} />
-      <p class="menu-label">General</p>
+      <p class="menu-label">{t('General')}</p>
       <ul class="menu-list">
-        <MenuNavLink onClick={() => setExpanded(false)} to={routes.pairs.path} tab='Pairs' icon={faHandshake} />
-        <MenuNavLink onClick={() => setExpanded(false)} to={routes.players.path} tab='Players' icon={faUsers} />
-        <MenuNavLink onClick={() => setExpanded(false)} to={routes.tournamentTable.path} tab='Tournament table' icon={faTableCells} />
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.pairs.path} icon={faHandshake}>{t('Pairings')}</MenuNavLink>
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.players.path} icon={faUsers}>{t('Players')}</MenuNavLink>
+        <MenuNavLink onClick={() => setExpanded(false)} to={routes.tournamentTable.path} icon={faTableCells}>{t('Tournament table')}</MenuNavLink>
       </ul>
     </SideMenu>
   );

@@ -19,7 +19,7 @@
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { FunctionalComponent, h } from 'preact';
+import { ComponentChildren, FunctionalComponent, h } from 'preact';
 import { NavLink } from 'react-router-dom';
 
 import style from './style.scss';
@@ -56,17 +56,17 @@ export function TabLink<T extends string = string>({ activeTab, onChange, tab, i
 
 export interface IMenuNavLinkProps<T extends string = string> {
   to: string;
-  tab: T;
   icon?: IconDefinition;
   onClick?: () => void;
+  children?: ComponentChildren;
 }
 
-export function MenuNavLink<T extends string = string>({ tab, to, icon, onClick }: IMenuNavLinkProps<T>): JSX.Element {
+export function MenuNavLink<T extends string = string>({ to, icon, onClick, children }: IMenuNavLinkProps<T>): JSX.Element {
   return (
     <li>
       <NavLink onClick={onClick} className={({ isActive }) => `is-unselectable${isActive ? ' is-active' : ''}`} to={to}>
         {icon && <span class="icon"><Icon icon={icon} /></span>}
-        <span class={style.sideNavText}>{tab}</span>
+        <span class={style.sideNavText}>{children}</span>
       </NavLink>
     </li>
   );
