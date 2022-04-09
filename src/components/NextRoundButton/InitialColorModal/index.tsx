@@ -118,7 +118,7 @@ const InitialColorModal: FunctionalComponent<IProps> = ({ stateKey, isActive, on
       contentLabel="Select color for the first player"
       style={{
         content: {
-          width: '320px',
+          width: '400px',
           margin: '0 auto'
         }
       }}

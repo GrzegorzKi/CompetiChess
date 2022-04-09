@@ -65,6 +65,10 @@
   z-index: unset !important;
 }
 
+.select:not(.is-multiple):not(.is-loading)::after {
+  z-index: unset !important;
+}
+
 .modal-card {
   max-height: calc(100vh - #{$navbar-height + 1rem + 1rem}) !important;
 }
@@ -146,6 +150,13 @@ input[type=number]::-webkit-outer-spin-button {
   & > :not(:last-child) {
     margin-right: 0.5rem;
   }
+}
+
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  text-align: center;
 }
 
 @media (pointer: fine) {

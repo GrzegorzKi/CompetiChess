@@ -58,16 +58,8 @@
   opacity: 0.2;
 }
 
-.centered {
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-
+.padded {
   padding: 1rem 1rem;
-
-  & * {
-    text-align: center;
-  }
 }
 
 .thanksSection {

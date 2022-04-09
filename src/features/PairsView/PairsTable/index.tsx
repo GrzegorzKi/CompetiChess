@@ -133,7 +133,7 @@ const PairsTable: FunctionalComponent<IProps> = (
         </tbody>
       </table>
       {pausingPlayer &&
-      <p class={style.padded}>
+      <p class={style.hasMargin}>
         {t('Player pausing:')} <b>{displayPlayer(pausingPlayer[1])}</b> <i>(+{configuration.pointsForPairingAllocatedBye.toFixed(1)} {t('Pts').toLowerCase()})</i>
       </p>
       }
