@@ -27,6 +27,9 @@ import { getDataIndex } from 'utils/common';
 
 import style from './style.scss';
 
+import PrintFooter from '@/PrintFooter';
+import PrintHeader from '@/PrintHeader';
+
 
 interface IProps {
   players: PlayersState;
@@ -72,6 +75,9 @@ const PlayersTable: FunctionalComponent<IProps> = (
 
   return (
     <div ref={tableRef}>
+      <PrintHeader>
+        <b>{t('Players list')}</b>
+      </PrintHeader>
       <table class='table is-striped is-hoverable is-fullwidth'>
         <thead class={style.fixedHead}>
           <tr>
@@ -99,6 +105,7 @@ const PlayersTable: FunctionalComponent<IProps> = (
           )}
         </tbody>
       </table>
+      <PrintFooter />
     </div>
   );
 };

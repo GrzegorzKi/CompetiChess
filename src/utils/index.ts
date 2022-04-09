@@ -18,7 +18,10 @@
  */
 
 const constants = {
-  appName: 'CompetiChess'
+  appName: 'CompetiChess',
+  appVersion: 'v0.10',
+  author: 'Grzegorz Kita',
+  copyrightDate: '2021-2022',
 };
 
 type RouteType = {

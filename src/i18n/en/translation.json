@@ -97,6 +97,7 @@
   "White player": "White player",
   "Black player": "Black player",
   "Result": "Result",
+  "Players list": "Players starting list",
 
   "General": "General",
   "Pairings": "Pairings",
@@ -156,5 +157,5 @@
   "About bbpPairings": "<0>bbpPairings</0> - Swiss system pairing engine by Jeremy Bierema, licensed under Apache 2.0.",
   "About Emscripten": "<0>Emscripten</0> - a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform. Without it, integration with bbpPairings wouldn't be possible. Thanks a ton!",
   "About icons": "Chess icons created by Freepik - Flaticon",
-  "About - Made with love": "Made with ❤️ by Grzegorz Kita."
+  "About - Made with love": "Made with ❤️ by {{ author }}."
 }

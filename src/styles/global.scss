@@ -89,6 +89,10 @@ label.panel-block {
   overflow-x: hidden;
 }
 
+.table:not(:last-child) {
+  margin-bottom: unset !important;
+}
+
 // Replacement for .is-static if we also want colors on a button
 .button.non-interactive {
   pointer-events: none;

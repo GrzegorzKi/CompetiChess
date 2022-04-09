@@ -84,8 +84,9 @@ const About: FunctionalComponent = () => {
           </a>
         </section>
         <p class={style.footer}>
-          {t('About - Made with love')}
-          {' '}Copyright © 2021-2022
+          {t('About - Made with love', { author: constants.author })}
+          <br />
+          <b>{constants.appName} ({constants.appVersion})</b> © {constants.author} {constants.copyrightDate}
         </p>
       </section>
     </article>

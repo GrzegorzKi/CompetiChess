@@ -97,6 +97,7 @@
   "White player": "Zawodnik - białe",
   "Black player": "Zawodnik - czarne",
   "Result": "Wynik",
+  "Players list": "Lista startowa zawodników",
 
   "General": "Ogólne",
   "Pairings": "Kojarzenia",
@@ -155,6 +156,6 @@
   "Core libraries used": "Główne wykorzystane biblioteki:",
   "About bbpPairings": "<0>bbpPairings</0> - Silnik parowań szachowych w systemie szwajcarskim, zrobiony przez Jeremiego Bierema, na licencji Apache 2.0.",
   "About Emscripten": "<0>Emscripten</0> - kompletny zestaw narzędzi do kompilacji do formatu WebAssembly, używający LLVM, ze szczególnym naciskiem na szybkość, rozmiar i platformę webową. Bez niego, integracja z bbpPairings nie byłaby możliwa. Wielkie dzięki!",
-  "About icons": "Ikony szachów dzięki Freepik - Flaticon",
-  "About - Made with love": "Zrobione z ❤️ by Grzegorz Kita."
+  "About icons": "Ikony szachowe dzięki Freepik - Flaticon",
+  "About - Made with love": "Zrobione z ❤️ by {{ author }}."
 }

@@ -29,6 +29,8 @@ import { getDataIndex } from 'utils/common';
 import style from './style.scss';
 
 import { GameResult, Pair, Player, PlayersRecord } from '#/types/Tournament';
+import PrintFooter from '@/PrintFooter';
+import PrintHeader from '@/PrintHeader';
 
 function prevRoundPoints(player: Player, round: number): number {
   return (round <= 0)
@@ -96,9 +98,9 @@ const PairsTable: FunctionalComponent<IProps> = (
 
   return (
     <div ref={tableRef}>
-      <div class="print-only">
-        CompetiChess - {t('Round')} {round + 1}
-      </div>
+      <PrintHeader>
+        <b>{t('Pairings')} - {t('Round')} {round + 1}</b>
+      </PrintHeader>
       <table class="table is-striped is-hoverable is-fullwidth">
         <thead class={style.fixedHead}>
           <tr>
@@ -135,8 +137,8 @@ const PairsTable: FunctionalComponent<IProps> = (
       {pausingPlayer &&
       <p class={style.hasMargin}>
         {t('Player pausing:')} <b>{displayPlayer(pausingPlayer[1])}</b> <i>(+{configuration.pointsForPairingAllocatedBye.toFixed(1)} {t('Pts').toLowerCase()})</i>
-      </p>
-      }
+      </p>}
+      <PrintFooter />
     </div>
   );
 };

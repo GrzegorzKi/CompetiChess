@@ -17,20 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.fixedHead {
-  position: sticky;
-  top: 0;
-
-  & td,
-  & th {
-    background-color: white;
-  }
-
-  & tr {
-    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.15), 0 1px rgba(0, 0, 0, 0.15);
-  }
-}
-
-.hasMargin {
-  margin: 0.75rem 0.75rem 0.5rem;
+.hrBottom {
+  background-color: transparent;
+  margin: 1.5rem auto 0.5rem;
+  border-top: 2px double rgba(0, 0, 0, 0.25);
 }

@@ -31,6 +31,8 @@ import style from './style.scss';
 import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
 import { Configuration, Player } from '#/types/Tournament';
 import { computeRanks, getPlayers } from '#/utils/TournamentUtils';
+import PrintFooter from '@/PrintFooter';
+import PrintHeader from '@/PrintHeader';
 
 
 function getPoints(player: Player, round: number): number {
@@ -169,9 +171,9 @@ const TournamentTable: FunctionalComponent<IProps> = (
 
   return (
     <div ref={tableRef}>
-      <div class="print-only">
-        CompetiChess - {t('Tournament table after round', { round: round + 1 })}
-      </div>
+      <PrintHeader>
+        <b>{t('Tournament table after round', { round: round + 1 })}</b>
+      </PrintHeader>
       <table class='table is-striped is-hoverable is-fullwidth'>
         <thead class={style.fixedHead}>
           <tr>
@@ -203,6 +205,7 @@ const TournamentTable: FunctionalComponent<IProps> = (
           )}
         </tbody>
       </table>
+      <PrintFooter />
     </div>
   );
 };

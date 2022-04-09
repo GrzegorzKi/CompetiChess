@@ -43,6 +43,13 @@ const usePrint = ({ componentRef, documentTitle, removeAfterPrint }: UsePrintPro
       } else if (toastId === undefined) {
         toastId = toast.info(<TransText i18nKey='Printing in progress' />, { isLoading: true, closeButton: false });
       }
+
+      // Prevent focus on the element caused by tabbing
+      const printWindow = document.querySelector('#printWindow');
+      if (printWindow !== null) {
+        printWindow.setAttribute('tabindex', '-1');
+        printWindow.setAttribute('aria-hidden', 'true');
+      }
     },
     onPrintError: () => toastId && toast.update(toastId, { render: <TransText i18nKey='Printing error' />, isLoading: false, closeButton: true }),
     onAfterPrint: () => {
@@ -50,6 +57,7 @@ const usePrint = ({ componentRef, documentTitle, removeAfterPrint }: UsePrintPro
       toastId = undefined;
     },
     removeAfterPrint,
+    suppressErrors: true,
   });
 };
 

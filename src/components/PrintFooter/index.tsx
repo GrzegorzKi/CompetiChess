@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
@@ -17,20 +17,18 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.fixedHead {
-  position: sticky;
-  top: 0;
+import { FunctionalComponent, h } from 'preact';
 
-  & td,
-  & th {
-    background-color: white;
-  }
+import constants from 'utils/index';
 
-  & tr {
-    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.15), 0 1px rgba(0, 0, 0, 0.15);
-  }
-}
+import style from './style.scss';
 
-.hasMargin {
-  margin: 0.75rem 0.75rem 0.5rem;
-}
+
+const PrintFooter: FunctionalComponent = () => (
+  <div class="print-only">
+    <hr class={style.hrBottom} />
+    <b>{constants.appName} ({constants.appVersion}) © {constants.author} {constants.copyrightDate}</b>
+  </div>
+);
+
+export default PrintFooter;

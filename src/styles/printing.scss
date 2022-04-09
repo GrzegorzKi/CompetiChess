@@ -46,6 +46,10 @@
         color: unset !important;
       }
     }
+
+    & td {
+      padding: 0.25em 0.75rem !important;
+    }
   }
 
   .table.is-striped tbody tr:nth-child(2n) {
