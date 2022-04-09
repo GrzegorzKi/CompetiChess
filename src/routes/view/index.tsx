@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useEffect } from 'preact/hooks';
 import { useLocation, useNavigate } from 'react-router';
 
 import MainView from 'features/MainView';
@@ -31,10 +32,13 @@ const View: FunctionalComponent = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  if (!tournament) {
-    if (pathname.startsWith(routes.view.path)) {
+  useEffect(() => {
+    if (!tournament && pathname.startsWith(routes.view.path)) {
       navigate(routes[''].path);
     }
+  }, [navigate, pathname, tournament]);
+
+  if (!tournament) {
     return null;
   }
 

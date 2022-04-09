@@ -20,7 +20,6 @@
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router';
 import { Link, NavLink } from 'react-router-dom';
 
 import { useAppSelector } from 'hooks';
@@ -36,13 +35,14 @@ const Header: FunctionalComponent = () => {
   const { t } = useTranslation();
 
   const [active, setActive] = useState(false);
-  const { pathname } = useLocation();
   const tournament = useAppSelector(selectTournament);
 
   useEffect(() => {
     const hideNavOnOutsideClick = (e: MouseEvent) => {
-      if (e.target instanceof Element && e.target.closest('.navbar') === null) {
-        setActive(false);
+      if (e.target instanceof Element) {
+        if (e.target.closest('.navbar') === null || e.target.classList.contains('navbar-item')) {
+          setActive(false);
+        }
       }
     };
 
@@ -51,7 +51,6 @@ const Header: FunctionalComponent = () => {
       document.removeEventListener('click', hideNavOnOutsideClick);
     };
   }, []);
-  useEffect(() => setActive(false), [pathname]);
 
   const tournamentInfo = tournament
     ? (

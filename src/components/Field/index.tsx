@@ -93,11 +93,12 @@ export const Select = forwardRef<HTMLSelectElement, ISelectProps>(({ label, clas
 export interface ICheckboxesProps extends UseFormRegisterReturn {
   label: string;
   values: number[],
+  lockedTo: number,
   children?: ComponentChildren;
   disabled?: boolean;
 }
 
-export const RoundCheckboxes = forwardRef<HTMLInputElement, ICheckboxesProps>(({ label, values, children, ...register }, ref) => {
+export const RoundCheckboxes = forwardRef<HTMLInputElement, ICheckboxesProps>(({ label, values, lockedTo, children, ...register }, ref) => {
   return <div class={`field ${style.scrollable}`}>
     <span class={`label ${style.isSmallTablet}`}>{label}</span>
     {values.map((value) =>
@@ -105,7 +106,7 @@ export const RoundCheckboxes = forwardRef<HTMLInputElement, ICheckboxesProps>(({
         <input id={`notPlayed.${value}`}
                {...register} ref={ref}
                value={value}
-               // disabled={value <= lockedTo}
+               disabled={value <= lockedTo}
                type="checkbox" className={`is-hidden ${style.buttonCheckbox}`}
         />
         <label htmlFor={`notPlayed.${value}`}

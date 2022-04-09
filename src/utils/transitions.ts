@@ -31,10 +31,10 @@ export const CSSFade: CSSTransitionClassNames = {
 
 export const CSSFadeOnEntering = (node: HTMLElement, isAppearing: boolean) => {
   // Workaround for Preact, see https://github.com/preactjs/preact/issues/1790
-  setTimeout(() => node.classList.add(isAppearing ? 'fade-appear-active' : 'fade-enter-active'), 5);
+  setTimeout(() => node.classList.add(isAppearing ? 'fade-appear-active' : 'fade-enter-active'), 10);
 };
 
 export const CSSFadeOnEntered = (node: HTMLElement, isAppearing: boolean) => {
   // Workaround for Preact, see https://github.com/preactjs/preact/issues/1790
-  setTimeout(() => node.classList.remove(isAppearing ? 'fade-appear-active' : 'fade-enter-active'), 5);
+  setTimeout(() => node.classList.remove(isAppearing ? 'fade-appear-active' : 'fade-enter-active'), 10);
 };

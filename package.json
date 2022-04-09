@@ -30,7 +30,7 @@
     "preact": "^10.6.6",
     "preact-render-to-string": "^5.1.20",
     "react-dual-listbox": "^2.2.0",
-    "react-hook-form": "^7.28.1",
+    "react-hook-form": "7.27.1",
     "react-i18next": "^11.16.2",
     "react-modal": "^3.14.4",
     "react-paginate": "^8.1.2",

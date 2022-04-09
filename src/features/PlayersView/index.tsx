@@ -165,8 +165,8 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
       <div className="controls">
         <PrintButton handlePrint={handlePrint} />
         <button className="button is-success" onClick={addPlayer}>{t('Add player')}</button>
-        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={editPlayer}>{t('Edit player')}</button>
-        <button className="button is-danger is-outlined" disabled={idx > players.orderById.length} onClick={deletePlayer}>{t('Delete player')}</button>
+        <button className="button is-outlined" disabled={players.index[idx] === undefined} onClick={editPlayer}>{t('Edit player')}</button>
+        <button className="button is-danger is-outlined" disabled={players.index[idx] === undefined} onClick={deletePlayer}>{t('Delete player')}</button>
       </div>
       <div class={`table-container ${style.table}`} >
         <PlayersContextMenu menuState={menuState} toggleMenu={toggleMenu}

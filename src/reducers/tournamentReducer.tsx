@@ -337,6 +337,7 @@ export const tournamentSlice = createSlice({
         return;
       }
 
+      // Convert string to numbers
       const notPlayed = payload.notPlayed.map(val => +val);
       payload.withdrawn = asPositiveOrUndefined(payload.withdrawn);
       payload.late = asPositiveOrUndefined(payload.late);
@@ -360,7 +361,10 @@ export const tournamentSlice = createSlice({
         recalculateScores(newPlayer, configuration);
         recalculateTiebreakers(newPlayer, players.index, configuration);
       } else {
-        Object.assign(players.index[payload.id], payload, { notPlayed });
+        const currentNotPlayed = notPlayed.filter(value => value > pairs.length);
+        const pastNotPlayed = player.notPlayed.filter(value => value <= pairs.length);
+        currentNotPlayed.push(...pastNotPlayed);
+        Object.assign(players.index[payload.id], payload, { notPlayed: currentNotPlayed });
       }
     },
     deletePlayer: ({ players, pairs }, { payload }: PayloadAction<{ index: number, reorderIds: boolean }>) => {

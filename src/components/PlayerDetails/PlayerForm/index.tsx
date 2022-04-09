@@ -108,6 +108,7 @@ const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputR
         <RoundCheckboxes
           label={t('Not played rounds')}
           values={rounds}
+          lockedTo={pairs.length}
           {...register('notPlayed')} />
       </>)}
     </Form>
