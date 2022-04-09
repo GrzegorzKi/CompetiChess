@@ -21,6 +21,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useDebounce, useReadLocalStorage } from 'usehooks-ts';
 
 import { useAppSelector } from 'hooks/index';
@@ -28,6 +29,7 @@ import { selectTournament } from 'reducers/tournamentReducer';
 import { tournamentsIndexKey } from 'utils/localStorageUtils';
 
 import CreateTournamentButton from './CreateTournamentButton';
+import HeaderWithLanguageSelect from './HeaderWithLanguageSelect';
 import ImportTournamentButton from './ImportTournamentButton';
 import ImportTrfxTournamentButton from './ImportTrfxTournamentButton';
 import { ModalProvider } from './ModalProvider';
@@ -69,6 +71,8 @@ function getPanelBlocks({ filteredEntries, query, currentEntry }: GetPanelBlocks
 }
 
 const SavedTournamentsPanel = (): JSX.Element => {
+  const { t } = useTranslation();
+
   const tournament = useAppSelector(selectTournament);
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
@@ -77,7 +81,7 @@ const SavedTournamentsPanel = (): JSX.Element => {
   const currentEntry = tournament
     ? {
       id: tournament.id,
-      name: '-- Current --',
+      name: t('-- Current --'),
       created: tournament.createdDate
     }
     : undefined;
@@ -99,26 +103,24 @@ const SavedTournamentsPanel = (): JSX.Element => {
   return (
     <ModalProvider>
       <article class={`panel is-primary ${style.panel}`}>
-        <p class="panel-heading">
-          Tournaments
-        </p>
+        <HeaderWithLanguageSelect />
         <div class="panel-block">
           <p class="control has-icons-left">
             <input class="input is-primary" type="text"
                    value={query} onInput={(e) => setQuery(e.currentTarget.value)}
-                   placeholder="Search" />
-            <span className="icon is-left">
+                   placeholder={t('Search')} />
+            <span class="icon is-left">
               <Icon icon={faSearch} />
             </span>
           </p>
         </div>
-        <span className={style.controlButtons}>
+        <span class={style.controlButtons}>
           <CreateTournamentButton />
           <ImportTournamentButton />
           <ImportTrfxTournamentButton />
         </span>
-        <p className="panel-tabs">
-          <a className="is-active">All</a>
+        <p class="panel-tabs">
+          <a class="is-active">{t('All')}</a>
         </p>
         <section>
           {panelBlocks}

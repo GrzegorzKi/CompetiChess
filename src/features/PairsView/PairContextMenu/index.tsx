@@ -19,6 +19,7 @@
 
 import { MenuItem, ControlledMenu, MenuState, MenuGroup, MenuDivider } from '@szhsin/react-menu';
 import { ComponentProps, FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 import { ResultType } from '#/utils/ResultUtils';
 
@@ -36,6 +37,7 @@ interface IProps {
 
 const PairContextMenu: FunctionalComponent<IProps> = (
   { menuState, toggleMenu, anchorPoint, boundingBoxRef, actions: { setScore, editResult, editPairing } }) => {
+  const { t } = useTranslation();
 
   return (
     <ControlledMenu {...menuState} anchorPoint={anchorPoint} boundingBoxRef={boundingBoxRef}
@@ -56,8 +58,7 @@ const PairContextMenu: FunctionalComponent<IProps> = (
         <MenuItem onClick={() => setScore('WHITE_HALF_POINT')}>= : 0</MenuItem>
       </MenuGroup>
       <MenuDivider />
-      <MenuItem onClick={editResult}>Edit result</MenuItem>
-      <MenuItem onClick={editPairing}>Edit pairing</MenuItem>
+      <MenuItem onClick={editResult}>{t('Edit result')}</MenuItem>
     </ControlledMenu>
   );
 };

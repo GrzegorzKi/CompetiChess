@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2022  Grzegorz Kita
+/*!
+ * Copyright (c) 2022-2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,27 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { h } from 'preact';
-import { useTranslation } from 'react-i18next';
-
-import style from './style.scss';
-
-
-interface IProps {
-  handlePrint: () => void;
+.langSelect {
+  border-radius: 2px;
+  font-size: 0.7rem;
+  float: right;
 }
-
-const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
-  const { t } = useTranslation();
-
-  return (
-    <button class={`button is-info icon-text ${style.nowrap}`} onClick={handlePrint}>
-      <span class="icon"><Icon icon={faPrint} /></span>
-      <span>{t('Print')}</span>
-    </button>
-  );
-};
-
-export default PrintButton;

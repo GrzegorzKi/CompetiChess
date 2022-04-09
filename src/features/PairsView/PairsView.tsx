@@ -20,6 +20,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { h, FunctionalComponent, JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import PairContextMenu from 'features/PairsView/PairContextMenu';
@@ -48,6 +49,8 @@ interface IProps {
 }
 
 const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
+  const { t } = useTranslation();
+
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -67,7 +70,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
 
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = usePrint({
-    documentTitle: `Pairs for round ${round + 1}`,
+    documentTitle: `${t('Pairings for round')} ${round + 1}`,
     componentRef,
   });
 
@@ -147,7 +150,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
     <>
       <div class="controls">
         <PrintButton handlePrint={handlePrint} />
-        <button class="button is-outlined" onClick={enterRow}>Edit result</button>
+        <button class="button is-outlined" onClick={enterRow}>{t('Edit result')}</button>
       </div>
       <div class={`table-container ${style.table}`} >
         <PairContextMenu menuState={menuState} toggleMenu={toggleMenu}

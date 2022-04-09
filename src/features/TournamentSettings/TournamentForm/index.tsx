@@ -20,6 +20,7 @@
 import { FunctionalComponent, h } from 'preact';
 import { MutableRef } from 'preact/hooks';
 import { SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import Field from '@/Field';
 import Form from '@/Form';
@@ -45,6 +46,7 @@ interface IProps {
 
 const TournamentForm: FunctionalComponent<IProps> = (
   { inputRef, defaultValues, visible }) => {
+  const { t } = useTranslation();
 
   const onSubmit: SubmitHandler<IGeneralFormInputs> = () => {/**/};
 
@@ -54,41 +56,41 @@ const TournamentForm: FunctionalComponent<IProps> = (
           defaultValues={defaultValues}
           visible={visible}>
       {({ register, formState: { errors } }) => (<>
-        <Field label="Tournament name"
-               {...register('tournamentName', { required: 'Tournament name is required' })}
+        <Field label={t('Tournament name')}
+               {...register('tournamentName', { required: t('Required', { field: t('Tournament name') }) })}
                errors={errors.tournamentName} />
         <div className="field field-body is-horizontal">
-          <Field label="City"
+          <Field label={t('City')}
                  {...register('city')} />
-          <Field label="Federation"
+          <Field label={t('Federation')}
                  {...register('federation')} />
         </div>
         <div className="field field-body is-horizontal">
-          <Field label="Date of start"
-                 {...register('dateOfStart', { required: 'Date of start is required' })}
+          <Field label={t('Date of start')}
+                 {...register('dateOfStart', { required: t('Required', { field: t('Date of start') }) })}
                  errors={errors.dateOfStart} />
-          <Field label="Date of end"
+          <Field label={t('Date of end')}
                  {...register('dateOfEnd')} />
         </div>
-        <Field label="Tournament type"
+        <Field label={t('Tournament type')}
                placeholder="E.g.: Swiss system, individual, round-robin"
                {...register('tournamentType')} />
-        <Field label="Chief arbiter"
+        <Field label={t('Chief arbiter')}
                {...register('chiefArbiter')} />
-        <Field label="Rate of play"
-               placeholder="Allotted times per moves/game"
+        <Field label={t('Rate of play')}
+               placeholder={t('Rate of play placeholder')}
                {...register('rateOfPlay')} />
-        <Field label="Number of rounds" type="number"
+        <Field label={t('Number of rounds')} type="number"
                {...register('numberOfRounds', {
                  valueAsNumber: true,
-                 required: 'Number of rounds is required',
+                 required: t('Required', { field: t('Number of rounds') }),
                  min: {
                    value: 1,
-                   message: 'Number of rounds must be positive'
+                   message: t('Number of rounds too low')
                  },
                  max: {
                    value: 99,
-                   message: 'Number of rounds cannot exceed 99 rounds'
+                   message: t('Number of rounds above 99')
                  },
                })}
                errors={errors.numberOfRounds} />

@@ -20,6 +20,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { FunctionalComponent, h, JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -85,6 +86,8 @@ interface IProps {
 }
 
 const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
+  const { t } = useTranslation();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -161,9 +164,9 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
     <>
       <div className="controls">
         <PrintButton handlePrint={handlePrint} />
-        <button className="button is-success" onClick={addPlayer}>Add player</button>
-        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={editPlayer}>Edit player</button>
-        <button className="button is-danger is-outlined" disabled={idx > players.orderById.length} onClick={deletePlayer}>Delete player</button>
+        <button className="button is-success" onClick={addPlayer}>{t('Add player')}</button>
+        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={editPlayer}>{t('Edit player')}</button>
+        <button className="button is-danger is-outlined" disabled={idx > players.orderById.length} onClick={deletePlayer}>{t('Delete player')}</button>
       </div>
       <div class={`table-container ${style.table}`} >
         <PlayersContextMenu menuState={menuState} toggleMenu={toggleMenu}

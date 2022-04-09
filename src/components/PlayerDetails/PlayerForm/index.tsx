@@ -20,6 +20,7 @@
 import { FunctionalComponent, h } from 'preact';
 import { MutableRef } from 'preact/hooks';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectPairs } from 'reducers/tournamentReducer';
@@ -50,6 +51,8 @@ interface IProps {
 }
 
 const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputRef, readonly }) => {
+  const { t } = useTranslation();
+
   const configuration = useAppSelector(selectConfiguration);
   const pairs = useAppSelector(selectPairs);
 
@@ -69,41 +72,41 @@ const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputR
     >
       {({ register, formState: { errors } }) => (<>
         <div class="field field-body is-horizontal">
-          <Field label="No."
+          <Field label={t('No.')}
                  className={style.no}
-                 {...register('id', { required: 'This field is required' })}
+                 {...register('id', { required: t('Required', { field: t('Id') }) })}
                  errors={errors.id}
                  disabled />
-          <Field label="Player name"
-                 {...register('name', { required: 'Player name is required' })}
+          <Field label={t('Player name')}
+                 {...register('name', { required: t('Required', { field: t('Player name') }) })}
                  errors={errors.name} />
-          <Select label="Sex"
+          <Select label={t('Sex')}
                   className={style.sex}
-                  {...register('sex', { required: 'Player sex is required' })}
+                  {...register('sex', { required: t('Required', { field: t('Sex') }) })}
                   errors={errors.sex}>
-            <option value={Sex.MALE}>Male</option>
-            <option value={Sex.FEMALE}>Female</option>
+            <option value={Sex.MALE}>{t('Male')}</option>
+            <option value={Sex.FEMALE}>{t('Female')}</option>
           </Select>
         </div>
         <div class="field field-body is-horizontal">
-          <Field label="Rating"
+          <Field label={t('Rating')}
                  {...register('rating')} />
-          <Field label="FIDE Number"
+          <Field label={t('FIDE Number')}
                  {...register('fideNumber')} />
         </div>
-        <Field label="Federation"
+        <Field label={t('Federation')}
                {...register('federation')} />
         {/* TODO: Convert to date select field */}
-        <Field label="Birth date"
+        <Field label={t('Birth date')}
                {...register('birthDate')} />
         <div className="field field-body is-horizontal">
-          <Field label="Late - from round"
+          <Field label={t('Late')}
                  {...register('late', { valueAsNumber: true })} />
-          <Field label="Withdrawn at round"
+          <Field label={t('Withdrawn')}
                  {...register('withdrawn', { valueAsNumber: true })} />
         </div>
         <RoundCheckboxes
-          label="Not played rounds"
+          label={t('Not played rounds')}
           values={rounds}
           {...register('notPlayed')} />
       </>)}

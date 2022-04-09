@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h, JSX } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import style from './style.scss';
 
@@ -46,6 +47,7 @@ interface IProps {
 }
 
 const SetScoreBox: FunctionalComponent<IProps> = ({ score, setScore, onConfirm }) => {
+  const { t } = useTranslation();
 
   const callbackRef = useCallback((inputElement: HTMLElement | null) => {
     setTimeout(() => inputElement && inputElement.focus(), 0);
@@ -84,7 +86,7 @@ const SetScoreBox: FunctionalComponent<IProps> = ({ score, setScore, onConfirm }
         <div class="control">
           <button type="reset" class="button is-info"
                   onClick={() => setResult('RESET')}>
-            Clear
+            {t('Clear')}
           </button>
         </div>
       </div>

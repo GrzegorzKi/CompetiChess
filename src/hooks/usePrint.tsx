@@ -17,9 +17,12 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { h } from 'preact';
 import { MutableRef } from 'preact/hooks';
 import { useReactToPrint } from 'react-to-print';
 import { toast } from 'react-toastify';
+
+import TransText from '@/TransText';
 
 interface UsePrintProps {
   componentRef: MutableRef<any>;
@@ -29,18 +32,19 @@ interface UsePrintProps {
 
 const usePrint = ({ componentRef, documentTitle, removeAfterPrint }: UsePrintProps): ReturnType<typeof useReactToPrint> => {
   let toastId: number | string | undefined;
+
   return useReactToPrint({
     content: () => componentRef.current,
     pageStyle: '.print-only { display: unset !important; }',
     documentTitle,
     onBeforePrint: () => {
       if (window.print === undefined) {
-        toast.error('Your browser doesn\'t support printing (e.g. Firefox for Android). Please use compatible browser to print.');
+        toast.error(<TransText i18nKey='Printing not supported' />);
       } else if (toastId === undefined) {
-        toastId = toast.info('Printing in progress', { isLoading: true, closeButton: false });
+        toastId = toast.info(<TransText i18nKey='Printing in progress' />, { isLoading: true, closeButton: false });
       }
     },
-    onPrintError: () => toastId && toast.update(toastId, { render: 'An error occurred while printing, please try again.', isLoading: false, closeButton: true }),
+    onPrintError: () => toastId && toast.update(toastId, { render: <TransText i18nKey='Printing error' />, isLoading: false, closeButton: true }),
     onAfterPrint: () => {
       toast.dismiss(toastId);
       toastId = undefined;

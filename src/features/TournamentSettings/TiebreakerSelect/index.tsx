@@ -22,6 +22,7 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h, Ref } from 'preact';
 import { Suspense, lazy } from 'preact/compat';
 import { useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
 
@@ -52,13 +53,16 @@ interface IProps {
 }
 
 const TiebreakerSelect: FunctionalComponent<IProps> = ({ defaultValues, selectedRef }) => {
+  const { t } = useTranslation();
+
   const [selected, setSelected] = useState<Tiebreaker[]>(defaultValues ?? []);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <DualListBox
         className="select is-multiple"
         canFilter
-        filterPlaceholder="Search..."
+        filterPlaceholder={t('Search')}
         options={options}
         selected={selected}
         onChange={setSelected}

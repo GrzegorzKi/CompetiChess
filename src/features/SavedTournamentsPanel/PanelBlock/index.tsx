@@ -20,6 +20,7 @@
 import { faBook } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h, JSX } from 'preact';
+import { useTranslation } from 'react-i18next';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 
 import { useModalContext } from 'features/SavedTournamentsPanel/ModalProvider';
@@ -40,8 +41,13 @@ interface PanelBlockProps extends TournamentEntry {
   isActive?: true,
 }
 
-async function loadOrEnterTournament(event: JSX.TargetedMouseEvent<HTMLAnchorElement>, id: string,
-  navigate: NavigateFunction, isActive?: boolean, onSaveGuard?: () => Promise<boolean>) {
+async function loadOrEnterTournament(
+  event: JSX.TargetedMouseEvent<HTMLAnchorElement>,
+  id: string,
+  navigate: NavigateFunction,
+  isActive?: boolean,
+  onSaveGuard?: () => Promise<boolean>
+) {
   if (event.detail > 1 /* Double click */ && event.button === 0 /* Main button */) {
     event.preventDefault();
     const isModified = store.getState().flags.isModified;
@@ -54,6 +60,8 @@ async function loadOrEnterTournament(event: JSX.TargetedMouseEvent<HTMLAnchorEle
 }
 
 const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, updated, isActive }) => {
+  const { t } = useTranslation();
+  
   const { onSaveGuard, onDeleteGuard } = useModalContext();
   const navigate = useNavigate();
 
@@ -70,8 +78,8 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
       <span class={style.name}>{name}</span>
       <span class={style.subText}>({id})</span>
       <span style="width: 100%" />
-      <span class={style.subText} style="margin-right: 0.75em">Created:{' '}<strong>{createdDate}</strong></span>
-      {updatedDate && <span class={style.subText}>Updated:{' '}<strong>{updatedDate}</strong></span>}
+      <span class={style.subText} style="margin-right: 0.75em">{t('Created')}{': '}<strong>{createdDate}</strong></span>
+      {updatedDate && <span class={style.subText}>{t('Updated')}{': '}<strong>{updatedDate}</strong></span>}
       <div class={style.panelButtons}>
         {isActive
           ? <SaveTournamentButton />
@@ -83,12 +91,16 @@ const PanelBlock: FunctionalComponent<PanelBlockProps> = ({ name, id, created, u
   );
 };
 
-export const NoResultsPanelBlock = ({ query }: { query: string }): JSX.Element => (
-  <span class="panel-block">No results for search&nbsp;<b>{query}</b></span>
-);
+export const NoResultsPanelBlock = ({ query }: { query: string }): JSX.Element => {
+  const { t } = useTranslation();
 
-export const NoTournamentsBlock = (): JSX.Element => (
-  <span class="panel-block">No tournaments saved</span>
-);
+  return <span class="panel-block">{t('No results')}&nbsp;<b>{query}</b></span>;
+};
+
+export const NoTournamentsBlock = (): JSX.Element => {
+  const { t } = useTranslation();
+
+  return <span class="panel-block">{t('No tournaments')}</span>;
+};
 
 export default PanelBlock;

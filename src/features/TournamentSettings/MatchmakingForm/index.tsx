@@ -22,6 +22,7 @@ import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 import { MutableRef } from 'preact/hooks';
 import { SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { Color } from '#/types/Tournament';
 import { Checkbox, Select } from '@/Field';
@@ -42,16 +43,17 @@ interface IProps {
 
 const MatchmakingForm: FunctionalComponent<IProps> = (
   { inputRef, defaultValues, visible, afterFirst }) => {
+  const { t } = useTranslation();
 
   const onSubmit: SubmitHandler<IMatchmakingFormInputs> = () => {/**/};
 
-  const bakuAccelerationLabel = (<>
+  const bakuAccelerationLabel = <Trans t={t} i18nKey="Use Baku">
     Use Baku Acceleration (
     <a href="https://handbook.fide.com/chapter/C0405"
        rel="noopener noreferrer" class="has-text-link">
       more info
     </a>)
-  </>);
+  </Trans>;
 
   return (
     <Form onSubmit={onSubmit}
@@ -62,16 +64,20 @@ const MatchmakingForm: FunctionalComponent<IProps> = (
         return (<>
           <div class={`icon-text ${style.isSmallTablet} mb-2`}>
             <div class="icon"><Icon icon={faExclamationTriangle} /></div>
-            <b>Warning:&nbsp;</b>Some settings might not be available after first pairing
+            <span>
+              <Trans t={t} i18nKey="Matchmaking warning">
+                <b>Warning: </b>Some settings might not be available after first pairing
+              </Trans>
+            </span>
           </div>
-          <Select label="Initial color for first player"
+          <Select label={t('Initial color')}
                   {...register('initialColor')}
                   errors={errors.initialColor}
                   disabled={afterFirst}
           >
-            <option value={Color.WHITE}>White</option>
-            <option value={Color.BLACK}>Black</option>
-            <option value={Color.NONE}>Select randomly</option>
+            <option value={Color.WHITE}>{t('White')}</option>
+            <option value={Color.BLACK}>{t('Black')}</option>
+            <option value={Color.NONE}>{t('Select randomly')}</option>
           </Select>
           <Checkbox label={bakuAccelerationLabel}
                     {...register('useBakuAcceleration')}

@@ -18,10 +18,13 @@
  */
 
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { IFormData } from 'hooks/useTournamentFormData';
 import { arrayEquals, cyrb53 } from 'utils/common';
+
+import { I18nKey } from '../types/react-i18next';
 
 import BbpPairings, { StatusCode } from '#/BbpPairings/bbpPairings';
 import exportToTrf from '#/DataExport/exportToTrf';
@@ -53,17 +56,18 @@ import { PlayerData } from '@/PlayerDetails/PlayerForm';
 
 import { RootState } from '@/store';
 import { DelayedToastData, dismissDelayedToast, showDelayedToast } from '@/ToastHandler';
+import TransText from '@/TransText';
 
 const verifyNextRoundConditions = (
   playedRounds: number, { expectedRounds }: Configuration, players: PlayersRecord,
-): string | undefined => {
+): I18nKey | undefined => {
   const allFilled = checkPairingsFilled(players, playedRounds);
   if (!allFilled) {
-    return 'Cannot start new round. Please fill in all pairs\' results before proceeding.';
+    return 'Not filled results error';
   }
 
   if (playedRounds >= expectedRounds) {
-    return 'This is the last round in tournament. Cannot start new round.';
+    return 'All rounds played error';
   }
 };
 
@@ -98,7 +102,7 @@ type SetResultType =
 type AsyncThunkConfig = {
   state: { tournament: TournamentState },
   rejectValue: {
-    reason: string,
+    reason: string | I18nKey,
     toastId?: React.ReactText | DelayedToastData,
     isValidationError?: boolean,
   },
@@ -115,7 +119,7 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
     const { tournament, configuration, pairs, players } = thunkAPI.getState().tournament;
 
     if (!tournament || !players || !pairs || !configuration) {
-      return thunkAPI.rejectWithValue({ reason: 'There is no tournament active. Cannot start new round.' });
+      return thunkAPI.rejectWithValue({ reason: 'No tournament active error' });
     }
 
     const playedRounds = pairs.length;
@@ -138,18 +142,18 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
     });
 
     if (trfOutput === undefined) {
-      return thunkAPI.rejectWithValue({ reason: 'Unable to generate output for BbpPairings engine.' });
+      return thunkAPI.rejectWithValue({ reason: 'BbpPairings export error' });
     }
 
 
-    const toastId = showDelayedToast(() => toast.loading('Generating new round'), 500);
+    const toastId = showDelayedToast(() => toast.loading(<TransText i18nKey="Generating new round" />), 500);
     try {
       const bbpInstance = await BbpPairings.getInstance();
       const bbpOutput = bbpInstance.invoke(trfOutput);
       if (bbpOutput.statusCode !== 0) {
         let reason: string;
         if (bbpOutput.statusCode === StatusCode.NoValidPairing) {
-          reason = 'No valid pairing exists: The players could not be simultaneously matched while satisfying all absolute criteria.';
+          reason = 'No valid pairings error';
         } else {
           reason = bbpOutput.errorOutput.join('\n');
         }
@@ -160,7 +164,7 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
         toastId
       };
     } catch {
-      return thunkAPI.rejectWithValue({ reason: 'Application has encountered an error while initializing BbpPairings engine.\nIf the problem persists, please restart the app.', toastId });
+      return thunkAPI.rejectWithValue({ reason: 'Initialization error', toastId });
     }
   }
 );
@@ -461,11 +465,11 @@ export const tournamentSlice = createSlice({
 
       view.selectedRound = pairs.length - 1;
 
-      toast('Next round pairings are ready!', {
+      toast(<TransText i18nKey="Pairings done" />, {
         type: toast.TYPE.SUCCESS,
       });
     });
-    builder.addCase(createNextRound.rejected, (state, action) => {
+    builder.addCase(createNextRound.rejected, (_, action) => {
       action.payload?.toastId && dismissDelayedToast(action.payload.toastId);
 
       if (process.env.NODE_ENV !== 'production') {
@@ -473,12 +477,12 @@ export const tournamentSlice = createSlice({
         console.error('An error has occurred during next round creation. Error details:', action.error);
       }
 
-      const reason = action.payload?.reason ?? 'An unknown error has occurred';
+      const reason = action.payload?.reason ?? 'Unknown error';
 
       if (action.payload?.isValidationError) {
-        toast.warning(reason);
+        toast.warning(<TransText i18nKey={reason} />);
       } else {
-        toast.error(reason);
+        toast.error(<TransText i18nKey={reason} />);
       }
     });
   },

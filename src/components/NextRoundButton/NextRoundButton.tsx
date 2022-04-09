@@ -17,8 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ComponentChildren, h } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'hooks';
@@ -27,11 +28,10 @@ import { createNextRound, selectPairs, selectPlayers } from 'reducers/tournament
 
 import InitialColorModal from '@/NextRoundButton/InitialColorModal';
 
-interface Props {
-  children: ComponentChildren;
-}
 
-const NextRoundButton = ({ children }: Props): JSX.Element | null => {
+const NextRoundButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const pairs = useAppSelector(selectPairs);
   const players = useAppSelector(selectPlayers);
   const dispatch = useAppDispatch();
@@ -42,22 +42,22 @@ const NextRoundButton = ({ children }: Props): JSX.Element | null => {
     const pairsLength = pairs?.length || 0;
 
     if (!players || players.orderById.length < 3) {
-      toast.error('At least three players are required to start the next round.');
-      return;
+      toast.error(t('Too few players'));
+      return null;
     }
 
     if (pairsLength === 0) {
       if (!await openModal()) {
-        return;
+        return null;
       }
     }
 
     dispatch(createNextRound());
-  }, [dispatch, openModal, pairs, players]);
+  }, [dispatch, openModal, pairs?.length, players, t]);
 
   return <>
     <button class="button is-success trans-bg" onClick={_createNextRound}>
-      {children}
+      <strong>{t('Start next round')}</strong>
     </button>
     <InitialColorModal
       stateKey="initialColorModal"

@@ -21,12 +21,15 @@ import { faChevronLeft, faChevronRight, faHouse } from '@fortawesome/free-solid-
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
 import { FunctionalComponent, h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { isInStandaloneMode } from 'utils/common';
 import { routes } from 'utils/index';
 
 const NavigationLinks: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const [visible, setVisible] = useState(isInStandaloneMode());
   const navigate = useNavigate();
 
@@ -48,15 +51,15 @@ const NavigationLinks: FunctionalComponent = () => {
 
   return (
     <div style="display: flex;">
-      <a role="navigation" aria-label="Go back" class="navbar-item"
+      <a role="navigation" aria-label={t('Go back')} class="navbar-item"
        onClick={() => history.back()}>
         <Icon icon={faChevronLeft} />
       </a>
-      <a role="navigation" aria-label="Go forward" class="navbar-item"
+      <a role="navigation" aria-label={t('Go forward')} class="navbar-item"
      onClick={() => history.forward()}>
         <Icon icon={faChevronRight} />
       </a>
-      <a role="navigation" aria-label="Go to home page" class="navbar-item" onClick={() => {
+      <a role="navigation" aria-label={t('Go to home page')} class="navbar-item" onClick={() => {
         if (history.length > 1) {
           history.go(-(history.length - 1));
         }

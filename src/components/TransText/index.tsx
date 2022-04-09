@@ -17,27 +17,19 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { h } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 import { useTranslation } from 'react-i18next';
 
-import style from './style.scss';
-
+import { I18nKey } from '../../types/react-i18next';
 
 interface IProps {
-  handlePrint: () => void;
+  i18nKey: I18nKey;
 }
 
-const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
+const TransText: FunctionalComponent<IProps> = ({ i18nKey }) => {
   const { t } = useTranslation();
 
-  return (
-    <button class={`button is-info icon-text ${style.nowrap}`} onClick={handlePrint}>
-      <span class="icon"><Icon icon={faPrint} /></span>
-      <span>{t('Print')}</span>
-    </button>
-  );
+  return <>{t(i18nKey)}</>;
 };
 
-export default PrintButton;
+export default TransText;

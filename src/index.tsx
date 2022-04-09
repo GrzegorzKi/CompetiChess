@@ -26,6 +26,8 @@ import { StaticRouter } from 'react-router-dom/server';
 import App from '@/app';
 import initStore from '@/store';
 
+import './i18n/config';
+
 const { store } = initStore();
 
 const Main = (props: { url: string }): JSX.Element => {

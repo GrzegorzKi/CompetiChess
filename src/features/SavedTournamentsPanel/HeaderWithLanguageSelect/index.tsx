@@ -17,27 +17,25 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faPrint } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { h } from 'preact';
+import { FunctionalComponent, h } from 'preact';
 import { useTranslation } from 'react-i18next';
 
 import style from './style.scss';
 
-
-interface IProps {
-  handlePrint: () => void;
-}
-
-const PrintButton = ({ handlePrint }: IProps): JSX.Element => {
-  const { t } = useTranslation();
+const HeaderWithLanguageSelect: FunctionalComponent = () => {
+  const { t, i18n } = useTranslation();
 
   return (
-    <button class={`button is-info icon-text ${style.nowrap}`} onClick={handlePrint}>
-      <span class="icon"><Icon icon={faPrint} /></span>
-      <span>{t('Print')}</span>
-    </button>
+    <div class="panel-heading">
+      {t('Tournaments')}
+      <div class={`control select ${style.langSelect}`}>
+        <select value={i18n.language.split('-')[0]} onChange={(e) => i18n.changeLanguage(e.currentTarget.value)}>
+          <option value="en">English</option>
+          <option value="pl">Polski</option>
+        </select>
+      </div>
+    </div>
   );
 };
 
-export default PrintButton;
+export default HeaderWithLanguageSelect;

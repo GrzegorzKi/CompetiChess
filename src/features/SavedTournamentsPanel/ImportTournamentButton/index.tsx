@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -33,6 +34,7 @@ import { useModalContext } from '../ModalProvider';
 import { importTournamentFromJson } from '#/JsonImport';
 import FileSelector from '@/FileSelector';
 import { store } from '@/store';
+import TransText from '@/TransText';
 
 function importTournament(fileList: FileList) {
   loadFile(fileList[0])
@@ -43,15 +45,18 @@ function importTournament(fileList: FileList) {
       data.tournament.id = '';
       store.dispatch(loadNewFromJson(data));
 
-      const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
-      toast.success(successText);
+      toast.success(<Trans i18nKey="Tournament loaded">
+        Tournament <strong>{{ name: data.tournament.tournamentName }}</strong> loaded successfully!
+      </Trans>);
     })
     .catch(() => {
-      toast.error('Provided invalid file or file content is not a JSON object');
+      toast.error(<TransText i18nKey='Invalid file' />);
     });
 }
 
 const ImportTournamentButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const isModified = useAppSelector(selectIsModified);
   const { onSaveGuard } = useModalContext();
 
@@ -63,7 +68,7 @@ const ImportTournamentButton: FunctionalComponent = () => {
 
   return (
     <FileSelector fileHandler={checkCurrentAndImportTournament} className="button">
-      Import from JSON
+      {t('Import JSON file')}
     </FileSelector>
   );
 };

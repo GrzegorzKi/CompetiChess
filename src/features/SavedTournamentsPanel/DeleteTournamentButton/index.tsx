@@ -26,6 +26,7 @@ import { close } from 'reducers/tournamentReducer';
 import { removeTournamentFromLocalStorage } from 'utils/localStorageUtils';
 
 import { store } from '@/store';
+import TransText from '@/TransText';
 
 async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknown>) {
   if (onDeleteGuard && !await onDeleteGuard()) return;
@@ -36,7 +37,7 @@ async function deleteTournament(id: string, onDeleteGuard?: () => Promise<unknow
     store.dispatch(close());
   }
 
-  toast.info('Tournament has been deleted');
+  toast.info(<TransText i18nKey='Tournament deleted' />);
 }
 
 interface Props {

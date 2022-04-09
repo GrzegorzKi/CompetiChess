@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -29,8 +30,13 @@ import { blockIfModified } from 'utils/modalUtils';
 
 import { importTournamentFromJson } from '#/JsonImport';
 import { store } from '@/store';
+import TransText from '@/TransText';
 
-export async function loadTournament(id: string, isModified: boolean, onModified?: () => Promise<boolean>): Promise<void> {
+export async function loadTournament(
+  id: string,
+  isModified: boolean,
+  onModified?: () => Promise<boolean>,
+): Promise<void> {
   if (onModified && !await blockIfModified(isModified, onModified)) return;
 
   try {
@@ -40,13 +46,15 @@ export async function loadTournament(id: string, isModified: boolean, onModified
       store.dispatch(loadNewFromJson(data));
       store.dispatch(clearIsModified());
 
-      const successText = <>Tournament <strong>{data.tournament.tournamentName}</strong> loaded successfully!</>;
-      toast.success(successText);
-      return;
+      toast.success(<Trans i18nKey="Tournament loaded">
+        Tournament <strong>{{ name: data.tournament.tournamentName }}</strong> loaded successfully!
+      </Trans>);
+    } else {
+      toast.error(<TransText i18nKey='Tournament entry missing' />);
     }
-  } catch (e) { /* Pass-through */ }
-
-  toast.error('Provided invalid file or file content is not a JSON object');
+  } catch (e) {
+    toast.error(<TransText i18nKey='Invalid file' />);
+  }
 }
 
 interface Props {
@@ -55,11 +63,13 @@ interface Props {
 }
 
 const LoadTournamentButton: FunctionalComponent<Props> = ({ id, onSaveGuard }) => {
+  const { t } = useTranslation();
+
   const isModified = useAppSelector(selectIsModified);
 
   return <>
     <button class="button" onClick={() => loadTournament(id, isModified, onSaveGuard)}>
-      Load
+      {t('Load')}
     </button>
   </>;
 };

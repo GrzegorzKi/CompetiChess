@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -27,6 +28,7 @@ import { selectTournament } from 'reducers/tournamentReducer';
 import { saveTournamentToLocalStorage } from 'utils/localStorageUtils';
 
 import { RootState, store } from '@/store';
+import TransText from '@/TransText';
 
 export function saveTournament(): void {
   try {
@@ -35,21 +37,23 @@ export function saveTournament(): void {
     const saved = saveTournamentToLocalStorage(storeState.tournament);
     if (saved) {
       store.dispatch(clearIsModified());
-      toast.success('Tournament saved!');
+      toast.success(<TransText i18nKey='Tournament saved!' />);
     } else {
-      toast.warning('Nothing to save: There is no tournament active.');
+      toast.warning(<TransText i18nKey='Nothing to save' />);
     }
 
   } catch (e) {
-    toast.error('Unable to save tournament');
+    toast.error(<TransText i18nKey='Unable to save' />);
   }
 }
 
 const SaveTournamentButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const tournament = useAppSelector(selectTournament);
 
   return <button disabled={!tournament} class="button" onClick={() => saveTournament()}>
-    Save
+    {t('Save')}
   </button>;
 };
 

@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 import LocationStateModal from '@/modals/LocationStateModal';
 
@@ -28,6 +29,8 @@ interface IProps {
 }
 
 const DeleteRoundModal: FunctionalComponent<IProps> = ({ isActive, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
   return (
     <LocationStateModal
       stateKey="deleteRound"
@@ -36,15 +39,15 @@ const DeleteRoundModal: FunctionalComponent<IProps> = ({ isActive, onCancel, onC
       contentLabel="Delete round confirmation modal"
     >
       <header class="modal-card-head">
-        <p class="modal-card-title">Confirm deletion</p>
+        <p class="modal-card-title">{t('Confirm deletion')}</p>
         <button class="delete" aria-label="close" onClick={onCancel} />
       </header>
       <section className="modal-card-body">
-        <div>Are you sure you want to delete round?</div>
+        <div>{t('Delete round prompt')}</div>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-danger" onClick={onConfirm}>Yes</button>
-        <button class="button is-outlined" onClick={onCancel}>No</button>
+        <button class="button is-danger" onClick={onConfirm}>{t('Yes')}</button>
+        <button class="button is-outlined" onClick={onCancel}>{t('No')}</button>
       </footer>
     </LocationStateModal>
   );

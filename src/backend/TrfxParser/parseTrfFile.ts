@@ -17,6 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import i18n from 'i18n/config';
+
 import { fieldParser, ParseData } from './parseValues';
 
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
@@ -140,7 +142,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
 
   const parseLine = (line: string, lineNum: number) => {
     const errorCallback = (e: ParseError) => {
-      parsingErrors.push(`Error on line ${lineNum + 1} - ${getDetails(e)}`);
+      parsingErrors.push(i18n.t('Error on line', { num: lineNum + 1, details: getDetails(e) }));
     };
 
     if (line.length >= 4 && line.at(3) !== ' ') {
@@ -167,7 +169,7 @@ export default function parseTrfFile(content: string): ParseTrfFileResult {
     if (line.length >= 3) {
       parseLine(line, i);
       if (parsingErrors.length >= 20) {
-        parsingErrors.push('Processing stopped due to multiple errors found');
+        parsingErrors.push(i18n.t('Processing stopped error'));
         break;
       }
     }

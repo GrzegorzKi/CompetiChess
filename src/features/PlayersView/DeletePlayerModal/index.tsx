@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import style from './style.scss';
 
@@ -33,6 +34,8 @@ interface IProps {
 }
 
 const DeletePlayerModal: FunctionalComponent<IProps> = ({ player, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
   const [reorderIds, setReorderIds] = useState(true);
 
   if (!player) return null;
@@ -40,21 +43,21 @@ const DeletePlayerModal: FunctionalComponent<IProps> = ({ player, onCancel, onCo
   return (
     <>
       <header class="modal-card-head">
-        <p class="modal-card-title">Confirm deletion</p>
+        <p class="modal-card-title">{t('Confirm deletion')}</p>
         <button class="delete" aria-label="close" onClick={onCancel} />
       </header>
       <section className="modal-card-body">
-        <div>Are you sure you want to delete player {player.name}?</div>
+        <div>{t('Delete player prompt', { player: player.name })}</div>
         <hr class={style.hr} />
         <label class="checkbox">
           <input class="mr-1" type="checkbox"
                  checked={reorderIds} onClick={() => setReorderIds(s => !s)} />
-          Reorder players' IDs after deletion
+          {t('Reorder IDs')}
         </label>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-danger" onClick={() => onConfirm({ reorderIds })}>Yes</button>
-        <button class="button is-outlined" onClick={onCancel}>No</button>
+        <button class="button is-danger" onClick={() => onConfirm({ reorderIds })}>{t('Yes')}</button>
+        <button class="button is-outlined" onClick={onCancel}>{t('No')}</button>
       </footer>
     </>
   );

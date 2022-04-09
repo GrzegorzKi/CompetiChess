@@ -72,8 +72,8 @@ const MainView: FunctionalComponent = () => {
       <section>
         <SectionWithSideMenu className={style.container}>
           <div class={style.commonControls}>
-            <NextRoundButton><strong>Start next round</strong></NextRoundButton>
-            <DeleteRoundButton><strong>Delete round</strong></DeleteRoundButton>
+            <NextRoundButton />
+            <DeleteRoundButton />
           </div>
           <div className={style.commonControls}>
             <PaginateRound pageCount={pairs.length}

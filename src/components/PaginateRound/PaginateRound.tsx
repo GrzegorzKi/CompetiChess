@@ -18,6 +18,7 @@
  */
 
 import { FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 import ReactPaginate from 'react-paginate';
 
 import styles from './style.scss';
@@ -31,6 +32,8 @@ interface Props {
 }
 
 const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChange }) => {
+  const { t } = useTranslation();
+
   if (pageCount <= 0) {
     return null;
   }
@@ -41,8 +44,8 @@ const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChan
       forcePage={page}
       onPageChange={onPageChange}
 
-      previousLabel="Previous"
-      nextLabel="Next"
+      previousLabel={t('PreviousR')}
+      nextLabel={t('NextR')}
       breakLabel="..."
 
       containerClassName={`pagination-list ${styles.customOrdering}`}

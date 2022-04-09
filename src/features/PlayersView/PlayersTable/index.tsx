@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
 import { PlayersState } from 'reducers/tournamentReducer';
@@ -39,6 +40,7 @@ interface IProps {
 
 const PlayersTable: FunctionalComponent<IProps> = (
   { tableRef, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
+  const { t } = useTranslation();
 
   const handleDoubleClick = useCallback((event: JSX.TargetedMouseEvent<HTMLTableRowElement>) => {
     if (event.detail > 1 && event.button === 0 /* Main button */) {
@@ -65,7 +67,7 @@ const PlayersTable: FunctionalComponent<IProps> = (
   const playersByPosition = players.orderByPosition.map(p => players.index[p]);
 
   if (playersByPosition.length === 0) {
-    return <div ref={tableRef} class="controls">No players currently in the tournament.&nbsp;<a onClick={() => onRowEnter(1)}>Let's create one!</a></div>;
+    return <div ref={tableRef} class="controls">{t('No players')}&nbsp;<a onClick={() => onRowEnter(1)}>{t('Create player prompt')}</a></div>;
   }
 
   return (
@@ -73,10 +75,10 @@ const PlayersTable: FunctionalComponent<IProps> = (
       <table class='table is-striped is-hoverable is-fullwidth'>
         <thead class={style.fixedHead}>
           <tr>
-            <th style="width: 3rem; text-align: right;">No.</th>
-            <th>Player name</th>
-            <th style="width: 7rem;">Birth date</th>
-            <th style="width: 5rem;">Rating</th>
+            <th style="width: 3rem; text-align: right;">{t('No.')}</th>
+            <th style="min-width: 10rem;">{t('Player name')}</th>
+            <th style="width: 7rem;">{t('Birth date')}</th>
+            <th style="width: 5rem;">{t('Rating')}</th>
           </tr>
         </thead>
         <tbody>

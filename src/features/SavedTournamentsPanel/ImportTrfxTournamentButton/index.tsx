@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
 import { useAppSelector } from 'hooks/index';
@@ -38,30 +39,51 @@ import parseTrfFile, {
 import { getMessageForWarnCode } from '#/types/WarnCode';
 import FileSelector from '@/FileSelector';
 import { store } from '@/store';
+import TransText from '@/TransText';
 
-function createWarningMessage(successText: JSX.Element, result: ValidTrfData) {
+interface ILoadedMessageProps {
+  result: ValidTrfData;
+}
+
+const LoadedMessage = ({ result }: ILoadedMessageProps) => {
+  const { t } = useTranslation();
+
+  const successText = (<Trans i18nKey="Tournament loaded">
+    Tournament <strong>{{ name: result.tournament.tournamentName }}</strong> loaded successfully!
+  </Trans>);
+
+  if (result.warnings.length === 0) {
+    return successText;
+  }
+
   return <>
     {successText}
     <hr />
-    Warnings were generated:
+    {t('Warnings were generated:')}
     <ul class="ul">
       {result.warnings.map((value, index) => (
         <li key={index}>{getMessageForWarnCode(value)}</li>
       ))}
     </ul>
   </>;
+};
+
+interface IErrorMessageProps {
+  result: ParsingErrors;
 }
 
-function createErrorMessage(result: ParsingErrors) {
+const ErrorMessage = ({ result }: IErrorMessageProps) => {
+  const { t } = useTranslation();
+
   return <>
-    Unable to load TRFx file:
+    {t('Unable to load TRFx')}
     <ul class="ul">
       {result.parsingErrors.map((value, index) => (
         <li key={index}>{value}</li>
       ))}
     </ul>
   </>;
-}
+};
 
 function loadTrfxTournament(files: FileList) {
   loadFile(files[0])
@@ -69,22 +91,23 @@ function loadTrfxTournament(files: FileList) {
       const result = parseTrfFile(data);
       if (isTournamentValid(result)) {
         store.dispatch(loadNew(result));
-        const successText = <>Tournament <strong>{result.tournament.tournamentName}</strong> loaded successfully!</>;
         if (result.warnings.length === 0) {
-          toast.success(successText);
+          toast.success(<LoadedMessage result={result} />);
         } else {
-          toast.warning(createWarningMessage(successText, result));
+          toast.warning(<LoadedMessage result={result} />);
         }
       } else {
-        toast.error(createErrorMessage(result));
+        toast.error(<ErrorMessage result={result} />);
       }
     })
     .catch(() => {
-      toast.error('Unable to load the file. Please try again.');
+      toast.error(<TransText i18nKey='Unable to load TRFx' />);
     });
 }
 
 const ImportTrfxTournamentButton: FunctionalComponent = () => {
+  const { t } = useTranslation();
+
   const isModified = useAppSelector(selectIsModified);
   const { onSaveGuard } = useModalContext();
 
@@ -96,7 +119,7 @@ const ImportTrfxTournamentButton: FunctionalComponent = () => {
 
   return (
     <FileSelector fileHandler={checkCurrentAndImportTournament} className="button">
-      Import TRFx file
+      {t('Import TRFx file')}
     </FileSelector>
   );
 };

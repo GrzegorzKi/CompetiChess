@@ -48,7 +48,7 @@ export const _routes = {
   pairs: {
     path: '/view/pairs',
     pathRel: 'pairs',
-    title: 'Pairs',
+    title: 'Pairings',
     parent: '/view'
   },
   players: {

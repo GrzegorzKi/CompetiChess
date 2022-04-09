@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from 'hooks/index';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
@@ -58,6 +59,7 @@ interface IProps {
 
 const PairsTable: FunctionalComponent<IProps> = (
   { tableRef, pairs, players, idx, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
+  const { t } = useTranslation();
 
   const configuration = useAppSelector(selectConfiguration);
 
@@ -84,7 +86,7 @@ const PairsTable: FunctionalComponent<IProps> = (
   const menuHandler = useContextMenuHandler(onContextMenu);
 
   if (!pairs || pairs.length === 0 || !configuration) {
-    return <div ref={tableRef}>No pairs defined for selected round.</div>;
+    return <div ref={tableRef}>{t('No pairs')}</div>;
   }
 
   const round = pairs[0].round - 1;
@@ -95,17 +97,17 @@ const PairsTable: FunctionalComponent<IProps> = (
   return (
     <div ref={tableRef}>
       <div class="print-only">
-        CompetiChess - Round {round + 1}
+        CompetiChess - {t('Round')} {round + 1}
       </div>
       <table class="table is-striped is-hoverable is-fullwidth">
         <thead class={style.fixedHead}>
           <tr>
-            <th style="width: 3rem; text-align: right;">No.</th>
-            <th style="width: 2.5rem;">Pts</th>
-            <th>First player</th>
-            <th style="width: 4.5rem;">Result</th>
-            <th>Second player</th>
-            <th style="width: 2.5rem;">Pts</th>
+            <th style="width: 3rem; text-align: right;">{t('No.')}</th>
+            <th style="width: 2.5rem;">{t('Pts')}</th>
+            <th>{t('White player')}</th>
+            <th style="width: 4.5rem;">{t('Result')}</th>
+            <th>{t('Black player')}</th>
+            <th style="width: 2.5rem;">{t('Pts')}</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +134,7 @@ const PairsTable: FunctionalComponent<IProps> = (
       </table>
       {pausingPlayer &&
       <p class={style.padded}>
-        Player pausing: <b>{displayPlayer(pausingPlayer[1])}</b> <i>(+{configuration.pointsForPairingAllocatedBye.toFixed(1)} pts)</i>
+        {t('Player pausing:')} <b>{displayPlayer(pausingPlayer[1])}</b> <i>(+{configuration.pointsForPairingAllocatedBye.toFixed(1)} {t('Pts').toLowerCase()})</i>
       </p>
       }
     </div>
