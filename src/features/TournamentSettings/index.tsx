@@ -20,6 +20,7 @@
 import { FunctionalComponent, h } from 'preact';
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -38,6 +39,7 @@ import TournamentForm from './TournamentForm';
 import TournamentFormSideMenu from './TournamentFormSideMenu';
 
 import { RootState, store, waitForRehydration } from '@/store';
+import TransText from '@/TransText';
 
 export type Tab = 'General' | 'Tiebreakers' | 'Accelerations' | 'Sorting criteria' | 'Matchmaking';
 
@@ -56,7 +58,7 @@ function saveTournamentUnlessNotPersisted(): void {
       }
     }
   } catch (e) {
-    toast.error('Unable to save tournament');
+    toast.error(<TransText i18nKey="Unable to save" />);
   }
 }
 
@@ -65,6 +67,8 @@ interface IProps {
 }
 
 const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
+  const { t } = useTranslation();
+
   const generalFormRef = useRef<UseFormReturn<any>>();
   const tiebreakersFormRef = useRef<HTMLSelectElement>();
   const matchmakingFormRef = useRef<UseFormReturn<any>>();
@@ -100,19 +104,19 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
       tournamentData.general.createdDate = Date.now();
 
       dispatch(createTournament(tournamentData));
-      toast.success('Tournament has been created!');
+      toast.success(<TransText i18nKey="Tournament created" />);
       navigate(routes.tournaments.path);
     } else {
       dispatch(updateTournament(tournamentData));
       saveTournamentUnlessNotPersisted();
-      toast.info('Tournament has been updated');
+      toast.info(<TransText i18nKey="Tournament updated" />);
     }
   }, [dispatch, isCreate, navigate, tournamentData]);
 
   return (
     <article class={`panel is-primary ${style.panel}`}>
       <p class="panel-heading">
-        Tournament settings
+        {t('Tournament settings')}
       </p>
       <section class={style.content}>
         <TournamentForm inputRef={generalFormRef}
@@ -127,7 +131,7 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
                         visible={tab === 'Tiebreakers'} />
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <section class={`buttons ${style.buttons}`}>
-          <input onClick={onSubmit} value={isCreate ? 'Create' : 'Apply'} type="submit"
+          <input onClick={onSubmit} value={isCreate ? t('Create') : t('Apply')} type="submit"
                  class="button is-success ml-auto" />
         </section>
       </section>
@@ -145,7 +149,7 @@ const TournamentSettings: FunctionalComponent<IProps> = (props) => {
 
   return ready
     ? <_TournamentSettings {...props} />
-    : <p>Loading tournament data, please wait...</p>;
+    : null;
 };
 
 export default TournamentSettings;

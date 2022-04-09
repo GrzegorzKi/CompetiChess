@@ -20,6 +20,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { FunctionalComponent, h, JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 import { Location, useLocation, useNavigate } from 'react-router-dom';
 
 import TournamentTableContextMenu from 'features/TournamentTableView/TournamentTableContextMenu';
@@ -53,6 +54,8 @@ function getLocStateIdxOrDefault(location: Location) {
 }
 
 const TournamentTableView: FunctionalComponent<IProps> = ({ players }) => {
+  const { t } = useTranslation();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -116,9 +119,9 @@ const TournamentTableView: FunctionalComponent<IProps> = ({ players }) => {
     <>
       <div class="controls">
         <PrintButton handlePrint={handlePrint} />
-        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={showPlayer}>Show player details</button>
+        <button className="button is-outlined" disabled={idx > players.orderById.length} onClick={showPlayer}>{t('Show player details')}</button>
         <Checkbox checked={exactPlaces} setChecked={setExactPlaces}>
-          Show exact places
+          {t('Show exact places')}
         </Checkbox>
       </div>
       <div class={`table-container ${style.table}`} >

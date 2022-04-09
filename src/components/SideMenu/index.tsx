@@ -41,14 +41,15 @@ export interface ITabLinkProps<T extends string = string> {
   activeTab: T;
   onChange: (value: T) => void;
   icon?: IconDefinition;
+  children?: ComponentChildren;
 }
 
-export function TabLink<T extends string = string>({ activeTab, onChange, tab, icon }: ITabLinkProps<T>): JSX.Element {
+export function TabLink<T extends string = string>({ activeTab, onChange, tab, icon, children }: ITabLinkProps<T>): JSX.Element {
   return (
     <li>
       <a class={`is-unselectable${activeTab === tab ? ' is-active' : ''}`} onClick={() => onChange(tab)}>
         {icon && <span class="icon"><Icon icon={icon} /></span>}
-        <span class={style.sideNavText}>{tab}</span>
+        <span class={style.sideNavText}>{children ?? tab}</span>
       </a>
     </li>
   );

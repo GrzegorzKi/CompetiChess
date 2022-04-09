@@ -20,6 +20,7 @@
 import { faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
 import { FunctionalComponent,h  } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { Tab } from '..';
 
@@ -32,6 +33,8 @@ interface IProps<T> {
 }
 
 const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, onChange: _onChange }) => {
+  const { t } = useTranslation();
+
   const [expanded, setExpanded] = useState(false);
 
   const onChange = useCallback((tab: Tab) => {
@@ -42,11 +45,11 @@ const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, o
   return (
     <SideMenu isActive={expanded}>
       <Burger isActive={expanded} onClick={() => setExpanded(s => !s)} />
-      <p class="menu-label">General</p>
+      <p class="menu-label">{t('General')}</p>
       <ul class="menu-list">
-        <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip} />
-        <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors} />
+        <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList}>{t('General')}</TabLink>
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip}>{t('Matchmaking')}</TabLink>
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors}>{t('Tiebreakers')}</TabLink>
       </ul>
     </SideMenu>
   );

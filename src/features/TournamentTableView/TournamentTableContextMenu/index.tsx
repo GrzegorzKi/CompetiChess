@@ -19,6 +19,7 @@
 
 import { MenuItem, ControlledMenu, MenuState } from '@szhsin/react-menu';
 import { ComponentProps, FunctionalComponent, h } from 'preact';
+import { useTranslation } from 'react-i18next';
 
 interface IProps {
   menuState: { state?: MenuState, endTransition: () => void };
@@ -32,11 +33,12 @@ interface IProps {
 
 const TournamentTableContextMenu: FunctionalComponent<IProps> = (
   { menuState, toggleMenu, anchorPoint, boundingBoxRef, actions: { showPlayer } }) => {
+  const { t } = useTranslation();
 
   return (
     <ControlledMenu {...menuState} anchorPoint={anchorPoint} boundingBoxRef={boundingBoxRef}
                     onClose={() => toggleMenu(false)}>
-      <MenuItem onClick={showPlayer}>Show player details</MenuItem>
+      <MenuItem onClick={showPlayer}>{t('Show player details')}</MenuItem>
     </ControlledMenu>
   );
 };

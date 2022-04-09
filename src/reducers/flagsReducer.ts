@@ -32,7 +32,7 @@ const initialState: IsModifiedState = {
 };
 
 export const flags = createSlice({
-  name: tournamentSlice.name, // The same name as in `tournamentReducer.ts`
+  name: tournamentSlice.name, // The same name as in `tournamentReducer.tsx`
   initialState,
   reducers: {
     loadNew: () => ({ isModified: true }),

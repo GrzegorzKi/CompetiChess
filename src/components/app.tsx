@@ -24,6 +24,7 @@ import { Route, Routes, useLocation } from 'react-router';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import Header from 'features/Header';
+import i18n from 'i18n/config';
 import About from 'routes/about';
 import Home from 'routes/home';
 import NotFound from 'routes/notFound';
@@ -47,10 +48,11 @@ import ToastHandler from '@/ToastHandler';
 function getTitle(location: string): string {
   const routeTitle = locations[location];
   if (routeTitle && routeTitle.title) {
+    const translatedTitle = i18n.t(routeTitle.title);
     if (isInStandaloneMode()) {
-      return routeTitle.title;
+      return translatedTitle;
     }
-    return `${routeTitle.title} | ${constants.appName}`;
+    return `${translatedTitle} | ${constants.appName}`;
   }
   return constants.appName;
 }

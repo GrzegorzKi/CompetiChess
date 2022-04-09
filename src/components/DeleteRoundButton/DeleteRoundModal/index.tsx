@@ -43,7 +43,7 @@ const DeleteRoundModal: FunctionalComponent<IProps> = ({ isActive, onCancel, onC
         <button class="delete" aria-label="close" onClick={onCancel} />
       </header>
       <section className="modal-card-body">
-        <div>{t('Confirm deletion')}</div>
+        <div>{t('Delete round prompt')}</div>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
         <button class="button is-danger" onClick={onConfirm}>{t('Yes')}</button>

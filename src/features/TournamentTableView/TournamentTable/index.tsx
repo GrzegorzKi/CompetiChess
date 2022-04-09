@@ -19,6 +19,7 @@
 
 import { FunctionalComponent, h, JSX, Ref } from 'preact';
 import { useCallback, useMemo } from 'preact/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { useAppSelector } from 'hooks/index';
 import useContextMenuHandler from 'hooks/useContextMenuHandler';
@@ -122,6 +123,7 @@ function getTiebreakerValues(sortedPlayers: Player[], _tiebreakers: Tiebreaker[]
 
 const TournamentTable: FunctionalComponent<IProps> = (
   { tableRef, players, idx, exactPlaces, selectedRef, onRowEnter, onRowSelect, onContextMenu }) => {
+  const { t } = useTranslation();
 
   const { selectedRound: round } = useAppSelector(selectViewOptions);
   const configuration = useAppSelector(selectConfiguration);
@@ -160,24 +162,24 @@ const TournamentTable: FunctionalComponent<IProps> = (
     [configuration?.tiebreakers, round, sortedPlayers]);
 
   if (playersByPosition.length === 0 || !configuration) {
-    return <div ref={tableRef} class="controls">No players currently in the tournament.</div>;
+    return <div ref={tableRef} class="controls">{t('No players')}</div>;
   } else if (round < 0 || !wasAnyGamePlayed(sortedPlayers)) {
-    return <div ref={tableRef} class="controls">No games played so far, nothing to display.</div>;
+    return <div ref={tableRef} class="controls">{t('No games')}</div>;
   }
 
   return (
     <div ref={tableRef}>
       <div class="print-only">
-        CompetiChess - Tournament table after round {round + 1}
+        CompetiChess - {t('Tournament table after round', { round: round + 1 })}
       </div>
       <table class='table is-striped is-hoverable is-fullwidth'>
         <thead class={style.fixedHead}>
           <tr>
-            <th style="width: 5rem; text-align: center;">Place</th>
-            <th style="width: 3rem; text-align: right;">No.</th>
-            <th style="min-width: 10rem;">Player</th>
-            <th style="width: 5rem;">Rating</th>
-            <th style="width: 2.5rem;">Pts</th>
+            <th style="width: 5rem; text-align: center;">{t('Place')}</th>
+            <th style="width: 3rem; text-align: right;">{t('No.')}</th>
+            <th style="min-width: 10rem;">{t('Player name')}</th>
+            <th style="width: 5rem;">{t('Rating')}</th>
+            <th style="width: 2.5rem;">{t('Pts')}</th>
             {tbHeaders}
           </tr>
         </thead>
