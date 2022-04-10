@@ -177,20 +177,24 @@ function asPositiveOrUndefined(value?: number) {
 }
 
 function reorderPlayerIds(players: PlayersState, pairs: Array<PairsRound>) {
-  const keyValueMap = players.orderById.reduce(((keyValue, value, index) => {
+  const keyValueMap = players.orderByPosition.reduce(((keyValue, currentIndex, index) => {
     const idx = index + 1;
-    const player = players.index[value];
-    if (idx !== player.id) {
-      player.id = idx;
-      delete players.index[value];
-      players.index[idx] = player;
-      keyValue[value] = idx;
+
+    if (idx !== currentIndex) {
+      players.index[currentIndex].id = idx;
+      keyValue[currentIndex] = idx;
     }
     return keyValue;
   }), {} as Partial<Record<number, number>>);
 
   // Re-map indexes
+  players.index = Object.entries(players.index).reduce(((playersIndex, [, player]) => {
+    playersIndex[player.id] = player;
+    return playersIndex;
+  }), {} as Record<number, Player>);
+
   players.orderById = players.orderById.map(value => keyValueMap[value] ?? value);
+  players.orderById.sort((a, b) => a - b);
   players.orderByPosition = players.orderByPosition.map(value => keyValueMap[value] ?? value);
 
   // Re-map opponent IDs in players' games

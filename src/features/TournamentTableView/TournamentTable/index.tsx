@@ -110,7 +110,7 @@ function getTiebreakerHeaders(_tiebreakers: Tiebreaker[] | undefined) {
 }
 
 function getTiebreakerValues(sortedPlayers: Player[], _tiebreakers: Tiebreaker[] | undefined, round: number) {
-  if (!_tiebreakers) {
+  if (!_tiebreakers || !wasAnyGamePlayed(sortedPlayers)) {
     return [];
   }
 
