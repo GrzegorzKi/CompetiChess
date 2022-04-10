@@ -28,7 +28,8 @@ import { getDataIndex } from 'utils/common';
 
 import style from './style.scss';
 
-import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker from '#/types/Tiebreaker';
 import { Configuration, Player } from '#/types/Tournament';
 import { computeRanks, getPlayers } from '#/utils/TournamentUtils';
 import PrintFooter from '@/PrintFooter';

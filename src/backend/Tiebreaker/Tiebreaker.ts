@@ -17,11 +17,12 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Tiebreaker from '#/types/Tiebreaker';
 import {
   Color,
-  GameResult,
   Configuration,
   Game,
+  GameResult,
   Player,
   PlayersRecord,
   TiebreakersPoints,
@@ -29,31 +30,6 @@ import {
 import { gameWasPlayed, isUnplayedDraw, isUnplayedWin } from '#/utils/GamesUtils';
 import { numberComparator } from '#/utils/SortUtils';
 import { calculatePoints, getPoints } from '#/utils/TournamentUtils';
-
-const enum Tiebreaker {
-  DIRECT_ENCOUNTER,
-  CUMULATIVE,
-  CUMULATIVE_CUT_1,
-  OPPOSITION_CUMULATIVE,
-  PROGRESSIVE,
-  PROGRESSIVE_CUT_1,
-  ROUNDS_WON,
-  ROUNDS_WON_BLACK_PIECES,
-  PLAYED_BLACKS,
-  TIME_OF_LOSS,
-  KASHDAN,
-  SONNEBORN_BERGER,
-  BUCHHOLZ,
-  BUCHHOLZ_CUT_1,
-  MEDIAN_BUCHHOLZ,
-  MODIFIED_MEDIAN,
-  SOLKOFF,
-  ARO,
-  AROC_1,
-  OPPOSITION_PERFORMANCE,
-  KOYA,
-}
-export default Tiebreaker;
 
 function calculateVirtualOpponentScore(
   configuration: Configuration,
@@ -477,7 +453,7 @@ export function compareHeadToHead(first: Player, second: Player): number {
 
   const { result: p1Result } = first.games[index];
   const { result: p2Result } = second.games[index];
-  // Forfeit by win shouldn't be considered
+  // Checking for won match only, forfeit by win shouldn't be considered
   if (p1Result === '1' || p1Result === 'W') {
     return -1;
   }

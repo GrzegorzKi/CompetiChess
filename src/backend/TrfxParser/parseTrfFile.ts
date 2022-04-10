@@ -22,14 +22,21 @@ import i18n from 'i18n/config';
 import { fieldParser, ParseData } from './parseValues';
 
 import { ErrorCode, getDetails, isError, ParseError } from '#/types/ParseResult';
-import Tournament, { Color, Configuration, Field, Pair, PlayersRecord } from '#/types/Tournament';
+import {
+  Color,
+  Configuration,
+  Field,
+  Pair,
+  PlayersRecord,
+  Tournament,
+} from '#/types/Tournament';
 import WarnCode from '#/types/WarnCode';
 import { assignByesAndLates, evenUpGamesHistory } from '#/utils/GamesUtils';
 import {
   calculatePlayedRounds,
   checkAndAssignAccelerations,
   createDefaultConfiguration,
-  createTournamentData,
+  createDefaultTournamentData,
   detectHolesInIds,
   generatePairs,
   getPlayers,
@@ -129,7 +136,7 @@ function postProcessData({
 
 export default function parseTrfFile(content: string): ParseTrfFileResult {
   const data: ParseData = {
-    tournament: createTournamentData(),
+    tournament: createDefaultTournamentData(),
     players: {},
     playersByPosition: [],
     configuration: createDefaultConfiguration(),

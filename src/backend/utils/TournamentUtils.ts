@@ -17,20 +17,21 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import ParseResult, { ErrorCode } from '../types/ParseResult';
-import Tournament, {
+import { readPairs } from '#/Pairings/Pairings';
+import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { Acceleration } from '#/TrfxParser/parseAcceleration';
+import ParseResult, { ErrorCode } from '#/types/ParseResult';
+import Tiebreaker from '#/types/Tiebreaker';
+import {
   Color,
   Configuration,
-  GameResult,
   Game,
+  GameResult,
   Pair,
   Player,
   PlayersRecord,
-} from '../types/Tournament';
-
-import { readPairs } from '#/Pairings/Pairings';
-import Tiebreaker, { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
-import { Acceleration } from '#/TrfxParser/parseAcceleration';
+  Tournament,
+} from '#/types/Tournament';
 import { gameWasPlayed, invertColor, participatedInPairing } from '#/utils/GamesUtils';
 import { createComparator, sortByScore, sortByTiebreaker } from '#/utils/SortUtils';
 
@@ -49,7 +50,7 @@ export function createDefaultConfiguration(): Configuration {
   };
 }
 
-export function createTournamentData(overrides?: Partial<Tournament>): Tournament {
+export function createDefaultTournamentData(overrides?: Partial<Tournament>): Tournament {
   const data: Tournament = {
     id: '',
     createdDate: Date.now(),

@@ -22,7 +22,7 @@ import { IGeneralFormInputs } from 'features/TournamentSettings/TournamentForm';
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectTournament } from 'reducers/tournamentReducer';
 
-import Tiebreaker from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker from '#/types/Tiebreaker';
 import { Color } from '#/types/Tournament';
 
 

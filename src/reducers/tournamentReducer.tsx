@@ -45,7 +45,7 @@ import { evenUpGamesHistory, evenUpGamesHistoryPlayer } from '#/utils/GamesUtils
 import { computeResult, ResultType } from '#/utils/ResultUtils';
 import {
   createDefaultConfiguration,
-  createTournamentData,
+  createDefaultTournamentData,
   getPlayers,
   recalculatePlayerScores,
   recalculatePlayerTiebreakers,
@@ -214,7 +214,7 @@ export const tournamentSlice = createSlice({
         useBakuAcceleration: payload.matchmaking.useBakuAcceleration,
       };
 
-      state.tournament = createTournamentData(tournamentData);
+      state.tournament = createDefaultTournamentData(tournamentData);
       state.configuration = {
         ...createDefaultConfiguration(),
         ...configurationData

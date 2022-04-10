@@ -17,7 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tiebreaker, { compareHeadToHead } from '#/Tiebreaker/Tiebreaker';
+import { compareHeadToHead } from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker from '#/types/Tiebreaker';
 import { Player } from '#/types/Tournament';
 
 export function createComparator(compareFuncs: PlayerComparator[]) {

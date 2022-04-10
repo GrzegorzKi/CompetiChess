@@ -17,7 +17,8 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker from '#/types/Tiebreaker';
 import { Player } from '#/types/Tournament';
 import { computeRanks } from '#/utils/TournamentUtils';
 

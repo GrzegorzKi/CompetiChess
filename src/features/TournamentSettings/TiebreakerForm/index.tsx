@@ -21,7 +21,8 @@ import { FunctionalComponent, h, Ref } from 'preact';
 
 import DualListBox from 'components/DualListBox';
 
-import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker from '#/types/Tiebreaker';
 
 
 const options = Object.values(tiebreakers).map(value => ({

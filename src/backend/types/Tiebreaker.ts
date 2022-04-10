@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022  Grzegorz Kita
+ * Copyright (c) 2022  Grzegorz Kita
  *
  * This file is part of CompetiChess.
  *
@@ -17,7 +17,29 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Tiebreaker from './Tiebreaker';
+export const enum Tiebreaker {
+  DIRECT_ENCOUNTER,
+  CUMULATIVE,
+  CUMULATIVE_CUT_1,
+  OPPOSITION_CUMULATIVE,
+  PROGRESSIVE,
+  PROGRESSIVE_CUT_1,
+  ROUNDS_WON,
+  ROUNDS_WON_BLACK_PIECES,
+  PLAYED_BLACKS,
+  TIME_OF_LOSS,
+  KASHDAN,
+  SONNEBORN_BERGER,
+  BUCHHOLZ,
+  BUCHHOLZ_CUT_1,
+  MEDIAN_BUCHHOLZ,
+  MODIFIED_MEDIAN,
+  SOLKOFF,
+  ARO,
+  AROC_1,
+  OPPOSITION_PERFORMANCE,
+  KOYA,
+}
 
 /*
   Tiebreak rules used by USCF Swiss tournaments. Described by paragraph:
@@ -31,7 +53,7 @@ export const USCFSwiss = [
   Tiebreaker.MODIFIED_MEDIAN,
   Tiebreaker.SOLKOFF,
   Tiebreaker.CUMULATIVE,
-  Tiebreaker.OPPOSITION_CUMULATIVE
+  Tiebreaker.OPPOSITION_CUMULATIVE,
 ] as const;
 
 /*
@@ -45,7 +67,7 @@ export const MadisonCityChessLeagueSwiss = [
   Tiebreaker.MODIFIED_MEDIAN,
   Tiebreaker.CUMULATIVE,
   Tiebreaker.SOLKOFF,
-  Tiebreaker.OPPOSITION_CUMULATIVE
+  Tiebreaker.OPPOSITION_CUMULATIVE,
 ] as const;
 
 /*
@@ -75,7 +97,7 @@ export const FideSwissRatingsNotConsistent = [
   Tiebreaker.PROGRESSIVE,
   Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.ROUNDS_WON,
-  Tiebreaker.ROUNDS_WON_BLACK_PIECES
+  Tiebreaker.ROUNDS_WON_BLACK_PIECES,
 ] as const;
 
 /*
@@ -94,20 +116,22 @@ export const FideSwissRatingsConsistent = [
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.ROUNDS_WON_BLACK_PIECES,
   Tiebreaker.PLAYED_BLACKS,
-  Tiebreaker.SONNEBORN_BERGER
+  Tiebreaker.SONNEBORN_BERGER,
 ] as const;
 
 /*
-  Tiebreak rules used by FIDE Round-Robin tournaments. Described by paragraph:
-  13.16.2. Individual Round-Robin Tournaments.
-  <br/>
-  Last checked: November 2021
-  <br/>
-  @link https://web.archive.org/web/20210824213036/https://handbook.fide.com/files/handbook/C02Standards.pdf
- */
+ Tiebreak rules used by FIDE Round-Robin tournaments. Described by paragraph:
+ 13.16.2. Individual Round-Robin Tournaments.
+ <br/>
+ Last checked: November 2021
+ <br/>
+ @link https://web.archive.org/web/20210824213036/https://handbook.fide.com/files/handbook/C02Standards.pdf
+*/
 export const FideIndividualRoundRobin = [
   Tiebreaker.DIRECT_ENCOUNTER,
   Tiebreaker.ROUNDS_WON,
   Tiebreaker.SONNEBORN_BERGER,
-  Tiebreaker.KOYA
+  Tiebreaker.KOYA,
 ] as const;
+
+export default Tiebreaker;

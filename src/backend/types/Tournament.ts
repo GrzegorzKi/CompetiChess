@@ -17,6 +17,9 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Tiebreaker from './Tiebreaker';
+
+
 /* <pre>
 TRF(x) format, based on TRF16, is used
 
@@ -35,8 +38,6 @@ Tournament section:
 122 - Allotted times per moves/game
 132 - Dates of the round
  */
-import Tiebreaker from '#/Tiebreaker/Tiebreaker';
-
 export interface Tournament {
   id: string;
   createdDate: number;
