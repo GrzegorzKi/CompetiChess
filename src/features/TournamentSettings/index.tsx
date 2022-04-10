@@ -78,7 +78,8 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
   const generalFormRef = useRef<UseFormReturn<any>>();
   const matchmakingFormRef = useRef<UseFormReturn<any>>();
   const tiebreakersFormRef = useRef<HTMLSelectElement>();
-  const sortingFormRef = useRef<HTMLSelectElement>();
+  const sortingSelectRef = useRef<HTMLSelectElement>();
+  const sortingFormRef = useRef<UseFormReturn<any>>();
   const [tab, setTab] = useState<Tab>('General');
 
   const pairs = useAppSelector(selectPairs);
@@ -90,7 +91,8 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
     if (!generalFormRef.current
       || !tiebreakersFormRef.current
       || !matchmakingFormRef.current
-      || !sortingFormRef.current) {
+      || !sortingFormRef.current
+      || !sortingSelectRef.current) {
       return;
     }
 
@@ -103,7 +105,8 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
     tournamentData.general = generalFormRef.current.getValues();
     tournamentData.matchmaking = matchmakingFormRef.current.getValues();
     tournamentData.tiebreakers = selectToNumberArray(tiebreakersFormRef.current);
-    tournamentData.sorters = selectToNumberArray(sortingFormRef.current);
+    tournamentData.sorters = sortingFormRef.current.getValues();
+    tournamentData.sorters.sorters = selectToNumberArray(sortingSelectRef.current);
 
     if (isCreate) {
       tournamentData.general.createdDate = Date.now();
@@ -134,7 +137,8 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
         <TiebreakerForm inputRef={tiebreakersFormRef}
                         defaultValues={tournamentData.tiebreakers}
                         visible={tab === 'Tiebreakers'} />
-        <SortingForm inputRef={sortingFormRef}
+        <SortingForm selectInputRef={sortingSelectRef}
+                     formInputRef={sortingFormRef}
                      defaultValues={tournamentData.sorters}
                      visible={tab === 'Sorting'} />
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />

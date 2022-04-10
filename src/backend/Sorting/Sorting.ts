@@ -37,7 +37,7 @@ export const sorters: Record<Sorter, SorterInfo> = {
     sort: sortByFideRating,
   },
   [Sorter.Name]: {
-    name: 'Name',
+    name: 'Player name',
     sort: sortByName,
   },
   [Sorter.Federation]: {

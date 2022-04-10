@@ -51,10 +51,8 @@ function Form<T extends Record<string, any>>(
   }, [reset, values]);
 
   return (
-    <fieldset disabled={disabled}>
-      <form style={visible === false ? 'display: none;' : ''}
-            onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}
-            noValidate>
+    <fieldset disabled={disabled} style={visible === false ? 'display: none;' : ''}>
+      <form noValidate onSubmit={handleSubmit(onSubmit) as unknown as JSX.EventHandler<JSX.TargetedEvent<HTMLFormElement>>}>
         {children(formMethods)}
       </form>
     </fieldset>

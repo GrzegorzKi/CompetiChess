@@ -212,6 +212,9 @@ export const tournamentSlice = createSlice({
         tiebreakers: payload.tiebreakers,
         initialColor: payload.matchmaking.initialColor,
         useBakuAcceleration: payload.matchmaking.useBakuAcceleration,
+        sorters: payload.sorters.sorters,
+        keepNumbersOnSort: payload.sorters.keepNumbersOnSort,
+        shuffleEntries: payload.sorters.shuffleEntries,
       };
 
       state.tournament = createDefaultTournamentData(tournamentData);
@@ -243,6 +246,9 @@ export const tournamentSlice = createSlice({
         tiebreakers: payload.tiebreakers,
         initialColor: payload.matchmaking.initialColor,
         useBakuAcceleration: payload.matchmaking.useBakuAcceleration,
+        sorters: payload.sorters.sorters,
+        keepNumbersOnSort: payload.sorters.keepNumbersOnSort,
+        shuffleEntries: payload.sorters.shuffleEntries,
       };
 
       state.tournament = Object.assign(

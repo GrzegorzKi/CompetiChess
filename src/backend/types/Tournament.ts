@@ -104,6 +104,8 @@ export interface Configuration {
 
   // Defines sorters used by sorting operation
   sorters: Sorter[];
+  keepNumbersOnSort: boolean;
+  shuffleEntries: boolean;
 
   // Specify whether to use Baku Acceleration as defined in FIDE Handbook C.04.5.1
   useBakuAcceleration?: boolean;

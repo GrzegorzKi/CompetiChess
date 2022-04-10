@@ -49,6 +49,8 @@ export function createDefaultConfiguration(): Configuration {
     pointsForForfeitLoss: 0.0,
     tiebreakers: FideSwissRatingsNotConsistent.slice(),
     sorters: DefaultSorters.slice(),
+    keepNumbersOnSort: false,
+    shuffleEntries: true,
   };
 }
 
