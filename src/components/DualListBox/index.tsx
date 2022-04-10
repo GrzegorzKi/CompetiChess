@@ -63,6 +63,11 @@ function DualListBox<T>({ options, defaultValues, selectedRef }: IProps<T>): JSX
         options={options}
         selected={selected}
         onChange={setSelected}
+        lang={{
+          availableHeader: t('Available'),
+          selectedHeader: t('Selected')
+        }}
+        showHeaderLabels
         preserveSelectOrder
         showOrderButtons={true}
         icons={icons}

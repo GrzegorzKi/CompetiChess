@@ -27,6 +27,11 @@
   height: 14rem;
 }
 
+.rdl-control-label {
+  font-size: 0.8rem;
+  padding-bottom: 0.25rem;
+}
+
 @include bulma.mobile {
   .react-dual-listbox {
     flex-flow: row wrap;
