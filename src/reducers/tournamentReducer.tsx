@@ -453,6 +453,10 @@ export const tournamentSlice = createSlice({
       playersArray = sortPlayersBySorters(playersArray, configuration.sorters, configuration.shuffleEntries);
 
       players.orderByPosition = playersArray.map(player => player.id);
+
+      if (configuration.keepNumbersOnSort === false) {
+        reorderPlayerIds(players, pairs);
+      }
     },
   },
   extraReducers: (builder) => {
