@@ -17,6 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Sorter from './Sorter';
 import Tiebreaker from './Tiebreaker';
 
 
@@ -100,6 +101,9 @@ export interface Configuration {
 
   // Defines tiebreakers used by the tournament
   tiebreakers: Tiebreaker[];
+
+  // Defines sorters used by sorting operation
+  sorters: Sorter[];
 
   // Specify whether to use Baku Acceleration as defined in FIDE Handbook C.04.5.1
   useBakuAcceleration?: boolean;

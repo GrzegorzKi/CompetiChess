@@ -17,7 +17,7 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDownAZ, faHandScissors, faMicrochip, faRectangleList } from '@fortawesome/free-solid-svg-icons';
 import { FunctionalComponent,h  } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 import { useTranslation } from 'react-i18next';
@@ -50,6 +50,7 @@ const TournamentFormSideMenu: FunctionalComponent<IProps<Tab>> = ({ activeTab, o
         <TabLink activeTab={activeTab} onChange={onChange} tab='General' icon={faRectangleList}>{t('General')}</TabLink>
         <TabLink activeTab={activeTab} onChange={onChange} tab='Matchmaking' icon={faMicrochip}>{t('Matchmaking')}</TabLink>
         <TabLink activeTab={activeTab} onChange={onChange} tab='Tiebreakers' icon={faHandScissors}>{t('Tiebreakers')}</TabLink>
+        <TabLink activeTab={activeTab} onChange={onChange} tab='Sorting' icon={faArrowDownAZ}>{t('Sorting')}</TabLink>
       </ul>
     </SideMenu>
   );

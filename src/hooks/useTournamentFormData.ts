@@ -22,6 +22,7 @@ import { IGeneralFormInputs } from 'features/TournamentSettings/TournamentForm';
 import { useAppSelector } from 'hooks/index';
 import { selectConfiguration, selectTournament } from 'reducers/tournamentReducer';
 
+import Sorter from '#/types/Sorter';
 import Tiebreaker from '#/types/Tiebreaker';
 import { Color } from '#/types/Tournament';
 
@@ -30,6 +31,7 @@ export interface IFormData {
   general: IGeneralFormInputs;
   tiebreakers: Tiebreaker[];
   matchmaking: IMatchmakingFormInputs;
+  sorters: Sorter[];
 }
 
 const useTournamentFormData = (loadDefault = false): IFormData => {
@@ -54,12 +56,13 @@ const useTournamentFormData = (loadDefault = false): IFormData => {
       matchmaking: {
         initialColor: Color.NONE,
         useBakuAcceleration: false,
-      }
+      },
+      sorters: [],
     };
   }
 
   const { createdDate, tournamentName, city, federation, dateOfStart, dateOfEnd, tournamentType, chiefArbiter, rateOfPlay } = tournament;
-  const { expectedRounds, tiebreakers, useBakuAcceleration, initialColor } = configuration;
+  const { expectedRounds, tiebreakers, sorters, useBakuAcceleration, initialColor } = configuration;
 
   return {
     general: {
@@ -78,7 +81,8 @@ const useTournamentFormData = (loadDefault = false): IFormData => {
     matchmaking: {
       initialColor,
       useBakuAcceleration: useBakuAcceleration ?? false,
-    }
+    },
+    sorters,
   };
 };
 

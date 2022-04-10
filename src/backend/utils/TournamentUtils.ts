@@ -21,7 +21,8 @@ import { readPairs } from '#/Pairings/Pairings';
 import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
 import ParseResult, { ErrorCode } from '#/types/ParseResult';
-import Tiebreaker from '#/types/Tiebreaker';
+import { DefaultSorters } from '#/types/Sorter';
+import Tiebreaker, { FideSwissRatingsNotConsistent } from '#/types/Tiebreaker';
 import {
   Color,
   Configuration,
@@ -46,7 +47,8 @@ export function createDefaultConfiguration(): Configuration {
     pointsForPairingAllocatedBye: 1.0,
     pointsForZeroPointBye: 0.0,
     pointsForForfeitLoss: 0.0,
-    tiebreakers: [],
+    tiebreakers: FideSwissRatingsNotConsistent.slice(),
+    sorters: DefaultSorters.slice(),
   };
 }
 
@@ -308,16 +310,16 @@ export const inferInitialColor = (
 };
 
 export const sortByRank = (players: Player[], tbList: Tiebreaker[], forRound: number): Player[] => {
-  const playersSorted = [...players];
+  const sortedPlayers = players.slice();
 
   const tbComparators = tbList.map(
     (tb) => sortByTiebreaker(forRound, tb),
   );
-  playersSorted.sort(createComparator([
+  sortedPlayers.sort(createComparator([
     sortByScore(forRound),
     ...tbComparators,
   ]));
-  return playersSorted;
+  return sortedPlayers;
 };
 
 export const computeRanks = (players: Player[], tbList: Tiebreaker[], forRound: number): {

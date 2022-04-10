@@ -21,7 +21,9 @@ import { compareHeadToHead } from '#/Tiebreaker/Tiebreaker';
 import Tiebreaker from '#/types/Tiebreaker';
 import { Player } from '#/types/Tournament';
 
-export function createComparator(compareFuncs: PlayerComparator[]) {
+export type PlayerComparator = (first: Player, second: Player) => number;
+
+export function createComparator(compareFuncs: PlayerComparator[], preserveOrder?: boolean) {
   return (a: Player, b: Player): number => {
     for (const compareFunc of compareFuncs) {
       const result = compareFunc(a, b);
@@ -30,12 +32,12 @@ export function createComparator(compareFuncs: PlayerComparator[]) {
       }
     }
 
-    // If they are equal, compare positional ranks
-    return a.rank - b.rank;
+    // If they are equal, compare positional ranks unless preserveOrder is true
+    return preserveOrder === true
+      ? 0
+      : a.rank - b.rank;
   };
 }
-
-type PlayerComparator = (first: Player, second: Player) => number;
 
 // Sorts players by score in descending order
 export function sortByScore(round: number): PlayerComparator {
@@ -63,6 +65,31 @@ export function sortByTiebreaker(round: number, tiebreaker: Tiebreaker): PlayerC
     const secondScore = second.scores[round - 1]?.tiebreakers[tiebreaker] ?? 0;
     return secondScore - firstScore;
   };
+}
+
+/**
+ Fisher-Yates shuffle method.
+ Sorts the elements of an array *in-place* and returns the sorted array.
+ More information here: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+
+ Shuffle visualization: https://bost.ocks.org/mike/shuffle/
+ */
+export function shuffle<T>(array: T[]): T[] {
+  let currentIndex = array.length;
+  let randomIndex: number;
+
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
 }
 
 export function numberComparator(first: number, second: number): number {
