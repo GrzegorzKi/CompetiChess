@@ -178,7 +178,7 @@ const TournamentTable: FunctionalComponent<IProps> = (
       <table class='table is-striped is-hoverable is-fullwidth'>
         <thead class={style.fixedHead}>
           <tr>
-            <th style="width: 5rem; text-align: center;">{t('Place')}</th>
+            <th style="width: 5rem; text-align: center; white-space: nowrap;">{t('Place')}</th>
             <th style="width: 3rem; text-align: right;">{t('No.')}</th>
             <th style="min-width: 10rem;">{t('Player name')}</th>
             <th style="width: 5rem;">{t('Rating')}</th>
@@ -196,7 +196,7 @@ const TournamentTable: FunctionalComponent<IProps> = (
               class={idx === player.id ? 'is-selected' : ''}
               ref={idx === player.id ? selectedRef : undefined}
             >
-              <td style="text-align: center;">{places[index]}</td>
+              <td style="text-align: center; white-space: nowrap;">{places[index]}</td>
               <td style="text-align: right;">{player.id}</td>
               <td>{player.name}</td>
               <td>{player.rating}</td>

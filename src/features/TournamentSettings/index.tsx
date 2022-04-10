@@ -31,6 +31,7 @@ import { createTournament, selectPairs, updateTournament } from 'reducers/tourna
 import { selectToNumberArray } from 'utils/common';
 import { routes } from 'utils/index';
 import { saveTournamentUnlessNotPersisted } from 'utils/localStorageUtils';
+import { toggleLoading } from 'utils/modalUtils';
 
 import MatchmakingForm from './MatchmakingForm';
 import SortingForm from './SortingForm';
@@ -124,8 +125,10 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
                      visible={tab === 'Sorting'} />
         <TournamentFormSideMenu activeTab={tab} onChange={(_tab) => setTab(_tab)} />
         <section class={`buttons ${style.buttons}`}>
-          <input onClick={onSubmit} value={isCreate ? t('Create') : t('Apply')} type="submit"
-                 class="button is-success ml-auto" />
+          <button type="submit" class="button is-success ml-auto"
+                  onClick={(e) => toggleLoading(e, onSubmit)}>
+            {isCreate ? t('Create') : t('Apply')}
+          </button>
         </section>
       </section>
     </article>

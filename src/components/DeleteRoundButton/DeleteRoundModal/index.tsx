@@ -20,6 +20,8 @@
 import { FunctionalComponent, h } from 'preact';
 import { useTranslation } from 'react-i18next';
 
+import { toggleLoading } from 'utils/modalUtils';
+
 import LocationStateModal from '@/modals/LocationStateModal';
 
 interface IProps {
@@ -46,7 +48,7 @@ const DeleteRoundModal: FunctionalComponent<IProps> = ({ isActive, onCancel, onC
         <div>{t('Delete round prompt')}</div>
       </section>
       <footer class="modal-card-foot" style="overflow-x: auto;">
-        <button class="button is-danger" onClick={onConfirm}>{t('Yes')}</button>
+        <button class="button is-danger" onClick={(e) => toggleLoading(e, onConfirm)}>{t('Yes')}</button>
         <button class="button is-outlined" onClick={onCancel}>{t('No')}</button>
       </footer>
     </LocationStateModal>

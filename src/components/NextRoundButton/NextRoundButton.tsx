@@ -25,6 +25,7 @@ import { toast } from 'react-toastify';
 import { useAppDispatch, useAppSelector } from 'hooks';
 import usePromiseModal from 'hooks/usePromiseModal';
 import { createNextRound, selectPairs, selectPlayers } from 'reducers/tournamentReducer';
+import { toggleLoading } from 'utils/modalUtils';
 
 import InitialColorModal from '@/NextRoundButton/InitialColorModal';
 
@@ -52,11 +53,13 @@ const NextRoundButton: FunctionalComponent = () => {
       }
     }
 
-    dispatch(createNextRound());
+    return dispatch(createNextRound());
   }, [dispatch, openModal, pairs?.length, players, t]);
 
   return <>
-    <button class="button is-success trans-bg" onClick={_createNextRound}>
+    <button class="button is-success trans-bg" onClick={(e) => {
+      toggleLoading(e, _createNextRound);
+    }}>
       <strong>{t('Start next round')}</strong>
     </button>
     <InitialColorModal
