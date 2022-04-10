@@ -31,6 +31,7 @@ import exportToTrf from '#/DataExport/exportToTrf';
 import { TournamentStateJson } from '#/JsonImport';
 import checkPairingsFilled from '#/Pairings/checkPairingsFilled';
 import { readPairs } from '#/Pairings/Pairings';
+import { sortPlayersBySorters } from '#/Sorting/Sorting';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
 import Tournament, {
@@ -173,6 +174,40 @@ function asPositiveOrUndefined(value?: number) {
   return (!value || isNaN(value) || value <= 0)
     ? undefined
     : value;
+}
+
+function reorderPlayerIds(players: PlayersState, pairs: Array<PairsRound>) {
+  const keyValueMap = players.orderById.reduce(((keyValue, value, index) => {
+    const idx = index + 1;
+    const player = players.index[value];
+    if (idx !== player.id) {
+      player.id = idx;
+      delete players.index[value];
+      players.index[idx] = player;
+      keyValue[value] = idx;
+    }
+    return keyValue;
+  }), {} as Partial<Record<number, number>>);
+
+  // Re-map indexes
+  players.orderById = players.orderById.map(value => keyValueMap[value] ?? value);
+  players.orderByPosition = players.orderByPosition.map(value => keyValueMap[value] ?? value);
+
+  // Re-map opponent IDs in players' games
+  Object.entries(players.index)
+    .forEach(([, player]) => {
+      player.games.forEach(game => {
+        if (game.opponent) {
+          game.opponent = keyValueMap[game.opponent] ?? game.opponent;
+        }
+      });
+    });
+
+  // Re-map IDs in pairs
+  pairs.forEach(pairRound => pairRound.forEach(pair => {
+    pair.white = keyValueMap[pair.white] ?? pair.white;
+    pair.black = keyValueMap[pair.black] ?? pair.black;
+  }));
 }
 
 export const tournamentSlice = createSlice({
@@ -383,36 +418,7 @@ export const tournamentSlice = createSlice({
       players.orderByPosition = players.orderByPosition.filter(value => value !== payload.index);
 
       if (payload.reorderIds) {
-        const keyValueMap = players.orderById.reduce(((keyValue, value, index) => {
-          const idx = index + 1;
-          const player = players.index[value];
-          if (idx !== player.id) {
-            player.id = idx;
-            delete players.index[value];
-            players.index[idx] = player;
-            keyValue[value] = idx;
-          }
-          return keyValue;
-        }), {} as Partial<Record<number, number>>);
-
-        // Re-map indexes
-        players.orderById = players.orderById.map(value => keyValueMap[value] ?? value);
-        players.orderByPosition = players.orderByPosition.map(value => keyValueMap[value] ?? value);
-
-        // Re-map opponent IDs in players' games
-        Object.entries(players.index).forEach(([, player]) => {
-          player.games.forEach(game => {
-            if (game.opponent) {
-              game.opponent = keyValueMap[game.opponent] ?? game.opponent;
-            }
-          });
-        });
-
-        // Re-map IDs in pairs
-        pairs.forEach(pairRound => pairRound.forEach(pair => {
-          pair.white = keyValueMap[pair.white] ?? pair.white;
-          pair.black = keyValueMap[pair.black] ?? pair.black;
-        }));
+        reorderPlayerIds(players, pairs);
       }
     },
     deleteRound: ({ pairs, players, configuration, view }) => {
@@ -433,6 +439,16 @@ export const tournamentSlice = createSlice({
       if (view.selectedRound >= pairs.length) {
         view.selectedRound = pairs.length - 1;
       }
+    },
+    sortPlayers: ({ pairs, players, configuration }) => {
+      if (!pairs || !players || !configuration) {
+        return;
+      }
+
+      let playersArray = players.orderByPosition.map(id => players.index[id]);
+      playersArray = sortPlayersBySorters(playersArray, configuration.sorters, configuration.shuffleEntries);
+
+      players.orderByPosition = playersArray.map(player => player.id);
     },
   },
   extraReducers: (builder) => {
@@ -501,7 +517,7 @@ export const tournamentSlice = createSlice({
 export const {
   loadNew, loadNewFromJson, createTournament, updateTournament, close,
   selectNextRound, selectPrevRound, selectRound, setInitialColor, setResult,
-  addOrUpdatePlayer, deletePlayer, deleteRound
+  addOrUpdatePlayer, deletePlayer, deleteRound, sortPlayers
 } = tournamentSlice.actions;
 
 export { createNextRound };

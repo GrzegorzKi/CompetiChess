@@ -30,12 +30,12 @@ interface IProps {
     editPlayer: () => void,
     addPlayer: () => void,
     deletePlayer: () => void,
-    sortList: () => void,
+    sortPlayers: () => void,
   };
 }
 
 const PlayersContextMenu: FunctionalComponent<IProps> = (
-  { menuState, toggleMenu, anchorPoint, boundingBoxRef, actions: { editPlayer, addPlayer, deletePlayer, sortList } }) => {
+  { menuState, toggleMenu, anchorPoint, boundingBoxRef, actions: { editPlayer, addPlayer, deletePlayer, sortPlayers } }) => {
   const { t } = useTranslation();
 
   return (
@@ -45,7 +45,7 @@ const PlayersContextMenu: FunctionalComponent<IProps> = (
       <MenuItem onClick={addPlayer}>{t('Add player')}</MenuItem>
       <MenuItem onClick={deletePlayer}>{t('Delete player')}</MenuItem>
       <MenuDivider />
-      <MenuItem onClick={sortList}>{t('Sort...')}</MenuItem>
+      <MenuItem onClick={sortPlayers}>{t('Sort...')}</MenuItem>
     </ControlledMenu>
   );
 };

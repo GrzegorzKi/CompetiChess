@@ -61,3 +61,8 @@ export function getDataIndex(element?: HTMLElement | null): number | undefined {
   }
   return undefined;
 }
+
+export function selectToNumberArray(selectEl: HTMLSelectElement): number[] {
+  return Array.from(selectEl.options)
+    .map(item => Number.parseInt(item.value, 10));
+}

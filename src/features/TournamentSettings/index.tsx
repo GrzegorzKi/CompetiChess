@@ -26,11 +26,11 @@ import { toast } from 'react-toastify';
 
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useTournamentFormData from 'hooks/useTournamentFormData';
-import { clearIsModified } from 'reducers/globalReducer';
 import { createTournament, selectPairs, updateTournament } from 'reducers/tournamentReducer';
 
+import { selectToNumberArray } from 'utils/common';
 import { routes } from 'utils/index';
-import { readTournamentIndex, saveTournamentToLocalStorage } from 'utils/localStorageUtils';
+import { saveTournamentUnlessNotPersisted } from 'utils/localStorageUtils';
 
 import MatchmakingForm from './MatchmakingForm';
 import SortingForm from './SortingForm';
@@ -39,37 +39,14 @@ import TiebreakerForm from './TiebreakerForm';
 import TournamentForm from './TournamentForm';
 import TournamentFormSideMenu from './TournamentFormSideMenu';
 
-import { RootState, store, waitForRehydration } from '@/store';
+import { waitForRehydration } from '@/store';
 import TransText from '@/TransText';
+
 
 export type Tab = 'General' | 'Matchmaking' | 'Tiebreakers' | 'Sorting';
 
-function saveTournamentUnlessNotPersisted(): void {
-  try {
-    const { tournament } = store.getState() as RootState;
-    const entries = readTournamentIndex() ?? [];
-
-    const id = tournament.tournament?.id;
-
-    for (const entry of entries) {
-      if (id === entry.id) {
-        saveTournamentToLocalStorage(tournament);
-        store.dispatch(clearIsModified());
-        break;
-      }
-    }
-  } catch (e) {
-    toast.error(<TransText i18nKey="Unable to save" />);
-  }
-}
-
 interface IProps {
   isCreate?: boolean;
-}
-
-function selectToNumberArray(selectEl: HTMLSelectElement) {
-  return Array.from(selectEl.options)
-    .map(item => Number.parseInt(item.value, 10));
 }
 
 const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
@@ -116,8 +93,12 @@ const _TournamentSettings: FunctionalComponent<IProps> = ({ isCreate }) => {
       navigate(routes.tournaments.path);
     } else {
       dispatch(updateTournament(tournamentData));
-      saveTournamentUnlessNotPersisted();
-      toast.info(<TransText i18nKey="Tournament updated" />);
+      try {
+        saveTournamentUnlessNotPersisted();
+        toast.info(<TransText i18nKey="Tournament updated" />);
+      } catch (e) {
+        toast.error(<TransText i18nKey="Unable to save" />);
+      }
     }
   }, [dispatch, isCreate, navigate, tournamentData]);
 

@@ -46,7 +46,7 @@ export const sorters: Record<Sorter, SorterInfo> = {
   },
 };
 
-export const sortPlayers = (players: Player[], sorterList: Sorter[], shuffleEqual = false): Player[] => {
+export const sortPlayersBySorters = (players: Player[], sorterList: Sorter[], shuffleEqual = false): Player[] => {
   const sortedPlayers = players.slice();
 
   // Perform shuffling first, so we can achieve stable sorting
@@ -55,7 +55,7 @@ export const sortPlayers = (players: Player[], sorterList: Sorter[], shuffleEqua
   }
 
   const comparators = sorterList.map(s => sorters[s].sort);
-  sortedPlayers.sort(createComparator(comparators));
+  sortedPlayers.sort(createComparator(comparators, true));
 
   return sortedPlayers;
 };

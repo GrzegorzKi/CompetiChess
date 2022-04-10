@@ -18,9 +18,11 @@
  */
 
 import { TournamentEntry } from 'features/SavedTournamentsPanel';
+import { clearIsModified } from 'reducers/globalReducer';
 import { TournamentState } from 'reducers/tournamentReducer';
 
 import Tournament from '#/types/Tournament';
+import { RootState, store } from '@/store';
 
 export const tournamentKeyPrefix = 'competichess:tournament-';
 export const tournamentsIndexKey = 'competichess:tournaments';
@@ -131,4 +133,19 @@ export function saveTournamentToLocalStorage(tournament: TournamentState): boole
 export function removeTournamentFromLocalStorage(id: string): void {
   removeFromLocalStorage(tournamentKeyPrefix + id);
   updateTournamentsIndex({ remove: id });
+}
+
+export function saveTournamentUnlessNotPersisted(): void {
+  const { tournament } = store.getState() as RootState;
+  const entries = readTournamentIndex() ?? [];
+
+  const id = tournament.tournament?.id;
+
+  for (const entry of entries) {
+    if (id === entry.id) {
+      saveTournamentToLocalStorage(tournament);
+      store.dispatch(clearIsModified());
+      break;
+    }
+  }
 }

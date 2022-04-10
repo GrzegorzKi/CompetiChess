@@ -23,7 +23,7 @@ import { Player } from '#/types/Tournament';
 
 export type PlayerComparator = (first: Player, second: Player) => number;
 
-export function createComparator(compareFuncs: PlayerComparator[], preserveOrder?: boolean) {
+export function createComparator(compareFuncs: PlayerComparator[], ignoreRank?: boolean) {
   return (a: Player, b: Player): number => {
     for (const compareFunc of compareFuncs) {
       const result = compareFunc(a, b);
@@ -33,7 +33,7 @@ export function createComparator(compareFuncs: PlayerComparator[], preserveOrder
     }
 
     // If they are equal, compare positional ranks unless preserveOrder is true
-    return preserveOrder === true
+    return ignoreRank === true
       ? 0
       : a.rank - b.rank;
   };
