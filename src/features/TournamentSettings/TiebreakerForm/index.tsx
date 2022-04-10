@@ -19,9 +19,14 @@
 
 import { FunctionalComponent, h, Ref } from 'preact';
 
-import TiebreakerSelect from '../TiebreakerSelect';
+import DualListBox from 'components/DualListBox';
 
-import Tiebreaker from '#/Tiebreaker/Tiebreaker';
+import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
+
+
+const options = Object.values(tiebreakers).map(value => ({
+  value: value.key, label: value.name
+}));
 
 interface IProps {
   inputRef?: Ref<HTMLSelectElement | undefined>;
@@ -34,7 +39,8 @@ const TiebreakerForm: FunctionalComponent<IProps> = (
 
   return (
     <div style={visible === false ? 'display: none;' : ''}>
-      <TiebreakerSelect
+      <DualListBox
+        options={options}
         defaultValues={defaultValues ?? []}
         selectedRef={inputRef}
       />

@@ -19,22 +19,16 @@
 
 import { faAngleLeft, faAnglesLeft, faAngleRight, faAnglesRight, faAngleUp, faAnglesUp, faAngleDown, faAnglesDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome';
-import { FunctionalComponent, h, Ref } from 'preact';
+import { h, Ref } from 'preact';
 import { Suspense, lazy } from 'preact/compat';
 import { useState } from 'preact/hooks';
 import { useTranslation } from 'react-i18next';
-
-import Tiebreaker, { tiebreakers } from '#/Tiebreaker/Tiebreaker';
 
 import 'styles/react-dual-listbox.scss';
 
 // We have to lazy import component. It interferes with SSR
 // even with typeof window guard
-const DualListBox = lazy(() => import('react-dual-listbox'));
-
-const options = Object.values(tiebreakers).map(value => ({
-  value: value.key, label: value.name
-}));
+const DualListBoxImpl = lazy(() => import('react-dual-listbox'));
 
 const icons = {
   moveLeft: <Icon icon={faAngleLeft} />,
@@ -47,19 +41,22 @@ const icons = {
   moveBottom: <Icon icon={faAnglesDown} />,
 };
 
-interface IProps {
-  defaultValues?: Tiebreaker[];
+type Option<T> = { value: T, label: string };
+
+interface IProps<T> {
+  options: Option<T>[];
+  defaultValues?: T[];
   selectedRef?: Ref<HTMLSelectElement | undefined>;
 }
 
-const TiebreakerSelect: FunctionalComponent<IProps> = ({ defaultValues, selectedRef }) => {
+function DualListBox<T>({ options, defaultValues, selectedRef }: IProps<T>): JSX.Element {
   const { t } = useTranslation();
 
-  const [selected, setSelected] = useState<Tiebreaker[]>(defaultValues ?? []);
+  const [selected, setSelected] = useState<T[]>(defaultValues ?? []);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <DualListBox
+    <Suspense fallback={null}>
+      <DualListBoxImpl
         className="select is-multiple"
         canFilter
         filterPlaceholder={t('Search')}
@@ -79,6 +76,6 @@ const TiebreakerSelect: FunctionalComponent<IProps> = ({ defaultValues, selected
       />
     </Suspense>
   );
-};
+}
 
-export default TiebreakerSelect;
+export default DualListBox;
