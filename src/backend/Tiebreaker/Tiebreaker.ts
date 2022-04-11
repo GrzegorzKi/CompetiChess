@@ -45,7 +45,7 @@ function calculateVirtualOpponentScore(
 }
 
 function calcCumulativeCut(roundsCut: number): CalcFunction {
-  return ({ games, scores }: Player, forRound, players, configuration): number => {
+  return ({ games, scores }: Player, forRound, _, configuration): number => {
     const len = Math.min(games.length, forRound);
 
     let calcPts = 0.0;
@@ -60,6 +60,7 @@ function calcCumulativeCut(roundsCut: number): CalcFunction {
   };
 }
 
+// TODO Remove this tiebreaker as it is too heavy for calculations
 const calcOppositionCumulative: CalcFunction = (
   player, forRound, players, configuration): number => {
 
@@ -191,9 +192,9 @@ const calcSonnebornBerger: CalcFunction = (
     const { opponent, result } = games[r];
     if (gameWasPlayed(games[r])) {
       if (result === '1' || result === 'W') {
-        calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
+        calcPts += calculatePoints(forRound, players[opponent!].games, configuration);
       } else if (result === '=' || result === 'D') {
-        calcPts += (calculatePoints(forRound, players[opponent!].games, configuration, true) * 0.5);
+        calcPts += (calculatePoints(forRound, players[opponent!].games, configuration) * 0.5);
       }
     } else {
       calcPts += calculateVirtualOpponentScore(
@@ -217,7 +218,7 @@ const calcModifiedMedian: CalcFunction = (
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration, true));
+      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration));
     }
     // If the player involved in the tie has any unplayed games,
     // they count as opponents with adjusted scores of 0.
@@ -256,7 +257,7 @@ const calcSolkoff: CalcFunction = (
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
+      calcPts += calculatePoints(forRound, players[opponent!].games, configuration);
     }
     // If the player involved in the tie has any unplayed games,
     // they count as opponents with adjusted scores of 0.
@@ -274,7 +275,7 @@ const calcBuchholz: CalcFunction = (
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      calcPts += calculatePoints(forRound, players[opponent!].games, configuration, true);
+      calcPts += calculatePoints(forRound, players[opponent!].games, configuration);
     } else {
       calcPts += calculateVirtualOpponentScore(
         configuration,
@@ -296,7 +297,7 @@ const calcMedianBuchholz: CalcFunction = (
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration, true));
+      opScores.push(calculatePoints(forRound, players[opponent!].games, configuration));
     } else {
       opScores.push(calculateVirtualOpponentScore(
         configuration,
@@ -325,8 +326,7 @@ const calcBuchholzCutOne: CalcFunction = (
   for (let r = 0; r < len; ++r) {
     const { opponent } = games[r];
     if (gameWasPlayed(games[r])) {
-      const opPoints = calculatePoints(forRound,
-        players[opponent!].games, configuration, true);
+      const opPoints = calculatePoints(forRound, players[opponent!].games, configuration);
       calcPts += opPoints;
       if (opPoints < lowestScore) {
         lowestScore = opPoints;
@@ -369,7 +369,7 @@ const calcAvgRatingOfOpponentsCutOne: CalcFunction = (
   let sumRating = 0;
   let roundsPlayed = 0;
   let hadBye = false;
-  let lowestRating = 9999;
+  let lowestRating = Infinity;
 
   const len = Math.min(games.length, forRound);
   for (let r = 0; r < len; ++r) {

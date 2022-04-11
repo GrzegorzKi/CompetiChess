@@ -95,3 +95,7 @@ export function shuffle<T>(array: T[]): T[] {
 export function numberComparator(first: number, second: number): number {
   return first - second;
 }
+
+export function numberComparatorInv(first: number, second: number): number {
+  return second - first;
+}

@@ -18,7 +18,7 @@
  */
 
 import { readPairs } from '#/Pairings/Pairings';
-import { calculateTiebreakers } from '#/Tiebreaker/Tiebreaker';
+import { calculateTiebreakers, calculateValue } from '#/Tiebreaker/Tiebreaker';
 import { Acceleration } from '#/TrfxParser/parseAcceleration';
 import ParseResult, { ErrorCode } from '#/types/ParseResult';
 import { DefaultSorters } from '#/types/Sorter';
@@ -184,12 +184,11 @@ export const calculatePoints = (
   forRound: number,
   games: Game[],
   configuration: Configuration,
-  notPlayedIsDraw = false
 ): number => {
   let calcPts = 0.0;
   const maxLen = Math.min(games.length, forRound);
   for (let r = 0; r < maxLen; ++r) {
-    calcPts += getPoints(games[r], configuration, notPlayedIsDraw);
+    calcPts += getPoints(games[r], configuration, true);
   }
   return calcPts;
 };
@@ -245,6 +244,25 @@ export const recalculateTiebreakers = (
   const maxLen = Math.min(games.length, toRound);
   for (let round = fromRound; round <= maxLen; ++round) {
     scores[round - 1].tiebreakers = calculateTiebreakers(player, round, configuration, players);
+  }
+};
+
+export const recalculateSelectedTiebreakers = (
+  player: Player,
+  players: PlayersRecord,
+  configuration: Configuration,
+  tbList: Tiebreaker[],
+  fromRound = 1,
+  toRound = Infinity
+): void => {
+  const { games, scores } = player;
+
+  fromRound = Math.max(fromRound, 1);
+  const maxLen = Math.min(games.length, toRound);
+  for (let round = fromRound; round <= maxLen; ++round) {
+    for (const tb of tbList) {
+      scores[round - 1].tiebreakers[tb] = calculateValue(tb, player, round, configuration, players);
+    }
   }
 };
 

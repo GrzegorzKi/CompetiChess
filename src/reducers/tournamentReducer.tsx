@@ -22,7 +22,7 @@ import { h } from 'preact';
 import { toast } from 'react-toastify';
 
 import { IFormData } from 'hooks/useTournamentFormData';
-import { arrayEquals, cyrb53 } from 'utils/common';
+import { cyrb53, difference, intersection } from 'utils/common';
 
 import { I18nKey } from '../types/react-i18next';
 
@@ -34,6 +34,7 @@ import { readPairs } from '#/Pairings/Pairings';
 import { sortPlayersBySorters } from '#/Sorting/Sorting';
 import { ValidTrfData } from '#/TrfxParser/parseTrfFile';
 import { getDetails, isError } from '#/types/ParseResult';
+import Tiebreaker from '#/types/Tiebreaker';
 import Tournament, {
   Color,
   Configuration,
@@ -49,8 +50,8 @@ import {
   createDefaultTournamentData,
   getPlayers,
   recalculatePlayerScores,
-  recalculatePlayerTiebreakers,
   recalculateScores,
+  recalculateSelectedTiebreakers,
   recalculateTiebreakers,
 } from '#/utils/TournamentUtils';
 import { PlayerData } from '@/PlayerDetails/PlayerForm';
@@ -214,6 +215,13 @@ function reorderPlayerIds(players: PlayersState, pairs: Array<PairsRound>) {
   }));
 }
 
+function calculateNotPlayed(notPlayed: number[], pairs: Array<PairsRound>, player: Player) {
+  const currentNotPlayed = notPlayed.filter(value => value > pairs.length);
+  const pastNotPlayed = player.notPlayed.filter(value => value <= pairs.length);
+  currentNotPlayed.push(...pastNotPlayed);
+  return currentNotPlayed;
+}
+
 export const tournamentSlice = createSlice({
   name: 'tournament',
   initialState,
@@ -278,7 +286,8 @@ export const tournamentSlice = createSlice({
         return;
       }
 
-      const tiebreakersChanged = !arrayEquals(state.configuration.tiebreakers, payload.tiebreakers);
+      const tbChanges = difference(state.configuration.tiebreakers, payload.tiebreakers);
+
       const { numberOfRounds, ...tournamentData } = payload.general;
       const configurationData: Partial<Configuration> = {
         expectedRounds: numberOfRounds,
@@ -299,10 +308,18 @@ export const tournamentSlice = createSlice({
         configurationData
       );
 
-      if (tiebreakersChanged) {
-        const players = state.players;
-        recalculatePlayerTiebreakers(players.index, state.configuration);
-      }
+      const players = state.players;
+      const configuration = state.configuration;
+
+      players.orderById.forEach(idx => {
+        const player = players.index[idx];
+        player.scores.forEach(score => {
+          tbChanges.removed.forEach(removed => {
+            delete score.tiebreakers[removed as Tiebreaker];
+          });
+        });
+        recalculateSelectedTiebreakers(player, players.index, configuration, tbChanges.added);
+      });
     },
     close: (state) => {
       state.tournament = undefined;
@@ -369,13 +386,33 @@ export const tournamentSlice = createSlice({
       }
 
       const results = computeResult(type);
+      const whiteChanged = white.games[round].result !== results.w;
+      const blackChanged = black.games[round].result !== results.b;
+
       white.games[round].result = results.w;
       black.games[round].result = results.b;
 
-      recalculateScores(white, configuration, round);
-      recalculateScores(black, configuration, round);
+      const playersToRecalculate = new Set<number>();
+      if (whiteChanged) {
+        recalculateScores(white, configuration, round);
+        for (const game of white.games) {
+          if (game.opponent !== undefined) {
+            playersToRecalculate.add(game.opponent);
+          }
+        }
+      }
+      if (blackChanged) {
+        recalculateScores(black, configuration, round);
+        for (const game of black.games) {
+          if (game.opponent !== undefined) {
+            playersToRecalculate.add(game.opponent);
+          }
+        }
+      }
 
-      recalculatePlayerTiebreakers(players.index, configuration, round);
+      playersToRecalculate.forEach(idx => {
+        recalculateTiebreakers(players.index[idx], players.index, configuration, round);
+      });
     },
     addOrUpdatePlayer: ({ players, pairs, configuration }, { payload }: PayloadAction<PlayerData>) => {
       if (!players || !pairs || !configuration) {
@@ -406,10 +443,24 @@ export const tournamentSlice = createSlice({
         recalculateScores(newPlayer, configuration);
         recalculateTiebreakers(newPlayer, players.index, configuration);
       } else {
-        const currentNotPlayed = notPlayed.filter(value => value > pairs.length);
-        const pastNotPlayed = player.notPlayed.filter(value => value <= pairs.length);
-        currentNotPlayed.push(...pastNotPlayed);
+        const isRatingChanged = player.rating !== payload.rating;
+
+        const currentNotPlayed = calculateNotPlayed(notPlayed, pairs, player);
         Object.assign(players.index[payload.id], payload, { notPlayed: currentNotPlayed });
+
+        if (isRatingChanged) {
+          // Recalculate tiebreakers depending on rating
+          const tbToRecalculate = intersection(configuration.tiebreakers, [ Tiebreaker.ARO, Tiebreaker.AROC_1, Tiebreaker.OPPOSITION_PERFORMANCE]);
+          const playersToRecalculate = new Set<number>();
+          for (const game of player.games) {
+            if (game.opponent !== undefined) {
+              playersToRecalculate.add(game.opponent);
+            }
+          }
+          playersToRecalculate.forEach((idx) => {
+            recalculateSelectedTiebreakers(players.index[idx], players.index, configuration, tbToRecalculate);
+          });
+        }
       }
     },
     deletePlayer: ({ players, pairs }, { payload }: PayloadAction<{ index: number, reorderIds: boolean }>) => {
@@ -438,7 +489,6 @@ export const tournamentSlice = createSlice({
         player.games.splice(cutTo, 1);
         player.scores.splice(cutTo, 1);
       });
-      recalculatePlayerScores(players.index, configuration);
 
       if (view.selectedRound >= pairs.length) {
         view.selectedRound = pairs.length - 1;

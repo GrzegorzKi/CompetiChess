@@ -90,7 +90,7 @@ const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputR
         </div>
         <div class="field field-body is-horizontal">
           <Field label={t('Rating')}
-                 {...register('rating')} />
+                 {...register('rating', { valueAsNumber: true })} />
           <Field label={t('FIDE Number')}
                  {...register('fideNumber')} />
         </div>
