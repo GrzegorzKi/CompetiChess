@@ -29,12 +29,7 @@ import PairsTable from 'features/PairsView/PairsTable';
 import { useAppDispatch, useAppSelector } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
 import usePrint from 'hooks/usePrint';
-import {
-  selectNextRound,
-  selectPrevRound,
-  selectViewOptions,
-  setResult,
-} from 'reducers/tournamentReducer';
+import { selectViewOptions, setResult } from 'reducers/tournamentReducer';
 import { getDataIndex } from 'utils/common';
 import { isModalOpen } from 'utils/modalUtils';
 
@@ -94,14 +89,6 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
       const pairNo = getDataIndex(ref.current);
 
       switch (event.code) {
-      case 'ArrowLeft':
-        dispatch(selectPrevRound());
-        toggleMenu(false);
-        break;
-      case 'ArrowRight':
-        dispatch(selectNextRound());
-        toggleMenu(false);
-        break;
       case 'ArrowUp':
         focusOnPrev() && event.preventDefault();
         break;
@@ -134,7 +121,7 @@ const PairsView: FunctionalComponent<IProps> = ({ roundPairs, players }) => {
 
     document.addEventListener('keydown', arrowHandling);
     return () => document.removeEventListener('keydown', arrowHandling);
-  }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
+  }, [dispatch, focusOnNext, focusOnPrev, ref]);
 
   const selectRow = (pairNo: number) => setIdx(pairNo);
   const enterRow = () => {

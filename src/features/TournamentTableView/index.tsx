@@ -27,11 +27,7 @@ import TournamentTableContextMenu from 'features/TournamentTableView/TournamentT
 import { useAppDispatch } from 'hooks/index';
 import useElementFocus from 'hooks/useElementFocus';
 import usePrint from 'hooks/usePrint';
-import {
-  PlayersState,
-  selectNextRound,
-  selectPrevRound,
-} from 'reducers/tournamentReducer';
+import { PlayersState } from 'reducers/tournamentReducer';
 import { isModalOpen } from 'utils/modalUtils';
 
 import style from './style.scss';
@@ -63,7 +59,7 @@ const TournamentTableView: FunctionalComponent<IProps> = ({ players }) => {
   const [idx, setIdx] = useState(() => getLocStateIdxOrDefault(location));
   const [exactPlaces, setExactPlaces] = useState(false);
 
-  const [ref, setRef, focusOnNext, focusOnPrev, , scrollParent] = useElementFocus<HTMLTableRowElement>({});
+  const [, setRef, focusOnNext, focusOnPrev, , scrollParent] = useElementFocus<HTMLTableRowElement>({});
 
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -82,26 +78,18 @@ const TournamentTableView: FunctionalComponent<IProps> = ({ players }) => {
       }
 
       switch (event.code) {
-      case 'ArrowLeft':
-        dispatch(selectPrevRound());
-        break;
-      case 'ArrowRight':
-        dispatch(selectNextRound());
-        break;
       case 'ArrowUp':
         focusOnPrev() && event.preventDefault();
         break;
       case 'ArrowDown':
         focusOnNext() && event.preventDefault();
         break;
-      default:
-        break;
       }
     };
 
     document.addEventListener('keydown', arrowHandling);
     return () => document.removeEventListener('keydown', arrowHandling);
-  }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
+  }, [dispatch, focusOnNext, focusOnPrev]);
 
   if (!players) {
     return null;

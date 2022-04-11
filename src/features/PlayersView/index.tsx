@@ -33,8 +33,6 @@ import usePromiseModal, { usePromiseModalWithReturn } from 'hooks/usePromiseModa
 import {
   deletePlayer as deletePlayerAction,
   PlayersState,
-  selectNextRound,
-  selectPrevRound,
   sortPlayers as sortPlayersAction,
 } from 'reducers/tournamentReducer';
 import { isModalOpen } from 'utils/modalUtils';
@@ -112,7 +110,7 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
     return 1;
   });
 
-  const [ref, setRef, focusOnNext, focusOnPrev, , scrollParent] = useElementFocus<HTMLTableRowElement>({});
+  const [, setRef, focusOnNext, focusOnPrev, , scrollParent] = useElementFocus<HTMLTableRowElement>({});
 
   const [menuState, toggleMenu] = useMenuState({ initialMounted: true, transition: true });
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -134,26 +132,18 @@ const PlayersView: FunctionalComponent<IProps> = ({ players }) => {
       }
 
       switch (event.code) {
-      case 'ArrowLeft':
-        dispatch(selectPrevRound());
-        break;
-      case 'ArrowRight':
-        dispatch(selectNextRound());
-        break;
       case 'ArrowUp':
         focusOnPrev() && event.preventDefault();
         break;
       case 'ArrowDown':
         focusOnNext() && event.preventDefault();
         break;
-      default:
-        break;
       }
     };
 
     document.addEventListener('keydown', arrowHandling);
     return () => document.removeEventListener('keydown', arrowHandling);
-  }, [dispatch, focusOnNext, focusOnPrev, ref, toggleMenu]);
+  }, [dispatch, focusOnNext, focusOnPrev]);
 
   if (!players) {
     return null;

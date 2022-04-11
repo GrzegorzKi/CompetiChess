@@ -17,9 +17,14 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { FunctionalComponent, h } from 'preact';
+import { FunctionalComponent, h, JSX } from 'preact';
+import { useEffect } from 'preact/hooks';
 import { useTranslation } from 'react-i18next';
 import ReactPaginate from 'react-paginate';
+
+import { useAppDispatch } from 'hooks/index';
+import { selectNextRound, selectPrevRound } from 'reducers/tournamentReducer';
+import { isModalOpen } from 'utils/modalUtils';
 
 import styles from './style.scss';
 
@@ -33,6 +38,28 @@ interface Props {
 
 const PaginateRound: FunctionalComponent<Props> = ({ pageCount, page, onPageChange }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  // Register keys handler
+  useEffect(() => {
+    const arrowHandling = (event: JSX.TargetedKeyboardEvent<any>) => {
+      if (isModalOpen()) {
+        return;
+      }
+
+      switch (event.code) {
+      case 'ArrowLeft':
+        dispatch(selectPrevRound());
+        break;
+      case 'ArrowRight':
+        dispatch(selectNextRound());
+        break;
+      }
+    };
+
+    document.addEventListener('keydown', arrowHandling);
+    return () => document.removeEventListener('keydown', arrowHandling);
+  }, [dispatch]);
 
   if (pageCount <= 0) {
     return null;
