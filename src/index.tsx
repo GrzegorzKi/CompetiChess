@@ -17,7 +17,6 @@
  * along with CompetiChess.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import './styles/global.scss';
 import { h } from 'preact';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
@@ -26,6 +25,7 @@ import { StaticRouter } from 'react-router-dom/server';
 import App from '@/app';
 import initStore from '@/store';
 
+import './styles/global.scss';
 import './i18n/config';
 
 const { store } = initStore();

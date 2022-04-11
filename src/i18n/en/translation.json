@@ -74,6 +74,8 @@
   "No tournament active error": "There is no tournament active. Cannot start new round.",
   "Error on line": "Error on line {{ num }} - {{ details }}",
   "Processing stopped error": "Processing stopped due to multiple errors found",
+  "Cannot delete player": "Cannot delete player <1>{{ playerName }}</1>. Delete player from existing pairings first before deleting.",
+  "Update is ready": "<0>Application update is ready!</0><1 />Ready to reload the app?",
 
   "Tournament settings": "Tournament settings",
   "Tournament created": "Tournament has been created!",

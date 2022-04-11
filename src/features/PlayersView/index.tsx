@@ -20,7 +20,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { FunctionalComponent, h, JSX } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -68,7 +68,10 @@ async function checkAndDeletePlayer(index: number, onDeleteGuard: () => Promise<
   for (const game of player.games) {
     // Check if player was assigned in pair with any player
     if (game.opponent !== undefined) {
-      toast.error(<>Cannot delete player <strong>{player.name}</strong>. Delete player from existing pairings first before deleting.</>);
+      const playerName = player.name;
+      toast.error(<Trans i18nKey={'Cannot delete player'}>
+        Cannot delete player <strong>{{ playerName }}</strong>. Delete player from existing pairings first before deleting.
+      </Trans>);
       return;
     }
   }

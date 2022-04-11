@@ -654,7 +654,7 @@ przeciwnika, który zdobył najmniejszą liczbą punktów.`,
 
   [Tiebreaker.MEDIAN_BUCHHOLZ]: {
     key: Tiebreaker.MEDIAN_BUCHHOLZ,
-    abbr: 'ModM',
+    abbr: 'MBch',
     name: 'Median Buchholz 1',
     description: `System stworzony przez Bruno Buchholz'a, dedykowany turniejom
 prowadzonym w systemie szwajcarskim. Stosowany najczęściej w turniejach, gdzie

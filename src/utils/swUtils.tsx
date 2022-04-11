@@ -18,7 +18,9 @@
  */
 
 import { h } from 'preact';
+import { Trans } from 'react-i18next';
 import { toast } from 'react-toastify';
+
 
 export function listenToSwUpdates(): void {
   if ('serviceWorker' in navigator) {
@@ -39,7 +41,11 @@ export function listenToSwUpdates(): void {
         registration.installing?.addEventListener('statechange', () => {
           const waitingWorker = registration.waiting;
           if (waitingWorker !== null) {
-            toast.info(<p><strong>Application update is ready!</strong><br /> Ready to reload the app?</p>, {
+            toast.info((<p>
+              <Trans i18nKey="Update is ready">
+                <strong>Application update is ready!</strong><br />Ready to reload the app?
+              </Trans>
+            </p>), {
               autoClose: false,
               closeOnClick: false,
               draggable: false,

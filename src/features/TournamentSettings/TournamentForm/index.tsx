@@ -73,7 +73,7 @@ const TournamentForm: FunctionalComponent<IProps> = (
                  {...register('dateOfEnd')} />
         </div>
         <Field label={t('Tournament type')}
-               placeholder="E.g.: Swiss system, individual, round-robin"
+               placeholder={t('Tournament type placeholder')}
                {...register('tournamentType')} />
         <Field label={t('Chief arbiter')}
                {...register('chiefArbiter')} />
