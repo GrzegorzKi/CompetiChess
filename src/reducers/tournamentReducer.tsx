@@ -171,9 +171,9 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
   }
 );
 
-function asPositiveOrUndefined(value?: number) {
+function asPositiveOrNull(value: number | null | undefined) {
   return (!value || isNaN(value) || value <= 0)
-    ? undefined
+    ? null
     : value;
 }
 
@@ -421,8 +421,8 @@ export const tournamentSlice = createSlice({
 
       // Convert string to numbers
       const notPlayed = payload.notPlayed.map(val => +val);
-      payload.withdrawn = asPositiveOrUndefined(payload.withdrawn);
-      payload.late = asPositiveOrUndefined(payload.late);
+      payload.withdrawn = asPositiveOrNull(payload.withdrawn);
+      payload.late = asPositiveOrNull(payload.late);
 
       const player = players.index[payload.id];
 

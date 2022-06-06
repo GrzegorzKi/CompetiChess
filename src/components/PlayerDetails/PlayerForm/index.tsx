@@ -43,6 +43,14 @@ function range(to: number) {
   return values;
 }
 
+const asPositiveNumber = (v: string, defaultVal?: number | undefined) => {
+  const num = parseInt(v, 10);
+  if (isNaN(num) || num <= 0) {
+    return defaultVal;
+  }
+  return num;
+};
+
 interface IProps {
   defaultValues: PlayerData;
   values?: PlayerData;
@@ -90,7 +98,7 @@ const PlayerForm: FunctionalComponent<IProps> = ({ defaultValues, values, inputR
         </div>
         <div class="field field-body is-horizontal">
           <Field label={t('Rating')}
-                 {...register('rating', { valueAsNumber: true })} />
+                 {...register('rating', { setValueAs: v => asPositiveNumber(v, 0) })} />
           <Field label={t('FIDE Number')}
                  {...register('fideNumber')} />
         </div>

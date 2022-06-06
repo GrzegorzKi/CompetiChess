@@ -181,8 +181,8 @@ export interface Player {
 
   accelerations: number[],
 
-  withdrawn?: number,
-  late?: number,
+  withdrawn: number | null,
+  late: number | null,
   notPlayed: number[],
 }
 

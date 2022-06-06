@@ -39,6 +39,8 @@ export function createDefaultTrfPlayer(id?: number): Player {
 
     accelerations: [],
 
+    withdrawn: null,
+    late: null,
     notPlayed: [],
   };
 }
@@ -107,6 +109,8 @@ export default function parseTrfPlayer(value: string): ParseResult<Player> {
     games: parsedTrfGames,
     accelerations: [],
     scores: [],
+    withdrawn: null,
+    late: null,
     notPlayed: [],
   };
 }

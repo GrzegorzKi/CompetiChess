@@ -176,14 +176,14 @@ export function invertColor(color: Color): Color {
 
 export function isWithdrawnOrLate({ withdrawn, late }: Player,
   roundOneIndexed: number): boolean {
-  return (withdrawn !== undefined && roundOneIndexed >= withdrawn)
-    || (late !== undefined && roundOneIndexed < late);
+  return (withdrawn !== null && roundOneIndexed >= withdrawn)
+    || (late !== null && roundOneIndexed < late);
 }
 
 export function isAbsentFromRound({ withdrawn, late, notPlayed }: Player,
   roundOneIndexed: number): boolean {
-  return (withdrawn !== undefined && roundOneIndexed >= withdrawn)
-    || (late !== undefined && roundOneIndexed < late)
+  return (withdrawn !== null && roundOneIndexed >= withdrawn)
+    || (late !== null && roundOneIndexed < late)
     || (notPlayed.includes(roundOneIndexed));
 }
 
