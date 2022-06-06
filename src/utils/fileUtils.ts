@@ -28,7 +28,7 @@ export function loadFile(file: File, callback?: (data: string) => void): void | 
         callback(target.result);
       }
     });
-    fr.readAsBinaryString(file);
+    fr.readAsText(file, 'UTF-8');
   } else {
     return new Promise((resolve, reject) => {
       const fr = new FileReader();
@@ -39,7 +39,7 @@ export function loadFile(file: File, callback?: (data: string) => void): void | 
         }
       });
       fr.addEventListener('error', reject);
-      fr.readAsBinaryString(file);
+      fr.readAsText(file, 'UTF-8');
     });
   }
 }
