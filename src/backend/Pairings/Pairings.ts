@@ -240,7 +240,7 @@ export function readPairs(params: ReadPairsParams) {
           }
         } else {
           const type = isAbsentFromRound(player, round)
-            ? getTypeOfBye(player)
+            ? getTypeOfBye(player, round)
             : GameResult.UNASSIGNED;
           unpaired.set(player.id, type);
         }

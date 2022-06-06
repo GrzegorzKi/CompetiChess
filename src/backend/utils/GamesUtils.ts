@@ -187,12 +187,12 @@ export function isAbsentFromRound({ withdrawn, late, notPlayed }: Player,
     || (notPlayed.includes(roundOneIndexed));
 }
 
-export function getTypeOfBye(player: Player)
+export function getTypeOfBye(player: Player, roundOneIndexed: number)
     : GameResult.HALF_POINT_BYE | GameResult.ZERO_POINT_BYE {
   const found = player.games.findIndex((value) => value.result === GameResult.HALF_POINT_BYE
     || value.result === GameResult.FULL_POINT_BYE);
 
-  if (found < 0) {
+  if (found < 0 && !isWithdrawnOrLate(player, roundOneIndexed)) {
     return GameResult.HALF_POINT_BYE;
   }
   return GameResult.ZERO_POINT_BYE;
@@ -202,6 +202,6 @@ export function createByeRound(player: Player, atRound: number): Game {
   return {
     round: atRound,
     color: Color.NONE,
-    result: getTypeOfBye(player)
+    result: getTypeOfBye(player, atRound)
   };
 }
