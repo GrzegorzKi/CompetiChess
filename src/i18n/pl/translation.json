@@ -76,6 +76,7 @@
   "Error on line": "Błąd w linii {{ num }} - {{ details }}",
   "Processing stopped error": "Zatrzymano przetwarzanie z powodu wielu błędów",
   "Cannot delete player": "Nie można usunąć zawodnika <1>{{ playerName }}</1>. Usuń gracza z istniejących kojarzeń przed jego usunięciem.",
+  "Application installed": "Aplikacja została zainstalowana i jest gotowa do użytku offline!",
   "Update is ready": "<0>Aktualizacja aplikacji jest gotowa!</0><1 />Gotowy na restart aplikacji?",
 
   "Tournament settings": "Ustawienia turnieju",
