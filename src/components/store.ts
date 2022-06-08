@@ -64,7 +64,7 @@ const initStore = () => {
       rehydrationComplete();
     });
     return { store, persistor };
-  } catch {
+  } catch (e) {
     rehydrationFailed();
     return { store, undefined };
   }

@@ -30,7 +30,7 @@ export const tournamentsIndexKey = 'competichess:tournaments';
 export function parseJSON<T>(value: string | null): T | undefined {
   try {
     return (value === null || value === 'undefined') ? undefined : JSON.parse(value);
-  } catch {
+  } catch (e) {
     return undefined;
   }
 }

@@ -70,6 +70,7 @@
   "BbpPairings export error": "Unable to generate input file for BbpPairings engine.",
   "No valid pairings error": "No valid pairing exists: The players could not be simultaneously matched while satisfying all absolute criteria.",
   "Initialization error": "Application has encountered an error while initializing BbpPairings engine. If the problem persists, please clear cache and restart the app.",
+  "WebAssembly is not enabled": "BbpPairings engine requires WebAssembly enabled in the browser. To enable it (for Firefox), navigate to site 'about:config', find the option 'javascript.options.wasm' and set it to 'true' via doubleclick.",
   "Unknown error": "An unknown error has occurred",
   "No tournament active error": "There is no tournament active. Cannot start new round.",
   "Error on line": "Error on line {{ num }} - {{ details }}",

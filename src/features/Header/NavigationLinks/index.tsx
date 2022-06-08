@@ -38,9 +38,10 @@ const NavigationLinks: FunctionalComponent = () => {
       const listener = (ev: MediaQueryListEvent) => setVisible(ev.matches);
       const mediaQuery = window.matchMedia('(display-mode: standalone)');
 
-      mediaQuery.addEventListener('change', listener);
-
-      return () => mediaQuery.removeEventListener('change', listener);
+      if (mediaQuery.addEventListener !== undefined) {
+        mediaQuery.addEventListener('change', listener);
+        return () => mediaQuery.removeEventListener('change', listener);
+      }
     }
   }, []);
 

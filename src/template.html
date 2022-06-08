@@ -26,6 +26,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="description" content="CompetiChess - simple chess tournament manager, written with Preact, TypeScript and a bit of C++.">
+    <script>
+        // Prevents errors on FontAwesome hooks loading in Firefox below 58
+        Object.prototype.watch && delete Object.prototype.watch;
+    </script>
     <% preact.headEnd %>
 </head>
 <body>

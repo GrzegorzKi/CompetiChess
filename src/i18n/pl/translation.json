@@ -70,6 +70,7 @@
   "BbpPairings export error": "Nie udało się wygenerować pliku wejściowego dla BbpPairings.",
   "No valid pairings error": "Nie istnieje poprawne kojarzenie: Nie można sparować wszystkich graczy jednocześnie, spełniając wszystkie bezwzględne kryteria.",
   "Initialization error": "Aplikacja napotkała na błąd podczas inicjowania silnika BbpPairings. Jeśli problem się powtarza, wyczyść pamięć podręczną i zrestartuj aplikację.",
+  "WebAssembly is not enabled": "Silnik bbpPairings wymaga włączonej obsługi WebAssembly w przeglądarce. Aby ją włączyć (dla Firefox), należy przejść na stronę 'about:config', odnaleźć opcję 'javascript.options.wasm' i zmienić jej wartość na 'true' poprzez dwuklik.",
   "Unknown error": "Wystąpił nieznany błąd",
   "No tournament active error": "Nie jest aktywny żaden turniej. Nie można rozpocząć nowej rundy.",
   "Error on line": "Błąd w linii {{ num }} - {{ details }}",

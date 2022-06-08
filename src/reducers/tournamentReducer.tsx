@@ -165,7 +165,10 @@ const createNextRound = createAsyncThunk<CreateNextRoundReturned, void, AsyncThu
         data: bbpOutput.data,
         toastId
       };
-    } catch {
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('WebAssembly is not defined')) {
+        return thunkAPI.rejectWithValue({ reason: 'WebAssembly is not enabled', toastId });
+      }
       return thunkAPI.rejectWithValue({ reason: 'Initialization error', toastId });
     }
   }

@@ -23,7 +23,7 @@ export async function blockIfModified(isModified: boolean, onModified: () => Pro
   if (isModified) {
     try {
       return await onModified();
-    } catch {
+    } catch (e) {
       return false;
     }
   }
