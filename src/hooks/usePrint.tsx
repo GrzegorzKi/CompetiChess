@@ -44,11 +44,13 @@ const usePrint = ({ componentRef, documentTitle, removeAfterPrint }: UsePrintPro
         toastId = toast.info(<TransText i18nKey='Printing in progress' />, { isLoading: true, closeButton: false });
       }
 
-      // Prevent focus on the element caused by tabbing
       const printWindow = document.querySelector('#printWindow');
       if (printWindow !== null) {
+        // Prevent focus on the element caused by tabbing
         printWindow.setAttribute('tabindex', '-1');
         printWindow.setAttribute('aria-hidden', 'true');
+        // Enable ServiceWorker for fetching styles when printing offline
+        printWindow.setAttribute('sandbox','allow-same-origin allow-scripts allow-modals');
       }
     },
     onPrintError: () => toastId && toast.update(toastId, { render: <TransText i18nKey='Printing error' />, isLoading: false, closeButton: true }),
